@@ -1,7 +1,7 @@
-
 package org.jpab;
 
 import java.nio.ByteBuffer;
+
 /**
  * The Device class represents an audio device usable by the system for playback
  * or recording.
@@ -14,27 +14,19 @@ import java.nio.ByteBuffer;
  * @author Ryan Holdren
  */
 public class Device implements PortAudio.Component {
-  private final double defaultHighInputLatency;
 
-  private final double defaultHighOutputLatency;
-
-  private final double defaultLowInputLatency;
-
-  private final double defaultLowOutputLatency;
-
-  private final double defaultSampleRate;
-
-  private final int hostAPI;
-
-  private final int id;
-
-  private final int maxInputChannels;
-
-  private final int maxOutputChannels;
-
-  private final String name;
-
-  protected Device(ByteBuffer data) {
+	private final double defaultHighInputLatency;
+	private final double defaultHighOutputLatency;
+	private final double defaultLowInputLatency;
+	private final double defaultLowOutputLatency;
+	private final double defaultSampleRate;
+	private final int hostAPI;
+	private final int id;
+	private final int maxInputChannels;
+	private final int maxOutputChannels;
+	private final String name;
+	
+	protected Device(ByteBuffer data) {
 		this.defaultHighInputLatency = data.getDouble();
 		this.defaultHighOutputLatency = data.getDouble();
 		this.defaultLowInputLatency = data.getDouble();
@@ -47,45 +39,45 @@ public class Device implements PortAudio.Component {
 		final byte[] bytes = new byte[data.get()];
 		data.get(bytes);
 		this.name = new String(bytes);
-  }
-
-  public double getDefaultHighInputLatency() {
+	}
+	
+	public double getDefaultHighInputLatency() {
 		return defaultHighInputLatency;
-  }
+	}
 
-  public double getDefaultHighOutputLatency() {
+	public double getDefaultHighOutputLatency() {
 		return defaultHighOutputLatency;
-  }
+	}
 
-  public double getDefaultLowInputLatency() {
+	public double getDefaultLowInputLatency() {
 		return defaultLowInputLatency;
-  }
+	}
 
-  public double getDefaultLowOutputLatency() {
+	public double getDefaultLowOutputLatency() {
 		return defaultLowOutputLatency;
-  }
+	}
 
-  public double getDefaultSampleRate() {
+	public double getDefaultSampleRate() {
 		return defaultSampleRate;
-  }
+	}
 
-  public HostAPI getHostAPI() throws PortAudioException {
+	public HostAPI getHostAPI() throws PortAudioException {
 		return PortAudio.getHostAPI(hostAPI);
-  }
+	}
 
-  public int getMaxInputChannels() {
+	public int getMaxInputChannels() {
 		return maxInputChannels;
-  }
+	}
 
-  public int getMaxOutputChannels() {
+	public int getMaxOutputChannels() {
 		return maxOutputChannels;
-  }
+	}
 
-  public String getName() {
+	public String getName() {
 		return name;
-  }
-
-  public String toString() {
+	}
+	
+	public String toString() {
 		return "Port Audio Device {\n\tDefault High Input Latency: " + defaultHighInputLatency + 
 		"\n\tDefault High Output Latency: " + defaultHighOutputLatency + 
 		"\n\tDefault Low Input Latency: " + defaultLowInputLatency + 
@@ -96,10 +88,10 @@ public class Device implements PortAudio.Component {
 		"\n\tMax Input Channels: " + maxInputChannels +
 		"\n\tMax Output Channels: " + maxOutputChannels +
 		"\n\tName: " + name + "\n}\n";
-  }
+	}
 
-  protected int getID() {
+	protected int getID() {
 		return id;
-  }
+	}
 
 }

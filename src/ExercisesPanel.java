@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.Sequencer;
@@ -44,75 +45,50 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
-public class ExercisesPanel extends JPanel {
-  private static final long serialVersionUID =  -1142716145008143198L;
 
-  Font appFont;
+public class ExercisesPanel extends JPanel implements TreeSelectionListener, ActionListener, PropertyChangeListener
+{
+	private static final long serialVersionUID = -1142716145008143198L;
+	Font appFont;
+	Preferences appPrefs;
+	private ResourceBundle appBundle;
+	private MidiController appMidi;
+	
+	private JPanel leftPanel;
+	public RoundPanel topBar;
+	public RoundedButton homeBtn;
+	public RoundedButton newExerciseBtn;
+	public RoundedButton editExerciseBtn;
+	public RoundedButton listenBtn;
+	private JScrollPane treeScrollPanel = null;
+	private JTree exercisesList;
+	
+	private JLabel exerciseTitle;
+	
+	private JScrollPane exerciseScrollPanel;
+	private JLayeredPane layers;
+	private Staff scoreStaff;
+	private NotesPanel notesLayer;
+	
+	public RoundedButton exLineBtn, exRhythmBtn, exScoreBtn;
+	
+	private Exercise newExercise;
+	private Exercise selectedExercise;
+	private ExerciseWizard exerciseTypeDialog;
+	private ExerciseScoreWizard exerciseScoreSetupDialog;
+	private ExerciseScoreEditor exerciseScoreEditorDialog;
+	
+	File exercisesDir; // the ScoreDate directory path
+	
+	int playbackSpeed = 80;
+	int timeNumerator = 4;
+    int timeDenominator = 4;
 
-  Preferences appPrefs;
-
-  private ResourceBundle appBundle;
-
-  private MidiController appMidi;
-
-  private JPanel leftPanel;
-
-  public RoundPanel topBar;
-
-  public RoundedButton homeBtn;
-
-  public RoundedButton newExerciseBtn;
-
-  public RoundedButton editExerciseBtn;
-
-  public RoundedButton listenBtn;
-
-  private JScrollPane treeScrollPanel =  null;
-
-  private JTree exercisesList;
-
-  private JLabel exerciseTitle;
-
-  private JScrollPane exerciseScrollPanel;
-
-  private JLayeredPane layers;
-
-  private Staff scoreStaff;
-
-  private NotesPanel notesLayer;
-
-  public RoundedButton exLineBtn;
-
-  public RoundedButton exRhythmBtn;
-
-  public RoundedButton exScoreBtn;
-
-  private Exercise newExercise;
-
-  private Exercise selectedExercise;
-
-  private ExerciseWizard exerciseTypeDialog;
-
-  private ExerciseScoreWizard exerciseScoreSetupDialog;
-
-  private ExerciseScoreEditor exerciseScoreEditorDialog;
-
-  /**
-   *  the ScoreDate directory path
-   */
-  File exercisesDir;
-
-  int playbackSpeed =  80;
-
-  int timeNumerator =  4;
-
-  int timeDenominator =  4;
-
-  private boolean isPlaying =  false;
-
-  private Sequencer playback;
-
-  public ExercisesPanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d) {
+	private boolean isPlaying = false;
+	private Sequencer playback;
+	
+	public ExercisesPanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d)
+	{
 		appFont = f;
 		appBundle = b;
 		appPrefs = p;
@@ -227,30 +203,32 @@ public class ExercisesPanel extends JPanel {
 		add(exScoreBtn);
 
 		updateTreeList();
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		System.out.println("EXERCISE - update language");
 		appBundle = bundle;
-  }
+	}
+	
+    private class ExNodeInfo 
+    {
+        public String exLabel;
+        public String filePath;
 
-  private class ExNodeInfo {
-    public String exLabel;
-
-    public String filePath;
-
-    public ExNodeInfo(String lbl, String path) {
+        public ExNodeInfo(String lbl, String path) 
+        {
         	exLabel = lbl;
         	filePath = path;
-    }
+        }
 
-    public String toString() {
+        public String toString() {
             return exLabel;
+        }
     }
-
-  }
-
-  public void walk(String path, DefaultMutableTreeNode parentNode) {
+	
+	public void walk( String path, DefaultMutableTreeNode parentNode ) 
+	{
         File root = new File( path );
         File[] list = root.listFiles();
 
@@ -275,9 +253,10 @@ public class ExercisesPanel extends JPanel {
             	}
             }
         }
-  }
+    }
 
-  private void updateTreeList() {
+	private void updateTreeList()
+	{
 		exercisesDir = new File("Exercises");
 		File EXdir = new File(exercisesDir.getAbsolutePath());
 		File[] list = EXdir.listFiles();
@@ -309,34 +288,36 @@ public class ExercisesPanel extends JPanel {
 		//treeScrollPanel.setBorder(border);
 		treeScrollPanel.setBounds(10, 80, 300, getHeight() - 170);
 		leftPanel.add(treeScrollPanel);
-  }
-
-  private void showExerciseSetup(int type) {
+	}
+	
+	private void showExerciseSetup(int type)
+	{
 		exerciseTypeDialog.dispose();
 		newExercise.setType(type);
 		exerciseScoreSetupDialog = new ExerciseScoreWizard(appBundle, appPrefs, appFont, newExercise);
 		exerciseScoreSetupDialog.setVisible(true);
 		exerciseScoreSetupDialog.addPropertyChangeListener(this);
-  }
-
-  public Exercise getSelectedExercise() {
+	}
+	
+	public Exercise getSelectedExercise()
+	{
 		return selectedExercise;
-  }
-
-  public void stopPlayback() {
+	}
+	
+	public void stopPlayback()
+	{
 		if (isPlaying == false)
 			return;
 		
 		appMidi.stopPlayback();
 		isPlaying = false;
-  }
+	}
 
-  /**
-   *  **************************************************************************************************
-   *  *                                             EVENTS                                             *
-   *  **************************************************************************************************
-   */
-  public void actionPerformed(ActionEvent ae) {
+// **************************************************************************************************
+// *                                             EVENTS                                             *
+// **************************************************************************************************
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == newExerciseBtn)
 		{
 			newExercise = new Exercise(appPrefs);
@@ -401,9 +382,10 @@ public class ExercisesPanel extends JPanel {
 				isPlaying = false;
 			}
 		}
-  }
-
-  public void propertyChange(PropertyChangeEvent evt) {
+	}
+	
+	public void propertyChange(PropertyChangeEvent evt)
+	{
 		if (evt.getPropertyName() == "gotoScoreEditor")
 		{
 			exerciseScoreEditorDialog = new ExerciseScoreEditor(appBundle, appPrefs, appFont, appMidi, newExercise);
@@ -414,9 +396,10 @@ public class ExercisesPanel extends JPanel {
 		{
 			updateTreeList();
 		}
-  }
-
-  public void valueChanged(TreeSelectionEvent e) {
+	}
+	
+	public void valueChanged(TreeSelectionEvent e) 
+	{
 		System.out.println("valueChanged---");
 		//Returns the last path element of the selection.
 	    DefaultMutableTreeNode selNode = (DefaultMutableTreeNode)exercisesList.getLastSelectedPathComponent();
@@ -483,9 +466,10 @@ public class ExercisesPanel extends JPanel {
         }
         editExerciseBtn.setEnabled(true);
         exerciseScrollPanel.getVerticalScrollBar().setValue(0);
-  }
-
-  protected void paintComponent(Graphics g) {
+	}
+	
+	protected void paintComponent(Graphics g) 
+	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -518,6 +502,5 @@ public class ExercisesPanel extends JPanel {
 			exLineBtn.setBounds(130 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
 		exRhythmBtn.setBounds(230 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
 		exScoreBtn.setBounds(350 + ((getWidth() - 330) / 2), getHeight() - 50, 200, 40);
-  }
-
+	}
 }

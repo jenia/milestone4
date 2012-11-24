@@ -1,22 +1,23 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.util.Vector;
+
 import javax.sound.midi.Instrument;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
@@ -34,55 +35,40 @@ import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
 import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
-public class MidiController {
-  Preferences appPrefs;
 
-  private MidiDevice inputDevice =  null;
+public class MidiController 
+{
 
-  private Fluidsynth fluidSynth =  null;
+	Preferences appPrefs; 
+	
+	private MidiDevice inputDevice = null;
+	private Fluidsynth fluidSynth = null;
+	private Synthesizer midiSynth;
+	private Instrument[] jInstruments; // this is used only by the Java MIDI system
+	private List<String> instrumentsList;
+	private List<String> fluidDevicesList;
+    private boolean midierror = false;
+    private MidiChannel[] allMC; // fixed channels are: 0 = user, 1 = playback, 2 = metronome
+    public MidiChannel midiOutChannel = null;
+    
+    private static final int ppq=1000;
 
-  private Synthesizer midiSynth;
-
-  /**
-   *  this is used only by the Java MIDI system
-   */
-  private Instrument[] jInstruments;
-
-  private List<String> instrumentsList;
-
-  private List<String> fluidDevicesList;
-
-  private boolean midierror =  false;
-
-  /**
-   *  fixed channels are: 0 = user, 1 = playback, 2 = metronome
-   */
-  private MidiChannel[] allMC;
-
-  public MidiChannel midiOutChannel =  null;
-
-  private static final int ppq = 1000;
-
-  /**
-   *  variables to play metronome and an exercise. Fixed index are: 0 = playback, 1 = metronome
-   */
-  private Track[] tracks =  { null, null };
-
-  private Sequence[] sequences =  { null, null };
-
-  private Sequencer[] sequencers =  { null, null };
-
-  int errorCode =  0;
-
-  private boolean useFluidsynth =  false;
-
-  int lastNote =  -1;
-
-  public MidiController(Preferences p) {
+    // variables to play metronome and an exercise. Fixed index are: 0 = playback, 1 = metronome
+    private Track[] tracks = { null, null };
+    private Sequence[] sequences = { null, null };
+    private Sequencer[] sequencers = { null, null };
+    
+    int errorCode = 0;
+    private boolean useFluidsynth = false;
+    int lastNote = -1;
+	
+	public MidiController(Preferences p)
+	{
 		errorCode = 0;
 		appPrefs = p;
 		instrumentsList = new ArrayList<String>();
@@ -92,9 +78,10 @@ public class MidiController {
 			initJavaSynth();
 		else if (outDevice.split(",")[0].equals("Fluidsynth"))
 			initFluidsynth(Integer.parseInt(outDevice.split(",")[1]));
-  }
-
-  public void close() {
+	}
+	
+	public void close()
+	{
 		if (useFluidsynth == false)
 		{
 			if (inputDevice != null && inputDevice.isOpen())
@@ -112,13 +99,15 @@ public class MidiController {
 			catch(InterruptedException ie){	}
 */
 		}
-  }
-
-  public int checkError() {
+	}
+	
+	public int checkError()
+	{
 		return errorCode;
-  }
-
-  public boolean initJavaSynth() {
+	}
+	
+	public boolean initJavaSynth() 
+	{
 	   midierror = false;
 
 	   if (inputDevice != null && inputDevice.isOpen())
@@ -172,9 +161,10 @@ public class MidiController {
            useFluidsynth = false;
        }
        return true;
-  }
-
-  public List<String> getInstruments() {
+	}
+	 
+	public List<String> getInstruments()
+	{
 		System.out.println("Number of instruments: " +  instrumentsList.size());
 		if (useFluidsynth == false)
 		{
@@ -184,9 +174,10 @@ public class MidiController {
 					instrumentsList.add(jInstruments[i].getName());
 		}
 		return instrumentsList;
-  }
-
-  public MidiDevice openInputDevice() {
+	}
+	 
+	public MidiDevice openInputDevice()
+	{
 		String inDev = appPrefs.getProperty("inputDevice");
 		if(inDev.split(",")[0].equals("MIDI") == false)
 			return null;
@@ -240,24 +231,27 @@ public class MidiController {
 	         }
 	     }
 		 return null;
-  }
-
-  public void setNewInstrument() {
+	 }
+	
+	 public void setNewInstrument()
+	 {
 		 if (useFluidsynth == false)
         	 setJavaInstrument();
          else
         	 setFluidsynthInstrument();
-  }
-
-  public void setJavaInstrument() {
+	 }
+	 
+	 public void setJavaInstrument()
+	 {
          int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
  		 if (midiSound == -1) midiSound = 0;
 
  		 if (midiOutChannel != null)
  			 midiOutChannel.programChange(midiSound);
-  }
-
-  public boolean initFluidsynth(int devIndex) {
+	 }
+	 
+	 public boolean initFluidsynth(int devIndex)
+	 {
 		 midierror = false;
 		 fluidDevicesList = new ArrayList<String>();
 		 int matchIdx = 0;
@@ -330,20 +324,23 @@ public class MidiController {
 			setNewInstrument();
 		}
 		 return true;
-  }
-
-  public void setFluidsynthInstrument() {
+	 }
+	 
+	 public void setFluidsynthInstrument()
+	 {
 		 int midiSound = Integer.parseInt(appPrefs.getProperty("instrument"));
  		 if (midiSound == -1) midiSound = 0;
 
 		 fluidSynth.send(0, ShortMessage.PROGRAM_CHANGE, midiSound, 0);
-  }
-
-  public List<String> getFluidDevices() {
+	 }
+	 
+	 public List<String> getFluidDevices()
+	 {
 		 return fluidDevicesList;
-  }
+	 }
 
-  public void playNote(int pitch, int volume) {
+	 public void playNote(int pitch, int volume)
+	 {
 		 if (useFluidsynth == false)
 			 midiOutChannel.noteOn(pitch, volume);
 		 else
@@ -351,16 +348,18 @@ public class MidiController {
 			 //fluidSynth.send(0, ShortMessage.CONTROL_CHANGE , 0, 0);
 			 fluidSynth.send(0, ShortMessage.NOTE_ON, pitch, volume);
 		 }
-  }
-
-  public void stopNote(int pitch, int volume) {
+	 }
+	 
+	 public void stopNote(int pitch, int volume)
+	 {
 		 if (useFluidsynth == false)
 			 midiOutChannel.noteOff(pitch, volume);
 		 else
 			 fluidSynth.send(0, ShortMessage.NOTE_OFF, pitch, volume);
-  }
-
-  private void fluidsynthAsyncMIDIevent(MetaMessage msg) {
+	 }
+	 
+	 private void fluidsynthAsyncMIDIevent(MetaMessage msg)
+	 {
 		byte[] metaData = msg.getData();
         String strData = new String(metaData);
        
@@ -382,9 +381,10 @@ public class MidiController {
         	fluidSynth.send(0, ShortMessage.NOTE_OFF, Integer.parseInt(strData.substring(6)), 0);
         	lastNote = -1;
         }
-  }
-
-  private void addMidiEvent(Track track, int type, byte[] data, long tick) {
+	 }
+	 
+	 private void addMidiEvent(Track track, int type, byte[] data, long tick) 
+	 {
         MetaMessage message=new MetaMessage();
         try {
             message.setMessage(type, data, data.length);
@@ -394,20 +394,20 @@ public class MidiController {
         catch (InvalidMidiDataException e) {
             e.printStackTrace();
         }
-  }
+	 }
 
-  private static MidiEvent createNoteOnEvent(int nKey, int velocity, long lTick)
-  {
+     private static MidiEvent createNoteOnEvent(int nKey, int velocity, long lTick) 
+     {
     	 return createNoteEvent(ShortMessage.NOTE_ON, nKey, velocity, lTick);
-  }
+	 }
 
-  private static MidiEvent createNoteOffEvent(int nKey, long lTick)
-  {
+	 private static MidiEvent createNoteOffEvent(int nKey, long lTick) 
+	 {
 		 return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick);
-  }
+	 }
 
-  private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick)
-  {
+	 private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick) 
+	 {
 		 ShortMessage message=new ShortMessage();
 	     try {
 	            message.setMessage(nCommand,
@@ -421,9 +421,10 @@ public class MidiController {
 	            System.exit(1);
 	     }
 	     return new MidiEvent(message, lTick);
-  }
-
-  private void createSequencer(int index) {
+	 }
+	 
+	 private void createSequencer(int index)
+	 {
 		 if (sequencers[index] != null)
 			 sequencers[index].close();
 
@@ -479,9 +480,10 @@ public class MidiController {
                  e.printStackTrace();
              }
          }
-  }
+	 }
 
-  public Sequencer createMetronome(Preferences p, int BPM, int measures, int timeSignNumerator, int timeDivision) {
+	 public Sequencer createMetronome(Preferences p, int BPM, int measures, int timeSignNumerator, int timeDivision)
+	 {
 		 // create metronome sequence, sequencer and track
          createSequencer(1);
          
@@ -561,14 +563,16 @@ public class MidiController {
          }
          
          return sequencers[1];
-  }
-
-  public void stopMetronome() {
+	 }
+	 
+	 public void stopMetronome()
+	 {
 		 sequencers[1].stop();
 		 sequencers[1].close();
-  }
-
-  public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly, int timeOffset) {
+	 }
+	 
+	 public Sequencer createPlayback(Preferences p, int BPM, Vector<Note> notes, int timeDivision, boolean playOnly, int timeOffset)
+	 {
 		 final int metaType = 0x01;
 		 int tick = 0;
 		 int endtick = 0;
@@ -648,14 +652,14 @@ public class MidiController {
          }
 
 		 return sequencers[0];
-  }
+	 }
 
-  public void stopPlayback() {
+	 public void stopPlayback()
+	 {
 		 sequencers[0].stop();
 		 sequencers[0].close();
 		 // stop last note in case there's one suspended...
 		 if (lastNote != -1 && useFluidsynth == true)
 			 fluidSynth.send(0, ShortMessage.NOTE_OFF, lastNote, 0);
-  }
-
+	 }
 }

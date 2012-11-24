@@ -1,54 +1,56 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.util.ResourceBundle;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+
 import javax.swing.JPanel;
-public class AudioMonitor extends JPanel {
-  ResourceBundle appBundle;
 
-  double[] inputFFT;
+public class AudioMonitor extends JPanel
+{
+	ResourceBundle appBundle;
 
-  int volume =  0;
+	double[] inputFFT;
+	int volume = 0;
+	int[] spectrumBars = null;
+	String currentNote = "";
+	Piano piano;
+	
+	private static final long serialVersionUID = -3780914781525599762L;
 
-  int[] spectrumBars =  null;
-
-  String currentNote =  "";
-
-  Piano piano;
-
-  private static final long serialVersionUID =  -3780914781525599762L;
-
-  public AudioMonitor(ResourceBundle b) {
+	public AudioMonitor(ResourceBundle b)
+	{
 		appBundle = b;
 
 		spectrumBars = new int[16];	
 		piano = new Piano(73);
 		this.setFont(new Font("Arial", Font.BOLD, 40));
-  }
+	}
 
-  public void showVolume(int vol) {
+	public void showVolume(int vol)
+	{
 		volume = vol;
-  }
+	}
 
-  public void showSpectrum(double[] spec) {
+	public void showSpectrum(double[] spec)
+	{
 		long[][] spectrumSums = new long[2][16];
 		inputFFT = spec;
 		for (int i = 0; i < 16; i++)
@@ -68,9 +70,10 @@ public class AudioMonitor extends JPanel {
 	    	spectrumBars[specIdx] = (int)(spectrumSums[0][specIdx] / spectrumSums[1][specIdx]);
 		}
 		repaint();
-  }
+	}
 
-  private String getLabelFromIndex(int idx) {
+	private String getLabelFromIndex(int idx)
+	{
 		String noteInfo = "";
 		switch (idx)
 		{
@@ -84,9 +87,10 @@ public class AudioMonitor extends JPanel {
 		}
 
 		return noteInfo;
-  }
+	}
 
-  public void showPitch(int p) {
+	public void showPitch(int p)
+	{
 		//System.out.println("[audioMon] got pitch " + p);
 		if (p == 23)
 		{
@@ -106,9 +110,10 @@ public class AudioMonitor extends JPanel {
 		currentNote += Integer.toString(octave);
 		if (alt == 1)
 			currentNote += "#";
-  }
+	}
 
-  protected void paintComponent(Graphics g) {
+	protected void paintComponent(Graphics g) 
+	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
@@ -128,6 +133,6 @@ public class AudioMonitor extends JPanel {
 		}
 		g.setColor(Color.black);
 		g.drawString(currentNote, 280, 90);
-  }
-
+	}
 }
+

@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,225 +28,81 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.Sequencer;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-public class ScorePanel extends JPanel {
-  private static final long serialVersionUID =  1L;
 
-  Font appFont;
 
-  Preferences appPrefs;
+public class ScorePanel extends JPanel implements ActionListener, KeyListener
+{
+	private static final long serialVersionUID = 1L;
+	Font appFont;
+	Preferences appPrefs;
+	private ResourceBundle appBundle;
+	private MidiController appMidi;
+	private boolean isRhythm;
 
-  private ResourceBundle appBundle;
+	public SmartBar sBar;
+	private int sBarHeight = 125;
+	private JScrollPane scoreScrollPanel;
+	private JLayeredPane layers;
+	private Staff staffLayer;
+	private NotesPanel notesLayer;
+	private AnswersPanel answersLayer;
+	private GameBar gameBar;
+	private Accidentals scoreAccidentals;
+	private NoteGenerator scoreNG;
+	private Statistics stats;
+	Vector<Note> gameNotes = new Vector<Note>(); // array of random notes (1st clef) composing the game
+	Vector<Note> gameNotes2 = new Vector<Note>(); // array of random notes (2nd clef) composing the game
+	Vector<Integer> userNotes = new Vector<Integer>(); // array of notes hit by the user
 
-  private MidiController appMidi;
+	// Graphics metrics 
+	private int staffHMargin = 50;
+	private int staffVMargin = 120;
+	private int staffHeight = 400;
+	private int gBarHeight = 40;
+	private int rowsDistance = 90; // distance in pixel between staff rows
+		
+	// Time variables
+	private int currentSpeed = 120;
+	private int latency = 0;
+	private int timeNumerator = 4;
+	private int timeDenominator = 4;
+	private int timeDivision = 1;
 
-  private boolean isRhythm;
-
-  public SmartBar sBar;
-
-  private int sBarHeight =  125;
-
-  private JScrollPane scoreScrollPanel;
-
-  private JLayeredPane layers;
-
-  private Staff staffLayer;
-
-  private NotesPanel notesLayer;
-
-  private AnswersPanel answersLayer;
-
-  private GameBar gameBar;
-
-  private Accidentals scoreAccidentals;
-
-  private NoteGenerator scoreNG;
-
-  private Statistics stats;
-
-  /**
-   *  array of random notes (1st clef) composing the game
-   */
-  Vector<Note> gameNotes =  new Vector<Note>();
-
-  /**
-   *  array of random notes (2nd clef) composing the game
-   */
-  Vector<Note> gameNotes2 =  new Vector<Note>();
-
-  /**
-   *  array of notes hit by the user
-   */
-  Vector<Integer> userNotes =  new Vector<Integer>();
-
-  /**
-   *  Graphics metrics 
-   */
-  private int staffHMargin =  50;
-
-  private int staffVMargin =  120;
-
-  private int staffHeight =  400;
-
-  private int gBarHeight =  40;
-
-  /**
-   *  distance in pixel between staff rows
-   */
-  private int rowsDistance =  90;
-
-  /**
-   *  Time variables
-   */
-  private int currentSpeed =  120;
-
-  private int latency =  0;
-
-  private int timeNumerator =  4;
-
-  private int timeDenominator =  4;
-
-  private int timeDivision =  1;
-
-  /**
-   *  MIDI controllers
-   */
-  private Sequencer metronome;
-
-  private Sequencer playback;
-
-  private class ScoreGameThread extends Thread {
-    int noteDistance =  staffLayer.getNotesDistance();
-
-    /**
-     * int beatsPerRow = (staffLayer.getWidth() - staffLayer.getFirstNoteXPosition()) / noteDistance;
-     */
-    int cursorXlimit =  staffLayer.getStaffWidth();
-
-    /**
-     * int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
-     * int totalPixels = (cursorXlimit - cursorStartX) * (staffLayer.getRowsNumber() - 1);
-     * int drawnPixels = 0 - (cursorXlimit - cursorStartX);
-     */
-    int scrollStep =  (scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount()) / (staffLayer.getRowsNumber() - 3);
-
-    private ScoreGameThread() {
-			//System.out.println("beatsPerRow: " + beatsPerRow);
-    }
-
-    public void run() {
-			while (gameStarted) 
-			{
-				try
-				{
-					if (startTime != 0)
-					{
-						cursorX = cursorStartX + ((int)(System.currentTimeMillis() - startTime) * (noteDistance*timeDivision))/(60000 / currentSpeed);
-						answersLayer.drawCursor(cursorX, cursorY, false);
-
-						if (cursorX >= cursorXlimit)
-						{
-							answersLayer.drawCursor(cursorX, cursorY, true);
-							cursorY+=rowsDistance;
-							cursorStartX = staffLayer.getFirstNoteXPosition() - 10;
-							cursorX = cursorStartX;
-							startTime = System.currentTimeMillis();
-							if (cursorY > 10 + rowsDistance)
-							{
-								//System.out.println("Scrollbar min: " + scoreScrollPanel.getVerticalScrollBar().getMinimum() + ", max: "
-								//		+ scoreScrollPanel.getVerticalScrollBar().getMaximum());
-								//System.out.println("Scrollbar value: " + scoreScrollPanel.getVerticalScrollBar().getValue());
-								//System.out.println("Scrollbar amount: " + scoreScrollPanel.getVerticalScrollBar().getVisibleAmount());
-								
-					        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
-					        	{
-					        		//int newPos = (scrollAmount * (drawnPixels + cursorX - cursorStartX)) / totalPixels;
-					        		//System.out.println("Scrollbar amount: " + newPos);
-					        		int newPos = scoreScrollPanel.getVerticalScrollBar().getValue() + scrollStep;
-					        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
-					        	}
-							}
-							//drawnPixels += (cursorXlimit - cursorStartX);
-							continue;
-						}
-					}
-					sleep(10);
-					
-				}
-				catch (Exception e) {  }
-			}
-    }
-
-  }
-
-  /**
-   *  Game variables
-   */
-  private ScorePanel.ScoreGameThread gameThread =  null;
-
-  /**
-   *  variable to control thread job
-   */
-  private boolean gameStarted =  false;
-
-  /**
-   *  type of game. See prefernces for values
-   */
-  private int gameType =  -1;
-
-  /**
-   *  timestamp of cursor at the beginning of a row
-   */
-  private long startTime;
-
-  /**
-   *  index of the currently playing note (first clef)
-   */
-  private int currentNoteIndex =  -1;
-
-  /**
-   *  index of the currently playing note (second clef)
-   */
-  private int currentNote2Index =  -1;
-
-  /**
-   *  X start position of cursor for each row
-   */
-  private int cursorStartX;
-
-  /**
-   *  X position of cursor during game
-   */
-  private int cursorX;
-
-  /**
-   *  Y position of cursor during game
-   */
-  private int cursorY;
-
-  private boolean isKeyPressed =  false;
-
-  /**
-   *  Variables to check notes validity
-   *  a note is valid within 24 pixels around the note X position 
-   */
-  private int accuracy =  24;
-
-  /**
-   * private int releaseXpos; // on key press, save the release X position for key release check
-   */
-  private boolean exerciseMode =  false;
-
-  private Exercise currEx =  null;
-
-  public ScorePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d, boolean rhythm) {
+	// MIDI controllers
+	private Sequencer metronome;
+	private Sequencer playback;
+	
+	// Game variables
+	private ScoreGameThread gameThread = null;
+	private boolean gameStarted = false; // variable to control thread job
+	private int gameType = -1; // type of game. See prefernces for values
+	private long startTime; // timestamp of cursor at the beginning of a row
+	private int currentNoteIndex = -1; // index of the currently playing note (first clef)
+	private int currentNote2Index = -1; // index of the currently playing note (second clef)
+	private int cursorStartX; // X start position of cursor for each row
+	private int cursorX; // X position of cursor during game
+	private int cursorY; // Y position of cursor during game
+	private boolean isKeyPressed = false;
+	
+	// Variables to check notes validity
+	private int accuracy = 24; // a note is valid within 24 pixels around the note X position 
+	//private int releaseXpos; // on key press, save the release X position for key release check
+	
+	private boolean exerciseMode = false;
+	private Exercise currEx = null;
+	
+	public ScorePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d, boolean rhythm)
+	{
 		appFont = f;
 		appBundle = b;
 		appPrefs = p;
@@ -330,9 +186,10 @@ public class ScorePanel extends JPanel {
 		add(scoreScrollPanel);
 		add(gameBar);
 		refreshPanel();
-  }
-
-  public void refreshPanel() {
+	}
+	
+	public void refreshPanel()
+	{
 		int tsIdx = 0;
 		if (exerciseMode == false)
 		{
@@ -393,24 +250,27 @@ public class ScorePanel extends JPanel {
 			notesLayer.setRowsDistance(rowsDistance);
 			notesLayer.setNotesPositions();
 		}
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		appBundle = bundle;
 		sBar.updateLanguage(appBundle);
 		gameBar.updateLanguage(appBundle);
-  }
+	}
 
-  public void createNewSequence() {
+	public void createNewSequence()
+	{
 		gameNotes.clear();
 		gameNotes2.clear();
 		scoreNG.getRandomSequence(gameNotes, staffLayer.getMeasuresNumber(), isRhythm, 1);
 		if (scoreNG.getClefsNumber() == 2)
 			scoreNG.getRandomSequence(gameNotes2, staffLayer.getMeasuresNumber(), isRhythm, 2);
 		notesLayer.setNotesPositions();
-  }
+	}
 
-  private void updateGameStats(int answType) {
+	private void updateGameStats(int answType)
+	{
 		int score = -50;
 		if (answType == 1)
 		{
@@ -421,9 +281,10 @@ public class ScorePanel extends JPanel {
 		stats.notePlayed(answType, score);
 		gameBar.precisionCnt.setText(Integer.toString(stats.getAveragePrecision()) + "%");
 		gameBar.scoreCnt.setText(Integer.toString(stats.getTotalScore()));
-  }
-
-  private void gameFinished() {
+	}
+	
+	private void gameFinished()
+	{
 		String title;
 		int type = 0;
 		int correct = stats.getCorrectNumber();
@@ -459,9 +320,10 @@ public class ScorePanel extends JPanel {
 			else if (gameType == appPrefs.SCORE_GAME_USER)
 				stats.storeData(2);
 		}
-  }
-
-  private void checkNote(int cursorPos, int pitch, boolean press) {
+	}
+	
+	private void checkNote(int cursorPos, int pitch, boolean press)
+	{
 		int delta1 = -1, delta2 = -1;
 		if (currentNoteIndex < 0 || currentNoteIndex >= gameNotes.size())
 			return;
@@ -473,9 +335,10 @@ public class ScorePanel extends JPanel {
 			checkAnswer(cursorPos, currentNoteIndex, gameNotes, pitch, press, false);
 		else
 			checkAnswer(cursorPos, currentNote2Index, gameNotes2, pitch, press, true);
-  }
+	}
 
-  private void checkAnswer(int cursorPos, int noteIdx, Vector<Note> n, int pitch, boolean press, boolean secondClef) {
+	private void checkAnswer(int cursorPos, int noteIdx, Vector<Note> n, int pitch, boolean press, boolean secondClef)
+	{
 		if (noteIdx < 0 || noteIdx >= n.size())
 			return;
 		
@@ -558,9 +421,10 @@ public class ScorePanel extends JPanel {
 				updateGameStats(2);
 			}
 		}
-  }
+	}
 
-  public void noteEvent(int pitch, int velocity) {
+	public void noteEvent(int pitch, int velocity)
+	{
 		if (gameType != appPrefs.SCORE_GAME_LISTEN)
 		{
 			if (velocity != 0)
@@ -574,9 +438,10 @@ public class ScorePanel extends JPanel {
 				checkNote(cursorX, pitch, false);
 			}			
 		}
-  }
+	}
 
-  private void handleAsyncMIDIevent(MetaMessage msg) {
+	private void handleAsyncMIDIevent(MetaMessage msg)
+	{
 		byte[] metaData = msg.getData();
         String strData = new String(metaData);
        
@@ -657,36 +522,32 @@ public class ScorePanel extends JPanel {
 			currentNoteIndex = -1;
 			currentNote2Index = -1;
         }
-  }
-
-  /**
-   *  Handle the key typed event from the text field. 
-   */
-  public void keyTyped(KeyEvent e) {
-  }
-
-  /**
-   *  Handle the key-pressed event from the text field. 
-   */
-  public void keyPressed(KeyEvent e) {
+	}
+	
+	 /** Handle the key typed event from the text field. */
+    public void keyTyped(KeyEvent e) { }
+    
+    /** Handle the key-pressed event from the text field. */
+    public void keyPressed(KeyEvent e) 
+    {
     	//System.out.println("GOT KEYPRESS");
     	if (isKeyPressed == false)
     	{
     		noteEvent(71, 90);
     		isKeyPressed = true;
     	}
-  }
+    }
 
-  /**
-   *  Handle the key-released event from the text field. 
-   */
-  public void keyReleased(KeyEvent e) {
+    /** Handle the key-released event from the text field. */
+    public void keyReleased(KeyEvent e) 
+    {
     	//System.out.println("GOT KEYRELEASE");
     	noteEvent(71, 0);
     	isKeyPressed = false;
-  }
+    }
 
-  private void createPlayback(boolean playOnly) {
+	private void createPlayback(boolean playOnly)
+	{
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
 		sBar.playBtn.repaint();
 		currentSpeed = sBar.tempoSlider.getValue();
@@ -719,9 +580,10 @@ public class ScorePanel extends JPanel {
 		currentNote2Index = 0;
 		metronome.start();
 		playback.start();
-  }
-
-  public void stopGame() {
+	}
+	
+	public void stopGame()
+	{
 		if(gameType == appPrefs.GAME_STOPPED)
 			return;
 		appMidi.stopPlayback();
@@ -739,9 +601,10 @@ public class ScorePanel extends JPanel {
 		sBar.playBtn.repaint();
 		gameStarted = false;
 		gameType = appPrefs.GAME_STOPPED;
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+		
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == sBar.playBtn)
 		{
 			if (gameType == appPrefs.SCORE_GAME_LISTEN)
@@ -791,9 +654,10 @@ public class ScorePanel extends JPanel {
 			gameType = appPrefs.SCORE_GAME_LISTEN;
 			createPlayback(true);
 		}
-  }
-
-  protected void paintComponent(Graphics g) {
+	}
+	
+	protected void paintComponent(Graphics g) 
+	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		sBar.setSize(getWidth(), sBarHeight);
@@ -828,6 +692,66 @@ public class ScorePanel extends JPanel {
 		notesLayer.setStaffWidth(staffLayer.getStaffWidth());
 		createNewSequence();
 		*/
-  }
+	}
+	
+	private class ScoreGameThread extends Thread 
+	{
+		int noteDistance = staffLayer.getNotesDistance();
+		//int beatsPerRow = (staffLayer.getWidth() - staffLayer.getFirstNoteXPosition()) / noteDistance;
+		int cursorXlimit = staffLayer.getStaffWidth();
+		//int scrollAmount = scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount();
+		//int totalPixels = (cursorXlimit - cursorStartX) * (staffLayer.getRowsNumber() - 1);
+		//int drawnPixels = 0 - (cursorXlimit - cursorStartX);
+		int scrollStep = (scoreScrollPanel.getVerticalScrollBar().getMaximum() - scoreScrollPanel.getVerticalScrollBar().getVisibleAmount()) / (staffLayer.getRowsNumber() - 3);
 
+		private ScoreGameThread()
+		{
+			//System.out.println("beatsPerRow: " + beatsPerRow);
+		}
+
+		public void run() 
+		{
+			while (gameStarted) 
+			{
+				try
+				{
+					if (startTime != 0)
+					{
+						cursorX = cursorStartX + ((int)(System.currentTimeMillis() - startTime) * (noteDistance*timeDivision))/(60000 / currentSpeed);
+						answersLayer.drawCursor(cursorX, cursorY, false);
+
+						if (cursorX >= cursorXlimit)
+						{
+							answersLayer.drawCursor(cursorX, cursorY, true);
+							cursorY+=rowsDistance;
+							cursorStartX = staffLayer.getFirstNoteXPosition() - 10;
+							cursorX = cursorStartX;
+							startTime = System.currentTimeMillis();
+							if (cursorY > 10 + rowsDistance)
+							{
+								//System.out.println("Scrollbar min: " + scoreScrollPanel.getVerticalScrollBar().getMinimum() + ", max: "
+								//		+ scoreScrollPanel.getVerticalScrollBar().getMaximum());
+								//System.out.println("Scrollbar value: " + scoreScrollPanel.getVerticalScrollBar().getValue());
+								//System.out.println("Scrollbar amount: " + scoreScrollPanel.getVerticalScrollBar().getVisibleAmount());
+								
+					        	if (scoreScrollPanel.getVerticalScrollBar().isVisible() == true)
+					        	{
+					        		//int newPos = (scrollAmount * (drawnPixels + cursorX - cursorStartX)) / totalPixels;
+					        		//System.out.println("Scrollbar amount: " + newPos);
+					        		int newPos = scoreScrollPanel.getVerticalScrollBar().getValue() + scrollStep;
+					        		scoreScrollPanel.getVerticalScrollBar().setValue(newPos);
+					        	}
+							}
+							//drawnPixels += (cursorXlimit - cursorStartX);
+							continue;
+						}
+					}
+					sleep(10);
+					
+				}
+				catch (Exception e) {  }
+			}
+		}
+	}
+	
 }

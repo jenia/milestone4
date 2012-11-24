@@ -1,22 +1,22 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
-import java.awt.BasicStroke;
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
+import java.awt.BasicStroke; 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -27,76 +27,77 @@ import java.awt.geom.QuadCurve2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
-public class RoundedButton extends JButton {
-  private static final long serialVersionUID =  8458705986423151858L;
 
-  private String bLabel;
-
-  private ResourceBundle appBundle;
-
-  Image img =  null;
-
-  Color endColor =  Color.decode("0x4D5D8F");
-
-  int fontSize =  20;
-
-  int textOffX =  0;
-
-  int textOffY =  0;
-
-  int imgW =  -1;
-
-  int imgH =  -1;
-
-  public RoundedButton(String label, ResourceBundle b) {
+public class RoundedButton extends JButton
+{
+	  private static final long serialVersionUID = 8458705986423151858L;
+	  private String bLabel;
+	  private ResourceBundle appBundle;
+	  
+	  Image img = null;
+      Color endColor = Color.decode("0x4D5D8F");
+	  int fontSize = 20;
+	  int textOffX = 0, textOffY = 0;
+	  int imgW = -1;
+	  int imgH = -1;
+	  
+	  public RoundedButton(String label, ResourceBundle b) 
+	  {
 	    super(label);
 	    bLabel = label;
 	    appBundle = b;
-  }
-
-  public RoundedButton(String label, ResourceBundle b, Color eC) {
+	  }
+	  
+	  public RoundedButton(String label, ResourceBundle b, Color eC) 
+	  {
 	    super(label);
 	    bLabel = label;
 	    appBundle = b;
 	    endColor = eC;
-  }
-
-  public void setLabel(String label) {
+	  }
+	  
+	  public void setLabel(String label)
+	  {
 		  bLabel = label;
 		  repaint();
-  }
-
-  public void setResBundle(ResourceBundle b) {
+	  }
+	  
+	  public void setResBundle(ResourceBundle b)
+	  {
 		  appBundle = b;
 		  repaint();
-  }
-
-  public void setFontSize(int size) {
+	  }
+	  
+	  public void setFontSize(int size)
+	  {
 		  fontSize = size;
-  }
-
-  public void setTextOffsets(int x, int y) {
+	  }
+	  
+	  public void setTextOffsets(int x, int y)
+	  {
 		  textOffX = x;
 		  textOffY = y;
 		  //repaint();
-  }
-
-  public void setButtonImage(Image i) {
+	  }
+	  
+	  public void setButtonImage(Image i)
+	  {
 		  img = i;
-  }
-
-  public void setImagSize(int w, int h) {
+	  }
+	  
+	  public void setImagSize(int w, int h)
+	  {
 		  imgW = w;
 		  imgH = h;
 		  repaint();
-  }
+	  }
 
-  /**
-   *  Draw the button
-   */
-  protected void paintComponent(Graphics g) {
+	  // Draw the button
+	  protected void paintComponent(Graphics g) 
+	  {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		Color bgColor;
 		Color tmpColor = endColor;
@@ -275,34 +276,35 @@ public class RoundedButton extends JButton {
 	    	else
 	    		g.drawImage(img, (getWidth() - img.getWidth(null)) / 2, (getHeight() - img.getHeight(null)) / 2 , null);
 	    }
-  }
-
+	  }
 }
-class RoundPanel extends JPanel {
-  private static final long serialVersionUID =  2133404549466988014L;
 
-  boolean gradientBack =  false;
+class RoundPanel extends JPanel
+{
+	private static final long serialVersionUID = 2133404549466988014L;
+	boolean gradientBack = false;
+	Color startColor;
+	Color endColor;
+	Color borderColor = Color.decode("0x5F8DD3");
 
-  Color startColor;
-
-  Color endColor;
-
-  Color borderColor =  Color.decode("0x5F8DD3");
-
-  public RoundPanel() {
-  }
-
-  public RoundPanel(Color startCol, Color endCol) {
+	public RoundPanel()
+	{
+	}
+	
+	public RoundPanel(Color startCol, Color endCol)
+	{
 		gradientBack = true;
 		startColor = startCol;
 		endColor = endCol;
-  }
-
-  public void setBorderColor(Color bc) {
+	}
+	
+	public void setBorderColor(Color bc)
+	{
 		borderColor = bc;
-  }
-
-  protected void paintComponent(Graphics g) {
+	}
+	
+	protected void paintComponent(Graphics g) 
+	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(borderColor);
 		g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
@@ -316,6 +318,6 @@ class RoundPanel extends JPanel {
 		g.fillRoundRect(3, 3, getWidth()-6, getHeight()-6, 15, 15);
 		
 		
-  }
-
+	}
 }
+

@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -23,110 +23,62 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.swing.JPanel;
+
 /**
  * @author Massimo Callegari
+ *
  */
-public class Staff extends JPanel {
-  private static final long serialVersionUID =  7759085255881441116L;
+public class Staff extends JPanel 
+{
+	private static final long serialVersionUID = 7759085255881441116L;
 
-  Font appFont;
+	Font appFont;
+	private ResourceBundle appBundle; // reference to languages bundle just to display tonality
+	Preferences appPrefs;
 
-  /**
-   *  reference to languages bundle just to display tonality
-   */
-  private ResourceBundle appBundle;
+	/*
+	 *  ************************************* SCORE LAYOUT ***************************************
+	 * 
+	    | window |clefWidth|alteration|timeSign|  noteDistance  
+	    | Margin |         |  Width   | Width  |    /------\    
+	    |        |         |          |        |    |      |    
+	    |         ----GG------#---------------------|------|--------------------------------------
+	    |         -----G----------#-------4---------|-----O---------------------------------------
+	    |         ---GG---------#---------4--------O----------------------------------------------
+	    |         ---G-G--------------------------------------------------------------------------
+	    |         ----G---------------------------------------------------------------------------
+	 *
+	 *  ******************************************************************************************
+	 *	
+	*/
 
-  Preferences appPrefs;
-
-  /**
-   *  ************************************* SCORE LAYOUT ***************************************
-   * 
-   * | window |clefWidth|alteration|timeSign|  noteDistance  
-   * | Margin |         |  Width   | Width  |    /------\    
-   * |        |         |          |        |    |      |    
-   * |         ----GG------#---------------------|------|--------------------------------------
-   * |         -----G----------#-------4---------|-----O---------------------------------------
-   * |         ---GG---------#---------4--------O----------------------------------------------
-   * |         ---G-G--------------------------------------------------------------------------
-   * |         ----G---------------------------------------------------------------------------
-   * 
-   *  ******************************************************************************************
-   * 	
-   * 
-   *  width of score clefs
-   */
-  private int clefWidth =  32;
-
-  /**
-   *  width of alterations symbols. None by default
-   */
-  private int alterationWidth =  0;
-
-  /**
-   *  width of current score time signature symbol. This includes also the first note margin
-   */
-  private int timeSignWidth =  30;
-
-  private int timeSignNumerator =  4;
-
-  private int timeSignDenominator =  4;
-
-  /**
-   *  ratio between time signature denominator and quarters 
-   */
-  private int timeDivision =  1;
-
-  /**
-   *  Y coordinate of the first row of the score
-   */
-  private int scoreYpos =  45;
-
-  /**
-   *  distance in pixel between staff rows
-   */
-  private int rowsDistance =  90;
-
-  /**
-   *  number of measures in a single row
-   */
-  private int numberOfMeasuresPerRow =  2;
-
-  /**
-   *  number of score rows
-   */
-  private int numberOfRows =  4;
-
-  /**
-   *  space in pixel to align notes to the score layout
-   */
-  private int notesShift =  10;
-
-  /**
-   *  distance in pixel between 1/4 notes
-   */
-  private int noteDistance =  72;
-
-  private int firstNoteXPos =  clefWidth + alterationWidth + alterationWidth + timeSignWidth + notesShift;
-
-  private int scoreLineWidth;
-
-  private boolean inlineMode =  false;
-
-  private int forcedNumberOfMeasures =  -1;
-
-  private int clefMask =  1;
-
-  private Vector<Integer> clefs =  new Vector<Integer>();
-
-  /**
-   *  accidentals reference used for drawing
-   */
-  private Accidentals acc;
-
-  private double globalScale =  1.0;
-
-  public Staff(Font f, ResourceBundle b, Preferences p, Accidentals a, boolean inline, boolean singlePage) {
+    private int clefWidth = 32; // width of score clefs
+    private int alterationWidth = 0; // width of alterations symbols. None by default
+    private int timeSignWidth = 30; // width of current score time signature symbol. This includes also the first note margin
+    private int timeSignNumerator = 4;
+    private int timeSignDenominator = 4;
+    private int timeDivision = 1; // ratio between time signature denominator and quarters 
+    private int scoreYpos = 45; // Y coordinate of the first row of the score
+    private int rowsDistance = 90; // distance in pixel between staff rows
+    private int numberOfMeasuresPerRow = 2; // number of measures in a single row
+    private int numberOfRows = 4; // number of score rows
+    private int notesShift = 10; // space in pixel to align notes to the score layout
+    private int noteDistance = 72; // distance in pixel between 1/4 notes
+    private int firstNoteXPos = clefWidth + alterationWidth + alterationWidth + timeSignWidth + notesShift;
+    private int scoreLineWidth;
+    
+    private boolean inlineMode = false;
+    private int forcedNumberOfMeasures = -1;
+    private int clefMask = 1;
+    private Vector<Integer> clefs = new Vector<Integer>();
+    private Accidentals acc; // accidentals reference used for drawing
+    
+    private double globalScale = 1.0;
+    
+    public Staff(Font f, ResourceBundle b, Preferences p, Accidentals a, boolean inline, boolean singlePage)
+    {
     	appFont = f;
     	appBundle = b;
     	appPrefs = p;
@@ -141,13 +93,15 @@ public class Staff extends JPanel {
     	}
     	
     	setBackground(Color.white);
-  }
-
-  public void setRowsDistance(int dist) {
+    }
+    
+    public void setRowsDistance(int dist)
+    {
     	rowsDistance = dist;
-  }
-
-  public void setClefs(int type) {
+    }
+    
+    public void setClefs(int type)
+    {
     	clefMask = type;
     	clefs.clear();
 
@@ -157,20 +111,23 @@ public class Staff extends JPanel {
     	if ((clefMask & appPrefs.TENOR_CLEF) > 0) clefs.add(appPrefs.TENOR_CLEF);
 
     	repaint();
-  }
-
-  public void setAccidentals(Accidentals a) {
+    }
+ 
+    public void setAccidentals(Accidentals a)
+    {
     	acc = new Accidentals(a.getType(), a.getNumber(), appPrefs);
-  }
-
-  public void setTimeSignature(int num, int denom) {
+    }
+    
+    public void setTimeSignature(int num, int denom)
+    {
     	timeSignNumerator = num;
     	timeSignDenominator = denom;
     	timeDivision = timeSignDenominator / 4;
     	repaint();
-  }
-
-  public int getMeasuresNumber() {
+    }
+    
+    public int getMeasuresNumber()
+    {
     	if (forcedNumberOfMeasures == -1)
     	{
     		if (acc != null)
@@ -183,28 +140,33 @@ public class Staff extends JPanel {
     	}
     	else
     		return forcedNumberOfMeasures;
-  }
-
-  public void setMeasuresNumber(int num) {
+    }
+    
+    public void setMeasuresNumber(int num)
+    {
     	forcedNumberOfMeasures = num;
-  }
-
-  public int getNotesDistance() {
+    }
+    
+    public int getNotesDistance()
+    {
     	return noteDistance;
-  }
-
-  public int getRowsNumber() {
+    }
+    
+    public int getRowsNumber()
+    {
     	return numberOfRows;
-  }
-
-  public int getFirstNoteXPosition() {
+    }
+    
+    public int getFirstNoteXPosition()
+    {
     	if (acc != null)
     		alterationWidth = acc.getNumber() * 12;
     	firstNoteXPos = clefWidth + alterationWidth + timeSignWidth + notesShift;
     	return firstNoteXPos;
-  }
-
-  public int getStaffWidth() {
+    }
+    
+    public int getStaffWidth()
+    {
     	if (inlineMode == false)
     	{
     		if (acc != null)
@@ -219,18 +181,21 @@ public class Staff extends JPanel {
 
     	//System.out.println("[getStaffWidth] staff width: " + scoreLineWidth);
     	return scoreLineWidth;
-  }
-
-  public int getStaffHeight() {
+    }
+    
+    public int getStaffHeight()
+    {
     	calculateSize();
     	return (numberOfRows * rowsDistance) + scoreYpos;
-  }
+    }
 
-  public void setScale(double factor) {
+    public void setScale(double factor)
+    {
     	globalScale = factor;
-  }
-
-  private int calculateSize() {
+    }
+    
+    private int calculateSize()
+    {
 		if ( acc != null)
 			alterationWidth = acc.getNumber() * 12;
 		else
@@ -263,12 +228,12 @@ public class Staff extends JPanel {
         	scoreLineWidth = getWidth();
         }
         return vxPos;
-  }
-
-  /**
-   *  Draw staff. Includes clefs, alterations, time signature
-   */
-  protected void paintComponent(Graphics g) {
+    }
+    
+    
+    // Draw staff. Includes clefs, alterations, time signature
+ 	protected void paintComponent(Graphics g) 
+ 	{
  		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
  		super.paintComponent(g);
  		if (globalScale != 1.0)
@@ -396,6 +361,6 @@ public class Staff extends JPanel {
         	
         	yPos += rowsDistance;
         }
-  }
+ 	}
 
 }

@@ -1,22 +1,23 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.util.Vector;
+
 import java.io.File;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,45 +28,37 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+//import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-public class Exercise {
-  Preferences appPrefs;
 
-  /**
-   *  0 - notes in line, 1 - rhythm, 2 - score
-   */
-  int type;
-
-  /**
-   *  user defined exercise title
-   */
-  String title;
-
-  int clefMask;
-
-  Accidentals acc;
-
-  int timeSign;
-
-  int speed;
-
-  int randomize;
-
-  Vector<Note> notes;
-
-  Vector<Note> notes2;
-
-  public Exercise(Preferences p) {
+public class Exercise 
+{
+	Preferences appPrefs;
+	
+	int type; // 0 - notes in line, 1 - rhythm, 2 - score
+	String title; // user defined exercise title
+	int clefMask;
+	Accidentals acc;
+	int timeSign;
+	int speed;
+	int randomize;
+	Vector<Note> notes;
+	Vector<Note> notes2;
+	
+	public Exercise(Preferences p)
+	{
 		appPrefs = p;
 		notes = new Vector<Note>();
 		notes2 = new Vector<Note>();
 		reset();
-  }
-
-  public void reset() {
+	}
+	
+	public void reset()
+	{
 		type = -1;
 		title = "";
 		clefMask = -1;
@@ -75,33 +68,39 @@ public class Exercise {
 		randomize = 0;
 		notes.clear();
 		notes2.clear();
-  }
-
-  public void setType(int t) {
+	}
+	
+	public void setType(int t)
+	{
 		type = t;
-  }
-
-  public void setTitle(String t) {
+	}
+	
+	public void setTitle(String t)
+	{
 		System.out.println("Set exercise title to - " + t);
 		title = t;
-  }
-
-  public void setClefMask(int mask) {
+	}
+	
+	public void setClefMask(int mask)
+	{
 		System.out.println("Set exercise clefs mask to - " + mask);
 		clefMask = mask;
-  }
-
-  public void setMeasure(int mes) {
+	}
+	
+	public void setMeasure(int mes)
+	{
 		System.out.println("Set exercise measure to - " + mes);
 		timeSign = mes;
-  }
-
-  public void setSpeed(int s) {
+	}
+	
+	public void setSpeed(int s)
+	{
 		System.out.println("Set exercise speed to - " + s);
 		speed = s;
-  }
-
-  private void addSequence(Document d, Element root, Vector<Note> n) {
+	}
+	
+	private void addSequence(Document d, Element root, Vector<Note> n)
+	{
 		Element exSequence = d.createElement("sequence");
 		root.appendChild(exSequence);
 		
@@ -152,9 +151,10 @@ public class Exercise {
 			}
 */
 		}
-  }
-
-  public void saveToXML() {
+	}
+	
+	public void saveToXML()
+	{
 		try {
 			 
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -238,10 +238,11 @@ public class Exercise {
 		  } catch (TransformerException tfe) {
 			tfe.printStackTrace();
 		  }
-  }
-
-  private static String getTagValue(String sTag, Element eElement)
-  {
+	}
+	
+	
+	private static String getTagValue(String sTag, Element eElement) 
+	{
 		NodeList elList = eElement.getElementsByTagName(sTag);
 		if (elList == null || elList.getLength() == 0) return "-99";
 		NodeList nlList = elList.item(0).getChildNodes();
@@ -253,9 +254,10 @@ public class Exercise {
         	return nValue.getNodeValue();
         else
         	return "";
-  }
-
-  public void loadFromFile(String path) {
+	}
+	  
+	public void loadFromFile(String path)
+	{
 		int version = 0;
 		int levOffset = 0; // offset to be added to notes levels
 		notes.clear();
@@ -358,6 +360,5 @@ public class Exercise {
 		  {
 			e.printStackTrace();
 		  }
-  }
-
+	}
 }

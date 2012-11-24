@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,198 +28,56 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
-public class InlinePanel extends JPanel {
-  private static final long serialVersionUID =  1L;
 
-  private Font appFont;
-
-  private ResourceBundle appBundle;
-
-  private Preferences appPrefs;
-
-  private MidiController appMidi;
-
-  private Accidentals inlineAccidentals;
-
-  private NoteGenerator inlineNG;
-
-  private Statistics stats;
-
-  private class InlineGameThread extends Thread {
-    boolean needNewNote =  true;
-
-    /**
-     *  above 120 the increment is of 2 pixels
-     */
-    int noteXincrement =  (currentSpeed < 121)?1:2;
-
-    int sleepVal =  0;
-
-    int marginX =  inlineStaff.getStaffWidth();
-
-    private InlineGameThread() {
-			if (currentSpeed <= 120)
-				sleepVal = ((120 - currentSpeed) * 10 / 80);
-			else
-				sleepVal = ((200 - currentSpeed) * 10 / 80);
-			if (gameType == appPrefs.INLINE_MORE_NOTES)
-			{
-				noteXincrement = noteXincrement - (noteXincrement * 2); // change sign here
-				noteXStartPos = marginX;
-				marginX = inlineStaff.getFirstNoteXPosition();
-				sleepVal *= 2; // slow down baby !
-			}
-			System.out.println("Thread increment: " + noteXincrement + ", sleep: " + sleepVal);
-    }
-
-    public void run() {
-			while (gameStarted) 
-			{
-				try
-				{
-					//System.out.println("Thread is running");
-					if (needNewNote == true)
-					{
-						if (gameType != appPrefs.INLINE_MORE_NOTES)
-							sleep(100);
-						needNewNote = false;
-						if (gameSubType == appPrefs.NOTE_CHORDS)
-						{
-							int chordType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, true, -1);
-							if (gameType == appPrefs.INLINE_LEARN_NOTES)
-								setLearningInfo(true, chordType);
-							if (gameType != appPrefs.INLINE_MORE_NOTES)
-								for (int j = 0; j < gameNotes.size(); j++)
-									appMidi.playNote(gameNotes.get(j).pitch, 90);
-						}
-						else if (gameSubType == appPrefs.NOTE_INTERVALS)
-						{
-							int intervalType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, false, gameInterval);
-							if (gameType == appPrefs.INLINE_LEARN_NOTES)
-								setLearningInfo(true, intervalType);
-							if (gameType != appPrefs.INLINE_MORE_NOTES)
-								for (int j = 0; j < gameNotes.size(); j++)
-									appMidi.playNote(gameNotes.get(j).pitch, 90);
-						}
-						else
-						{
-							Note newNote;
-							if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
-								newNote = inlineNG.getRandomNote(0, true, -1);
-							else
-								newNote = inlineNG.getRandomNote(0, false, -1);
-							newNote.duration = 0; // set duration to 0 not to mess up X position
-							newNote.xpos = noteXStartPos;
-							gameNotes.add(newNote);
-							if (gameType == appPrefs.INLINE_LEARN_NOTES)
-								setLearningInfo(true, -1);
-							System.out.println("Got note with pitch: " + newNote.pitch + " (level:" + newNote.level + ")");
-							if (gameType != appPrefs.INLINE_MORE_NOTES)
-								appMidi.playNote(newNote.pitch, 90);
-						}
-
-						notesLayer.setNotesPositions();
-						
-					}
-					else
-					{
-						for (int i = 0; i < gameNotes.size(); i++)
-						{
-							gameNotes.get(i).xpos+=noteXincrement;
-							if ((gameType != appPrefs.INLINE_MORE_NOTES && gameNotes.get(i).xpos > marginX) ||
-								(gameType == appPrefs.INLINE_MORE_NOTES && i == 0 && gameNotes.get(i).xpos < marginX))
-							{
-								if (gameType != appPrefs.INLINE_MORE_NOTES)
-									appMidi.stopNote(gameNotes.get(i).pitch, 0);
-								updateGameStats(0);
-								if (gameType == appPrefs.INLINE_LEARN_NOTES)
-									setLearningInfo(false, -1);
-								gameNotes.removeElementAt(i);
-							}
-						}
-						if (gameNotes.size() == 0)
-							needNewNote = true;
-						
-						if (gameType == appPrefs.INLINE_MORE_NOTES && gameNotes.lastElement().xpos < noteXStartPos - 50)
-							needNewNote = true;
-					}
-					//sleep(260 - currentSpeed);
-					notesLayer.repaint();
-					sleep(10 + sleepVal);
-					
-				}
-				catch (Exception e) {  }
-			}
-    }
-
-  }
-
-  private InlinePanel.InlineGameThread gameThread =  null;
-
-  private boolean gameStarted =  false;
-
-  /**
-   *  GUI elements
-   */
-  public SmartBar sBar;
-
-  private int sBarHeight =  130;
-
-  private JLayeredPane layers;
-
-  private Staff inlineStaff;
-
-  private NotesPanel notesLayer;
-
-  private Piano piano;
-
-  private GameBar gameBar;
-
-  private int gBarHeight =  40;
-
-  private int pianoHeight =  80;
-
-  private int staffHMargin =  180;
-
-  private int staffVMargin =  150;
-
-  private int staffHeight =  260;
-
-  /**
-   *  distance in pixel between staff rows
-   */
-  private int rowsDistance =  90;
-
-  Vector<Note> gameNotes =  new Vector<Note>();
-
-  Vector<Integer> userNotes =  new Vector<Integer>();
-
-  private int clefMask =  1;
-
-  private int gameType =  -1;
-
-  private int gameSubType =  -1;
-
-  private int gameInterval =  -1;
-
-  private int progressStep =  1;
-
-  private int currentSpeed =  120;
-
-  /**
-   *  X position of the notes appearing on the staff
-   */
-  private int noteXStartPos =  0;
-
-  private boolean exerciseMode =  false;
-
-  private Exercise currEx =  null;
-
-  public InlinePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d) {
+public class InlinePanel extends JPanel implements ActionListener 
+{
+	private static final long serialVersionUID = 1L;
+	private Font appFont;
+	private ResourceBundle appBundle;
+	private Preferences appPrefs;
+	private MidiController appMidi;
+	private Accidentals inlineAccidentals;
+	private NoteGenerator inlineNG;
+	private Statistics stats;
+	
+	private InlineGameThread gameThread = null;
+	private boolean gameStarted = false; 
+	
+	// GUI elements
+	public SmartBar sBar;
+	private int sBarHeight = 130;
+	private JLayeredPane layers;
+	private Staff inlineStaff;
+	private NotesPanel notesLayer;
+	private Piano piano;
+	private GameBar gameBar;
+	private int gBarHeight = 40;
+	private int pianoHeight = 80;
+	private int staffHMargin = 180;
+	private int staffVMargin = 150;
+	private int staffHeight = 260;
+	private int rowsDistance = 90; // distance in pixel between staff rows
+	
+	Vector<Note> gameNotes = new Vector<Note>();
+	Vector<Integer> userNotes = new Vector<Integer>();
+	private int clefMask = 1;
+	private int gameType = -1;
+	private int gameSubType = -1;
+	private int gameInterval = -1;
+	private int progressStep = 1;
+	private int currentSpeed = 120;
+	private int noteXStartPos = 0; // X position of the notes appearing on the staff
+	
+	private boolean exerciseMode = false;
+	private Exercise currEx = null;
+	
+	public InlinePanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d)
+	{
 		appFont = f;
 		appBundle = b;
 		appPrefs = p;
@@ -312,9 +170,10 @@ public class InlinePanel extends JPanel {
 		add(piano);
 		add(gameBar);
 		refreshPanel();
-  }
-
-  public void refreshPanel() {
+	}
+	
+	public void refreshPanel()
+	{
 		piano.reset(true);
 		if (exerciseMode == false)
 		{
@@ -347,16 +206,18 @@ public class InlinePanel extends JPanel {
 		notesLayer.setRowsDistance(rowsDistance);
 		notesLayer.setFirstNoteXPosition(inlineStaff.getFirstNoteXPosition());
 		setLearningInfo(false, -1);
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		System.out.println("INLINE - update language");
 		appBundle = bundle;
 		sBar.updateLanguage(appBundle);
 		gameBar.updateLanguage(appBundle);
-  }
-
-  public void setGameType() {
+	}
+	
+	public void setGameType()
+	{
 		gameInterval = -1;
 		int gameIdx = sBar.gameSelector.getSelectedIndex();
 		switch(gameIdx)
@@ -399,9 +260,10 @@ public class InlinePanel extends JPanel {
 			case 2: progressStep = 2; break; // 40 notes
 			case 3: progressStep = 1; break; // 80 notes
 		}
-  }
-
-  public void setLearningInfo(boolean enable, int chordType) {
+	}
+	
+	public void setLearningInfo(boolean enable, int chordType)
+	{
 		if (gameNotes.size() == 0)
 			return;
 		int noteIdx = piano.highlightKey(gameNotes.get(0).pitch, enable);
@@ -495,9 +357,10 @@ public class InlinePanel extends JPanel {
 		}
 		
 		notesLayer.setLearningTips(noteInfo + altInfo + chord, enable);
-  }
-
-  public void startGame() {
+	}
+	
+	public void startGame()
+	{
 		currentSpeed = sBar.tempoSlider.getValue();
 		piano.reset(false);
 		gameNotes.clear();
@@ -515,9 +378,10 @@ public class InlinePanel extends JPanel {
 		gameThread.start();
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
 		sBar.playBtn.repaint();
-  }
-
-  public void stopGame() {
+	}
+	
+	public void stopGame()
+	{
 		if (gameType == appPrefs.GAME_STOPPED)
 			return;
 
@@ -531,9 +395,10 @@ public class InlinePanel extends JPanel {
 			gameNotes.clear();
 			gameType = appPrefs.GAME_STOPPED;
 		}
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == sBar.playBtn)
 		{
 			if (gameThread != null && gameThread.isAlive() == true)
@@ -574,9 +439,10 @@ public class InlinePanel extends JPanel {
 			}
 				
 		}
-  }
-
-  private void pianoKeyPressed(Key k, boolean pressed) {
+	}
+	
+	private void pianoKeyPressed(Key k, boolean pressed)
+	{
 		System.out.println("[pianoKeyPressed] pitch = " + k.pitch);
 		if (pressed)
 		{
@@ -589,9 +455,10 @@ public class InlinePanel extends JPanel {
 			appMidi.stopNote(k.pitch, 0);
 			noteEvent(k.pitch, 0, true);
 		}
-  }
-
-  public void noteEvent(int pitch, int velocity, boolean fromPiano) {
+	}
+	
+	public void noteEvent(int pitch, int velocity, boolean fromPiano)
+	{
 		if (velocity == 0)
 		{
 			appMidi.stopNote(pitch, 0);
@@ -651,12 +518,11 @@ public class InlinePanel extends JPanel {
 				piano.keyPressed(pitch, true);
 			}
 		}
-  }
+	}
 
-  /**
-   *  check game notes against user notes
-   */
-  public boolean checkGameStatus(Vector<Note> game, Vector<Integer> user) {
+	// check game notes against user notes
+	public boolean checkGameStatus(Vector<Note> game, Vector<Integer> user)
+	{
 		int matchCount = 0;
 		int checkSize = 1;
 		
@@ -691,9 +557,10 @@ public class InlinePanel extends JPanel {
 			return true;
 
 		return false;
-  }
-
-  private void updateGameStats(int answType) {
+	}
+	
+	private void updateGameStats(int answType)
+	{
 		if (gameNotes.size() == 0)
 			return;
 		int score = 0;
@@ -722,9 +589,10 @@ public class InlinePanel extends JPanel {
 			else if (gameBar.progress.getValue() == 0)
 				gameFinished(false);
 		}
-  }
+	}
 
-  private void gameFinished(boolean win) {
+	private void gameFinished(boolean win)
+	{
 		gameStarted = false;
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 		refreshPanel();
@@ -758,9 +626,10 @@ public class InlinePanel extends JPanel {
 		
 		if (Integer.parseInt(appPrefs.getProperty("saveStats")) == 1)
 			stats.storeData(0);
-  }
+	}
 
-  protected void paintComponent(Graphics g) {
+	protected void paintComponent(Graphics g) 
+	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		sBar.setSize(getWidth(), sBarHeight);
@@ -769,6 +638,111 @@ public class InlinePanel extends JPanel {
 		notesLayer.setBounds(0, 0, getWidth() - (staffHMargin * 2), staffHeight);
 		piano.setBounds(0, staffVMargin + staffHeight, getWidth(), pianoHeight);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
-  }
+	}
+	
 
+	private class InlineGameThread extends Thread 
+	{
+		boolean needNewNote = true;
+		int noteXincrement = (currentSpeed < 121)?1:2; // above 120 the increment is of 2 pixels
+		int sleepVal = 0;
+		int marginX = inlineStaff.getStaffWidth();
+
+		private InlineGameThread()
+		{
+			if (currentSpeed <= 120)
+				sleepVal = ((120 - currentSpeed) * 10 / 80);
+			else
+				sleepVal = ((200 - currentSpeed) * 10 / 80);
+			if (gameType == appPrefs.INLINE_MORE_NOTES)
+			{
+				noteXincrement = noteXincrement - (noteXincrement * 2); // change sign here
+				noteXStartPos = marginX;
+				marginX = inlineStaff.getFirstNoteXPosition();
+				sleepVal *= 2; // slow down baby !
+			}
+			System.out.println("Thread increment: " + noteXincrement + ", sleep: " + sleepVal);
+		}
+
+		public void run() 
+		{
+			while (gameStarted) 
+			{
+				try
+				{
+					//System.out.println("Thread is running");
+					if (needNewNote == true)
+					{
+						if (gameType != appPrefs.INLINE_MORE_NOTES)
+							sleep(100);
+						needNewNote = false;
+						if (gameSubType == appPrefs.NOTE_CHORDS)
+						{
+							int chordType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, true, -1);
+							if (gameType == appPrefs.INLINE_LEARN_NOTES)
+								setLearningInfo(true, chordType);
+							if (gameType != appPrefs.INLINE_MORE_NOTES)
+								for (int j = 0; j < gameNotes.size(); j++)
+									appMidi.playNote(gameNotes.get(j).pitch, 90);
+						}
+						else if (gameSubType == appPrefs.NOTE_INTERVALS)
+						{
+							int intervalType = inlineNG.getRandomChordOrInterval(gameNotes, noteXStartPos, false, gameInterval);
+							if (gameType == appPrefs.INLINE_LEARN_NOTES)
+								setLearningInfo(true, intervalType);
+							if (gameType != appPrefs.INLINE_MORE_NOTES)
+								for (int j = 0; j < gameNotes.size(); j++)
+									appMidi.playNote(gameNotes.get(j).pitch, 90);
+						}
+						else
+						{
+							Note newNote;
+							if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
+								newNote = inlineNG.getRandomNote(0, true, -1);
+							else
+								newNote = inlineNG.getRandomNote(0, false, -1);
+							newNote.duration = 0; // set duration to 0 not to mess up X position
+							newNote.xpos = noteXStartPos;
+							gameNotes.add(newNote);
+							if (gameType == appPrefs.INLINE_LEARN_NOTES)
+								setLearningInfo(true, -1);
+							System.out.println("Got note with pitch: " + newNote.pitch + " (level:" + newNote.level + ")");
+							if (gameType != appPrefs.INLINE_MORE_NOTES)
+								appMidi.playNote(newNote.pitch, 90);
+						}
+
+						notesLayer.setNotesPositions();
+						
+					}
+					else
+					{
+						for (int i = 0; i < gameNotes.size(); i++)
+						{
+							gameNotes.get(i).xpos+=noteXincrement;
+							if ((gameType != appPrefs.INLINE_MORE_NOTES && gameNotes.get(i).xpos > marginX) ||
+								(gameType == appPrefs.INLINE_MORE_NOTES && i == 0 && gameNotes.get(i).xpos < marginX))
+							{
+								if (gameType != appPrefs.INLINE_MORE_NOTES)
+									appMidi.stopNote(gameNotes.get(i).pitch, 0);
+								updateGameStats(0);
+								if (gameType == appPrefs.INLINE_LEARN_NOTES)
+									setLearningInfo(false, -1);
+								gameNotes.removeElementAt(i);
+							}
+						}
+						if (gameNotes.size() == 0)
+							needNewNote = true;
+						
+						if (gameType == appPrefs.INLINE_MORE_NOTES && gameNotes.lastElement().xpos < noteXStartPos - 50)
+							needNewNote = true;
+					}
+					//sleep(260 - currentSpeed);
+					notesLayer.repaint();
+					sleep(10 + sleepVal);
+					
+				}
+				catch (Exception e) {  }
+			}
+		}
+	}
 }

@@ -1,26 +1,27 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,32 +31,27 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-public class AudioOptionDialog extends JDialog {
-  private static final long serialVersionUID =  6932887852996919458L;
 
-  private ResourceBundle appBundle;
-
-  private Preferences appPrefs;
-
-  AudioInputController audioControl;
-
-  JPanel backPanel;
-
-  private JSlider sensitivitySlider;
-
-  private RoundedButton testBtn;
-
-  private AudioMonitor audioMon;
-
-  JButton okButton;
-
-  JButton cancelButton;
-
-  String currAudioDevice =  "";
-
-  boolean testInProgress =  false;
-
-  public AudioOptionDialog(ResourceBundle b, Preferences p, AudioInputController ac) {
+public class AudioOptionDialog extends JDialog implements ActionListener, ChangeListener 
+{
+	private static final long serialVersionUID = 6932887852996919458L;
+	private ResourceBundle appBundle;
+	private Preferences appPrefs;
+	AudioInputController audioControl;
+	
+	JPanel backPanel;
+	private JSlider sensitivitySlider;
+	private RoundedButton testBtn;
+	private AudioMonitor audioMon;
+	
+	JButton okButton;
+    JButton cancelButton;
+    
+    String currAudioDevice = "";
+    boolean testInProgress = false;
+	
+	public AudioOptionDialog(ResourceBundle b, Preferences p, AudioInputController ac)
+	{
 		appBundle = b;
 		appPrefs = p;
 		audioControl = ac;
@@ -142,9 +138,10 @@ public class AudioOptionDialog extends JDialog {
         backPanel.add(buttonPanel);
         
         add(backPanel);
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+    {
 		if (ae.getSource() == okButton)
 		{
 			this.dispose();
@@ -169,13 +166,14 @@ public class AudioOptionDialog extends JDialog {
 				testInProgress = false;
 			}
 		}
-  }
-
-  public void stateChanged(ChangeEvent e) {
+    }
+	
+	public void stateChanged(ChangeEvent e) 
+	{
 		if (e.getSource() == sensitivitySlider)
 		{
 			audioControl.setSensitivity(sensitivitySlider.getValue());
 		}
-  }
-
+	}
 }
+	

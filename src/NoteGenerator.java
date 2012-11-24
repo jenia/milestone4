@@ -1,116 +1,64 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.util.Vector;
-public class NoteGenerator {
-  Preferences appPrefs;
 
-  Accidentals accidentals;
+public class NoteGenerator 
+{
+	Preferences appPrefs;
+	Accidentals accidentals;
 
-  /**
-   *  pitch of C0
-   */
-  int baseNote =  24;
-
-  /**
-   *  D2
-   */
-  int TREBLE_CLEF_BASEPITCH =  50;
-
-  /**
-   *  F0
-   */
-  int BASS_CLEF_BASEPITCH =  29;
-
-  /**
-   *  E1 
-   */
-  int ALTO_CLEF_BASEPITCH =  40;
-
-  /**
-   *  C1
-   */
-  int TENOR_CLEF_BASEPITCH =  36;
-
-  /**
-   *  intervals from base note to build chords or intervals 
-   *  augmented
-   */
-  char[][] chordsIntervals =  { { 4 , 7 },   // major
+	int baseNote = 24; // pitch of C0
+	int TREBLE_CLEF_BASEPITCH = 50; // D2
+	int BASS_CLEF_BASEPITCH = 29; // F0
+	int ALTO_CLEF_BASEPITCH = 40; // E1 
+	int TENOR_CLEF_BASEPITCH = 36; // C1
+	
+	// intervals from base note to build chords or intervals 
+	char[][] chordsIntervals = { { 4 , 7 },   // major
 								 { 3 , 7 },   // minor
 								 { 3 , 6 },   // diminished
-								 { 4 , 8 } };
+								 { 4 , 8 } }; // augmented
+	
+	int[] intervalNoPerfect = { -2, -1 , 0, 1};
+	int[] intervalPerfect = { -2, 0, 1 };
+	char[] intervals = { 0, 1, 2, 4, 5, 7, 9, 11, 12 };
 
-  int[] intervalNoPerfect =  { -2, -1 , 0, 1};
+	int clefMask = -1;
+	boolean singleClef = false;
+	int baseRangeClef;
+	int addRangeIndex; // index of randomPitchList of a second range (if added)
+	int addRangeClef; // clef mask of a second range (if added)
+	
+	private int timeSignNumerator = 0;
+	private int timeSignDenominator = 0;
 
-  int[] intervalPerfect =  { -2, 0, 1 };
+	Vector<Integer> baseList = new Vector<Integer>();	// list holding the whole list of notes, from C0 to C6
+	Vector<Integer> alteredList = new Vector<Integer>();	// list holding the whole list of alterated notes, from C0 to C6
+	Vector<Note> randomPitchList = new Vector<Note>(); // list of notes holding the user selected notes
+	Vector<Integer> notesTypeList = new Vector<Integer>(); // list of note types to facilitate random generation
 
-  char[] intervals =  { 0, 1, 2, 4, 5, 7, 9, 11, 12 };
+	private boolean randomEnabled = true;
+	private int notesListIndex = 0;
 
-  int clefMask =  -1;
-
-  boolean singleClef =  false;
-
-  int baseRangeClef;
-
-  /**
-   *  index of randomPitchList of a second range (if added)
-   */
-  int addRangeIndex;
-
-  /**
-   *  clef mask of a second range (if added)
-   */
-  int addRangeClef;
-
-  private int timeSignNumerator =  0;
-
-  private int timeSignDenominator =  0;
-
-  /**
-   *  list holding the whole list of notes, from C0 to C6
-   */
-  Vector<Integer> baseList =  new Vector<Integer>();
-
-  /**
-   *  list holding the whole list of alterated notes, from C0 to C6
-   */
-  Vector<Integer> alteredList =  new Vector<Integer>();
-
-  /**
-   *  list of notes holding the user selected notes
-   */
-  Vector<Note> randomPitchList =  new Vector<Note>();
-
-  /**
-   *  list of note types to facilitate random generation
-   */
-  Vector<Integer> notesTypeList =  new Vector<Integer>();
-
-  private boolean randomEnabled =  true;
-
-  private int notesListIndex =  0;
-
-  /**
-   *                            C   D   E   F   G   A   B  
-   *                          ---------------------------- 
-   */
-  char[][] sharpsMatrix =  { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
+    /*                           C   D   E   F   G   A   B  */
+    /*                         ---------------------------- */
+    char[][] sharpsMatrix = { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
 	   					      {  0,  0,  0,  1,  0,  0,  0 }, // 1 alteration
 						      {  1,  0,  0,  1,  0,  0,  0 }, // 2 alterations
 						      {  1,  0,  0,  1,  1,  0,  0 }, // 3 alterations
@@ -120,11 +68,9 @@ public class NoteGenerator {
 						      {  1,  1,  1,  1,  1,  1,  1 }  // 7 alterations
 						    };
 
-  /**
-   *                           C   D   E   F   G   A   B  
-   *                         ---------------------------- 
-   */
-  char[][] flatsMatrix =  { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
+    /*                          C   D   E   F   G   A   B  */
+    /*                        ---------------------------- */
+    char[][] flatsMatrix = { {  0,  2,  4,  5,  7,  9, 11 }, // offsets from the octave first note
 	     				     {  0,  0,  0,  0,  0,  0,  1 }, // 1 alteration
 		     			     {  0,  0,  1,  0,  0,  0,  1 }, // 2 alterations
 		     			     {  0,  0,  1,  0,  0,  1,  1 }, // 3 alterations
@@ -133,8 +79,9 @@ public class NoteGenerator {
 		     			     {  1,  1,  1,  0,  1,  1,  1 }, // 6 alterations
 		     			     {  1,  1,  1,  1,  1,  1,  1 }  // 7 alterations
 		   				   };
-
-  public NoteGenerator(Preferences p, Accidentals acc, boolean oneClef) {
+    
+    public NoteGenerator(Preferences p, Accidentals acc, boolean oneClef) 
+    {
     	this.appPrefs = p;
         this.accidentals = acc;
         
@@ -145,9 +92,10 @@ public class NoteGenerator {
 
         randomPitchList.clear();
         initLists();
-  }
-
-  private void initLists() {
+    }
+    
+    private void initLists()
+    {
     	int pitch = baseNote; // starts from C0
     	for (int i = 0; i < 6; i++) // 6 octaves, from C0 to C6
     	{
@@ -165,19 +113,21 @@ public class NoteGenerator {
     		pitch+=12;
     	}
     	//System.out.print(baseList);
-  }
+    }
 
-  /**
-   * Functions used to convert ClefSelector levels to real pitches (and vice versa),
-   * to be saved on preferences.
-   * Also used to calculate Y position when creating a new note 
-   */
-  public int getPitchFromLevel(int clefLowestPitch, int level) {
+    /*
+     * Functions used to convert ClefSelector levels to real pitches (and vice versa),
+     * to be saved on preferences.
+     * Also used to calculate Y position when creating a new note 
+     */
+    public int getPitchFromLevel(int clefLowestPitch, int level)
+    {
     	int i = baseList.indexOf(clefLowestPitch);
     	return baseList.get(i + level);
-  }
+    }
 
-  public int getIndexFromPitch(int clefLowestPitch, int pitch, boolean alterated) {
+    public int getIndexFromPitch(int clefLowestPitch, int pitch, boolean alterated)
+    {
     	int i;
    		i = baseList.indexOf(clefLowestPitch);
     	int j = 0;
@@ -192,9 +142,10 @@ public class NoteGenerator {
     			return j - i;
     	}
     	return 0;
-  }
-
-  public int getRowsDistance() {
+    }
+    
+    public int getRowsDistance()
+    {
     	int height = 0, levels = 0;
 
     	if (addRangeIndex == -1) 
@@ -213,9 +164,10 @@ public class NoteGenerator {
     		height *= 2;
 
     	return height;
-  }
-
-  public int getRowsDistanceFromClefs(int clMask) {
+    }
+    
+    public int getRowsDistanceFromClefs(int clMask)
+    {
     	int clefsNum = 0;
     	if ((clMask & appPrefs.TREBLE_CLEF) > 0)
     		clefsNum++;
@@ -227,26 +179,27 @@ public class NoteGenerator {
     		clefsNum++;
 
     	return clefsNum * 90;
-  }
-
-  public int getClefsNumber() {
+    }
+    
+    public int getClefsNumber()
+    {
     	if (addRangeIndex != -1)
     		return 2;
     	return 1;
-  }
+    }
+    /* ************************************************************** */
 
-  /**
-   *  ************************************************************** 
-   */
-  public void reset() {
+    public void reset()
+    {
     	//wholeList.clear();
     	randomPitchList.clear();
     	baseRangeClef = -1;
     	addRangeIndex = -1;
     	addRangeClef = -1; 
-  }
-
-  public void update() {
+    }
+    
+    public void update()
+    {
     	int accIdx = Integer.parseInt(appPrefs.getProperty("accidentals"));
 		if (accIdx <= 0) accidentals.setTypeAndCount("", 0);
 		else if (accIdx < 8) accidentals.setTypeAndCount("#", accIdx);
@@ -325,9 +278,10 @@ public class NoteGenerator {
 		else if (tsIdx == 3) { timeSignNumerator = 6; timeSignDenominator = 8; }
 		else if (tsIdx == 4) { timeSignNumerator = 6; timeSignDenominator = 4; }
 		else if (tsIdx == 5) { timeSignNumerator = 3; timeSignDenominator = 8; }
-  }
+    }
 
-  public void setNotesList(Vector<Note> n, Vector<Note> n2, boolean random) {
+    public void setNotesList(Vector<Note> n, Vector<Note> n2, boolean random)
+    {
     	int idx = 0, idx2 = 0;
     	boolean done = false;
     	while (!done)
@@ -365,13 +319,15 @@ public class NoteGenerator {
 
     	randomEnabled = random;
     	notesListIndex = 0;
-  }
+    }
 
-  public int getClefMask() {
+    public int getClefMask()
+    {
     	return clefMask;
-  }
-
-  private int getLevelFromClefAndPitch(int clef, int pitch) {
+    }
+    
+    private int getLevelFromClefAndPitch(int clef, int pitch)
+    {
     	if (clef == appPrefs.TREBLE_CLEF)
     		return 24 - getIndexFromPitch(TREBLE_CLEF_BASEPITCH, pitch, true);
     	else if (clef == appPrefs.BASS_CLEF)
@@ -382,12 +338,11 @@ public class NoteGenerator {
     		return 24 - getIndexFromPitch(TENOR_CLEF_BASEPITCH, pitch, true);
 
     	return 0;
-  }
-
-  /**
-   *  Remember that this function returns the base pitch of a note !!!
-   */
-  public int getPitchFromClefAndLevel(int clef, int level) {
+    }
+    
+    // Remember that this function returns the base pitch of a note !!!
+    public int getPitchFromClefAndLevel(int clef, int level)
+    {
     	if (clef == appPrefs.TREBLE_CLEF)
     		return getPitchFromLevel(TREBLE_CLEF_BASEPITCH, 24 - level);
     	else if (clef == appPrefs.BASS_CLEF)
@@ -398,12 +353,11 @@ public class NoteGenerator {
     		return getPitchFromLevel(TENOR_CLEF_BASEPITCH, 24 - level);
 
     	return 0;
-  }
+    }
 
-  /**
-   *  add notes to randomPitchList. lower and upper pitches must be NOT alterated
-   */
-  public void addRange(int clef, int lower, int upper) {
+    // add notes to randomPitchList. lower and upper pitches must be NOT alterated
+    public void addRange(int clef, int lower, int upper)
+    {
     	//int altIndex = this.accidentals.getNumber();
     	//String accType = this.accidentals.getType(); 
     	int lowIdx = alteredList.indexOf(lower);
@@ -443,52 +397,60 @@ public class NoteGenerator {
     	for (int n = 0; n < randomPitchList.size(); n++)
     		System.out.print(randomPitchList.get(n).pitch + ", ");
     	System.out.println("");
-  }
-
-  public int getNotesNumber() {
+    }
+    
+    public int getNotesNumber()
+    {
     	return randomPitchList.size();
-  }
-
-  public int getFirstLowPitch() {
+    }
+    
+    public int getFirstLowPitch()
+    {
     	if (randomPitchList.size() == 0)
     		return -1;
     	return randomPitchList.get(0).pitch;
-  }
-
-  public int getFirstHighPitch() {
+    }
+    
+    public int getFirstHighPitch()
+    {
     	if (randomPitchList.size() == 0)
     		return -1;
     	if (addRangeIndex != -1)
     		return randomPitchList.get(addRangeIndex - 1).pitch;
     	else
     		return randomPitchList.get(randomPitchList.size() - 1).pitch;
-  }
-
-  public int getSecondLowPitch() {
+    }
+    
+    public int getSecondLowPitch()
+    {
     	if (randomPitchList.size() == 0 || addRangeIndex == -1)
     		return -1;
     	return randomPitchList.get(addRangeIndex).pitch;
-  }
-
-  public int getSecondHighPitch() {
+    }
+    
+    public int getSecondHighPitch()
+    {
     	if (randomPitchList.size() == 0 || addRangeIndex == -1)
     		return -1;
     	return randomPitchList.get(randomPitchList.size() - 1).pitch;
-  }
-
-  public int getAlteration(int pitch) {
+    }
+    
+    public int getAlteration(int pitch)
+    {
     	int idx = alteredList.indexOf(pitch);
     	if (idx == -1) return 0;
     	return alteredList.get(idx) - baseList.get(idx);
-  }
+    }
 
-  public int getAlteredFromBase(int basePitch) {
+    public int getAlteredFromBase(int basePitch)
+    {
     	int baseNoteIdx = baseList.indexOf(basePitch);
     	if (baseNoteIdx == -1) return -1;
     	return alteredList.get(baseNoteIdx);
-  }
-
-  public int getRhythmPitch(int clef) {
+    }
+    
+    public int getRhythmPitch(int clef)
+    {
 		if (clef == appPrefs.TREBLE_CLEF)
 			return baseList.get(baseList.indexOf(TREBLE_CLEF_BASEPITCH) + 12);
 		else if (clef == appPrefs.BASS_CLEF)
@@ -499,9 +461,10 @@ public class NoteGenerator {
 			return baseList.get(baseList.indexOf(TENOR_CLEF_BASEPITCH) + 12);
 		
 		return 71;
-  }
-
-  public Note getRandomNote(int forcedType, boolean altered, int forcedClef) {
+    }
+    
+    public Note getRandomNote(int forcedType, boolean altered, int forcedClef)
+    {
     	int randIdx = 0;
     	if (randomEnabled == true)
     	{
@@ -565,9 +528,10 @@ public class NoteGenerator {
     	//System.out.println("New random pitch = " + pitch);
 
     	return randNote;
-  }
-
-  public Note getTripletRandomNote(int basePitch) {
+    }
+    
+    public Note getTripletRandomNote(int basePitch)
+    {
     	int baseIndex = 0;
     	int lowerIndex = 0;
     	int upperIndex = randomPitchList.size();
@@ -603,9 +567,10 @@ public class NoteGenerator {
     	//System.out.println("Triplet new note: " +  randNote.pitch + ", level: " + randNote.level + ", dur: " + randNote.duration);
     	
     	return randNote;
-  }
-
-  public void getRandomSequence(Vector<Note> seq, int measuresNumber, boolean isRhythm, int forcedClef) {
+    }
+    
+    public void getRandomSequence(Vector<Note> seq, int measuresNumber, boolean isRhythm, int forcedClef)
+    {
     	double measureCounter = 0;
     	double timeCounter = 0;
     	boolean eighthPresent = false;
@@ -701,9 +666,10 @@ public class NoteGenerator {
     			//System.out.println("tempMesCnt: " + measureCounter);
     		}
     	}
-  }
-
-  public int getRandomChordOrInterval(Vector<Note> seq, int xpos, boolean chord, int intervalDegree) {
+    }
+    
+    public int getRandomChordOrInterval(Vector<Note> seq, int xpos, boolean chord, int intervalDegree)
+    {
     	char notesWanted = 1;
     	//int randType = (int)(Math.random() * 4); // 0 major, 1 minor, 2 diminished, 3 augmented
     	int randType = 0;
@@ -763,6 +729,5 @@ public class NoteGenerator {
     	}
     	
     	return randType;
-  }
-
+    }
 }

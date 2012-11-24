@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,127 +28,50 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-public class EarTrainingPanel extends JPanel {
-  private static final long serialVersionUID =  1L;
 
-  Font appFont;
-
-  Preferences appPrefs;
-
-  private ResourceBundle appBundle;
-
-  private MidiController appMidi;
-
-  private Accidentals earAccidentals;
-
-  private NoteGenerator earNG;
-
-  /**
-   *  GUI elements
-   */
-  public SmartBar sBar;
-
-  private int sBarHeight =  130;
-
-  private int pianoHeight =  80;
-
-  private int gBarHeight =  40;
-
-  private JLabel gameTitle;
-
-  private RoundPanel noteContainer;
-
-  private Icon listenIcon;
-
-  private JLabel questionLabel;
-
-  private JLabel answerLabel;
-
-  private JLabel commentLabel;
-
-  private JPanel buttonsContainer;
-
-  private Vector<RoundedButton> notesButtons =  new Vector<RoundedButton>();
-
-  private Piano piano;
-
-  private GameBar gameBar;
-
-  Vector<Note> gameNotes =  new Vector<Note>();
-
-  private Statistics stats;
-
-  private int currentSpeed =  6;
-
-  private class EarTrainingGameThread extends Thread {
-    boolean needNewNote =  true;
-
-    int pauseBetweenNotes =  20;
-
-    int noteTimeout =  (currentSpeed * 10) + pauseBetweenNotes;
-
-    int timeoutCounter =  pauseBetweenNotes;
-
-    public void resetTimer() {
-			timeoutCounter = 0;
-			needNewNote = true;
-    }
-
-    public void run() {
-			while (gameStarted) 
-			{
-				try
-				{
-					if (needNewNote == true && timeoutCounter > pauseBetweenNotes)
-					{
-						Note newNote = null;
-						if (gameSubType == 2) newNote = earNG.getRandomNote(0, true, -1); // alterations only on advanced game
-						else newNote = earNG.getRandomNote(0, false, -1);
-						
-						gameNotes.add(newNote);
-						appMidi.playNote(newNote.pitch, 90);
-						needNewNote = false;
-						questionLabel.setText("");
-						answerLabel.setText("");
-						commentLabel.setText("");
-						questionLabel.setIcon(listenIcon);
-						questionLabel.setVisible(true);
-					}
-					
-					if (timeoutCounter == noteTimeout) // timed out without an answer
-					{
-						for (int i = 0; i < gameNotes.size(); i++)
-							appMidi.stopNote(gameNotes.get(i).pitch, 0);
-						needNewNote = true;
-						timeoutCounter = 0;
-						showQuestion();
-						gameNotes.clear();
-					}
-					timeoutCounter++;
-					sleep(100);
-				}
-				catch (Exception e) {  }
-			}
-    }
-
-  }
-
-  private EarTrainingPanel.EarTrainingGameThread gameThread =  null;
-
-  private boolean gameStarted =  false;
-
-  private int gameType =  -1;
-
-  private int gameSubType =  -1;
-
-  private int progressStep =  1;
-
-  public EarTrainingPanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d) {
+public class EarTrainingPanel extends JPanel implements ActionListener 
+{
+	private static final long serialVersionUID = 1L;
+	Font appFont;
+	Preferences appPrefs;
+	private ResourceBundle appBundle;
+	private MidiController appMidi;
+	private Accidentals earAccidentals;
+	private NoteGenerator earNG;
+	
+	// GUI elements
+	public SmartBar sBar;
+	private int sBarHeight = 130;
+	private int pianoHeight = 80;
+	private int gBarHeight = 40;
+	private JLabel gameTitle;
+	private RoundPanel noteContainer;
+	private Icon listenIcon;
+	private JLabel questionLabel, answerLabel, commentLabel;
+	private JPanel buttonsContainer;
+	private Vector<RoundedButton> notesButtons = new Vector<RoundedButton>();
+	private Piano piano;
+	private GameBar gameBar;
+	
+	Vector<Note> gameNotes = new Vector<Note>();
+	private Statistics stats;
+	
+	private int currentSpeed = 6;
+	private EarTrainingGameThread gameThread = null;
+	private boolean gameStarted = false; 
+	
+	private int gameType = -1;
+	private int gameSubType = -1;
+	private int progressStep = 1;
+	
+	public EarTrainingPanel(Font f, ResourceBundle b, Preferences p, MidiController mc, Dimension d)
+	{
 		appFont = f;
 		appBundle = b;
 		appPrefs = p;
@@ -263,9 +186,10 @@ public class EarTrainingPanel extends JPanel {
 		add(buttonsContainer);
 		add(gameBar);
 		refreshPanel();
-  }
+	}
 
-  public void refreshPanel() {
+	public void refreshPanel()
+	{
 		String[] notesStr = { "_do", "_re", "_mi", "_fa", "_sol", "_la", "_si" };
 		gameSubType = sBar.gameSelector.getSelectedIndex();
 		stopGame();
@@ -316,17 +240,19 @@ public class EarTrainingPanel extends JPanel {
 			
 		//piano.reset(true);
 		
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		System.out.println("EAR TRAINING - update language");
 		appBundle = bundle;
 		sBar.updateLanguage(appBundle);
 		gameBar.updateLanguage(appBundle);
 		refreshPanel();
-  }
+	}
 
-  public void startGame() {
+	public void startGame()
+	{
 		currentSpeed = sBar.tempoSlider.getValue();
 		int notesNum = gameBar.notesNumber.getSelectedIndex();
 		switch(notesNum)
@@ -347,9 +273,10 @@ public class EarTrainingPanel extends JPanel {
 		gameThread.start();
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/stop.png")).getImage());
 		sBar.playBtn.repaint();
-  }
+	}
 
-  public void stopGame() {
+	public void stopGame()
+	{
 		if (gameType == appPrefs.GAME_STOPPED)
 			return;
 		if (gameThread != null && gameThread.isAlive() == true)
@@ -362,9 +289,10 @@ public class EarTrainingPanel extends JPanel {
 			gameNotes.clear();
 			gameType = appPrefs.GAME_STOPPED;
 		}
-  }
-
-  private void checkNote(int value, boolean fromMidi) {
+	}
+	
+	private void checkNote(int value, boolean fromMidi)
+	{
 		int noteIdx = 0;
 		int alt = 0;
 		int octave = -1;
@@ -428,9 +356,10 @@ public class EarTrainingPanel extends JPanel {
 			gameFinished(false);
 		else if (gameThread != null)
 			gameThread.resetTimer();
-  }
-
-  private String getLabelFromIndex(int idx) {
+	}
+	
+	private String getLabelFromIndex(int idx)
+	{
 		String noteInfo = "";
 		switch (idx)
 		{
@@ -444,9 +373,10 @@ public class EarTrainingPanel extends JPanel {
 		}
 
 		return noteInfo;
-  }
-
-  private void setLabelInfo(JLabel l, int noteIdx, int oct, int alt) {
+	}
+	
+	private void setLabelInfo(JLabel l, int noteIdx, int oct, int alt)
+	{
 		String noteInfo = "";
 		noteInfo = getLabelFromIndex(noteIdx);
 		if (oct != -1)
@@ -457,9 +387,10 @@ public class EarTrainingPanel extends JPanel {
 		l.setText(noteInfo);
 		l.setIcon(null);
 		l.setVisible(true);
-  }
-
-  private void showQuestion() {
+	}
+	
+	private void showQuestion()
+	{
 		if (gameNotes.size() > 0)
 		{
 			int alt = 0;
@@ -477,9 +408,10 @@ public class EarTrainingPanel extends JPanel {
 		questionLabel.setIcon(null);
 		for (int i = 0; i < gameNotes.size(); i++)
 			appMidi.stopNote(gameNotes.get(i).pitch, 0);
-  }
-
-  private void gameFinished(boolean win) {
+	}
+	
+	private void gameFinished(boolean win)
+	{
 		gameStarted = false;
 		sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 		refreshPanel();
@@ -513,14 +445,16 @@ public class EarTrainingPanel extends JPanel {
 		
 		if (Integer.parseInt(appPrefs.getProperty("saveStats")) == 1)
 			stats.storeData(0);
-  }
-
-  private void pianoKeyPressed(Key k, boolean pressed) {
+	}
+	
+	private void pianoKeyPressed(Key k, boolean pressed)
+	{
 		System.out.println("[pianoKeyPressed] pitch = " + k.pitch);
 		checkNote(k.pitch, false);
-  }
+	}
 
-  public void noteEvent(int pitch, int velocity, boolean fromPiano) {
+	public void noteEvent(int pitch, int velocity, boolean fromPiano)
+	{
 		if (velocity == 0)
 			appMidi.stopNote(pitch, 0);
 		else
@@ -528,9 +462,10 @@ public class EarTrainingPanel extends JPanel {
 			appMidi.playNote(pitch, 90);
 			checkNote(pitch, true);
 		}
-  }
+	}
 
-  public void actionPerformed(ActionEvent ae) {
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == sBar.playBtn)
 		{
 			if (gameThread != null && gameThread.isAlive() == true)
@@ -560,9 +495,9 @@ public class EarTrainingPanel extends JPanel {
 				}
 			}
 		}
-  }
-
-  protected void paintComponent(Graphics g) {
+	}
+	protected void paintComponent(Graphics g) 
+	{
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -572,6 +507,57 @@ public class EarTrainingPanel extends JPanel {
 		buttonsContainer.setBounds((getWidth() / 2) - 300, getHeight() - gBarHeight - 120, 600, 80);
 		piano.setBounds(0, getHeight() - gBarHeight - 130, getWidth(), pianoHeight);
 		gameBar.setBounds(0, getHeight() - gBarHeight, getWidth(), gBarHeight);
-  }
+	}
+	
+	private class EarTrainingGameThread extends Thread 
+	{
+		boolean needNewNote = true;
+		int pauseBetweenNotes = 20;
+		int noteTimeout = (currentSpeed * 10) + pauseBetweenNotes;
+		int timeoutCounter = pauseBetweenNotes;
 
+		public void resetTimer()
+		{
+			timeoutCounter = 0;
+			needNewNote = true;
+		}
+
+		public void run() 
+		{
+			while (gameStarted) 
+			{
+				try
+				{
+					if (needNewNote == true && timeoutCounter > pauseBetweenNotes)
+					{
+						Note newNote = null;
+						if (gameSubType == 2) newNote = earNG.getRandomNote(0, true, -1); // alterations only on advanced game
+						else newNote = earNG.getRandomNote(0, false, -1);
+						
+						gameNotes.add(newNote);
+						appMidi.playNote(newNote.pitch, 90);
+						needNewNote = false;
+						questionLabel.setText("");
+						answerLabel.setText("");
+						commentLabel.setText("");
+						questionLabel.setIcon(listenIcon);
+						questionLabel.setVisible(true);
+					}
+					
+					if (timeoutCounter == noteTimeout) // timed out without an answer
+					{
+						for (int i = 0; i < gameNotes.size(); i++)
+							appMidi.stopNote(gameNotes.get(i).pitch, 0);
+						needNewNote = true;
+						timeoutCounter = 0;
+						showQuestion();
+						gameNotes.clear();
+					}
+					timeoutCounter++;
+					sleep(100);
+				}
+				catch (Exception e) {  }
+			}
+		}
+	}
 }

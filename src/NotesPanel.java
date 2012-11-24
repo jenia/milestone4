@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -25,88 +25,47 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Vector;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-public class NotesPanel extends JPanel {
-  private static final long serialVersionUID =  -1735923156425027329L;
 
-  Font appFont;
+public class NotesPanel extends JPanel implements MouseListener
+{
+	private static final long serialVersionUID = -1735923156425027329L;
+	Font appFont;
+	Preferences appPrefs;
+	private Vector<Note> notes; // first clef notes
+	private Vector<Note> notes2; // second clef notes
 
-  Preferences appPrefs;
+    private int clefMask = 1;
+    private Vector<Integer> clefs = new Vector<Integer>();    
+	private int rowsDistance = 90; // distance in pixel between staff rows
+	private int noteDistance = 72; // distance in pixel between 1/4 notes
+	private int firstNoteXPos = 50;
 
-  /**
-   *  first clef notes
-   */
-  private Vector<Note> notes;
+	private int staffWidth;
+	// kinda dirty variables used by setNotesPosition
+	int tmpY = 0;
+	int tmpX = 0;
 
-  /**
-   *  second clef notes
-   */
-  private Vector<Note> notes2;
+	private boolean inlineMode = false;
+	private int singleNoteIndex = -1; // force the painting of a single note (first clef)
+	private int singleNote2Index = -1; // force the painting of a single note (second clef)
+	private int selectedClef = 1; 
 
-  private int clefMask =  1;
+	private JLabel learningText;
 
-  private Vector<Integer> clefs =  new Vector<Integer>();
+	// edit mode, activated from the exercise panel
+	boolean editMode = false;
+	boolean editModeRhythm = false;
+	int editNoteIndex = -1;
+	int editNoteSelX = -1, editNoteSelY = -1, editNoteSelW = -1, editNoteSelH = -1;
+	NoteGenerator editNG;
 
-  /**
-   *  distance in pixel between staff rows
-   */
-  private int rowsDistance =  90;
+	private double globalScale = 1.0;
 
-  /**
-   *  distance in pixel between 1/4 notes
-   */
-  private int noteDistance =  72;
-
-  private int firstNoteXPos =  50;
-
-  private int staffWidth;
-
-  /**
-   *  kinda dirty variables used by setNotesPosition
-   */
-  int tmpY =  0;
-
-  int tmpX =  0;
-
-  private boolean inlineMode =  false;
-
-  /**
-   *  force the painting of a single note (first clef)
-   */
-  private int singleNoteIndex =  -1;
-
-  /**
-   *  force the painting of a single note (second clef)
-   */
-  private int singleNote2Index =  -1;
-
-  private int selectedClef =  1;
-
-  private JLabel learningText;
-
-  /**
-   *  edit mode, activated from the exercise panel
-   */
-  boolean editMode =  false;
-
-  boolean editModeRhythm =  false;
-
-  int editNoteIndex =  -1;
-
-  int editNoteSelX =  -1;
-
-  int editNoteSelY =  -1;
-
-  int editNoteSelW =  -1;
-
-  int editNoteSelH =  -1;
-
-  NoteGenerator editNG;
-
-  private double globalScale =  1.0;
-
-  public NotesPanel(Font f, Preferences p, Vector<Note> n, Vector<Note> n2, boolean inline) {
+	public NotesPanel(Font f, Preferences p, Vector<Note> n, Vector<Note> n2, boolean inline)
+	{
 		appFont = f;
 		appPrefs = p;
 		notes = n;
@@ -124,17 +83,20 @@ public class NotesPanel extends JPanel {
 		//setDoubleBuffered(false);
     	//setBackground(Color.blue);
 		addMouseListener(this);
-  }
+	}
 
-  public void setRowsDistance(int dist) {
+    public void setRowsDistance(int dist)
+    {
     	rowsDistance = dist;
-  }
-
-  public int getRowsDistance() {
+    }
+    
+    public int getRowsDistance()
+    {
     	return rowsDistance;
-  }
+    }
 
-  public void setClefs(int type) {
+    public void setClefs(int type)
+    {
     	clefMask = type;
     	clefs.clear();
 
@@ -150,45 +112,54 @@ public class NotesPanel extends JPanel {
 		learningText.setFont(ltf);
 		
     	repaint();
-  }
-
-  public int getClef(int idx) {
+    }
+    
+    public int getClef(int idx)
+    {
     	if (idx < 0 || idx >= clefs.size())
     		return 0;
     	return clefs.get(idx);
-  }
-
-  public void setFirstNoteXPosition(int xpos) {
+    }
+    
+    public void setFirstNoteXPosition(int xpos)
+    {
     	firstNoteXPos = xpos;
-  }
-
-  public void setStaffWidth(int w) {
+    }
+    
+    public void setStaffWidth(int w)
+    {
     	//System.out.println("[NP] staff width: " + w);
     	staffWidth = w;
-  }
-
-  public void setScale(double factor) {
+    }
+    
+    public void setScale(double factor)
+    {
     	globalScale = factor;
-  }
-
-  public void setEditMode(boolean active, boolean isRhythm) {
+    }
+    
+    public void setEditMode(boolean active, boolean isRhythm)
+    {
     	editMode = active;
     	editModeRhythm = isRhythm;
-  }
-
-  public void setEditNoteIndex(int idx) {
+    }
+    
+    public void setEditNoteIndex(int idx)
+    {
     	editNoteIndex = idx;
-  }
-
-  public int getEditNoteIndex() {
+    }
+    
+    public int getEditNoteIndex()
+    {
     	return editNoteIndex;
-  }
+    }
 
-  public void setEditNoteGenerator(NoteGenerator ng) {
+    public void setEditNoteGenerator(NoteGenerator ng)
+    {
     	editNG = ng;
-  }
+    }
 
-  public void setNotesSequence(Vector<Note> n, Vector<Note> n2) {
+    public void setNotesSequence(Vector<Note> n, Vector<Note> n2)
+    {
     	int minLev = 9;
     	int maxLev = 17;
     	int row1H = 0;
@@ -227,9 +198,10 @@ public class NotesPanel extends JPanel {
     	}
     	rowsDistance = row1H + row2H;
     	System.out.println("[setNotesSequence] rowsDistance set to: " + rowsDistance);
-  }
+    }
 
-  public void setNotesPositions() {
+    public void setNotesPositions()
+    {
     	tmpX = firstNoteXPos;
     	tmpY = 0;
 
@@ -253,9 +225,10 @@ public class NotesPanel extends JPanel {
     		setSingleNotePosition(notes2.get(i), true);
     		//System.out.println("[Note(2): #" + i + "] type: " + notes.get(i).type + ", xpos: " + notes.get(i).xpos + ", ypos: " + notes.get(i).ypos);
     	}
-  }
+    }
 
-  public void setSingleNotePosition(Note note, boolean setXpos) {
+    public void setSingleNotePosition(Note note, boolean setXpos)
+    {
    		int type = note.type;
    		int ypos = (note.level * 5) + 11;
    		int yOffset = 0;
@@ -321,16 +294,18 @@ public class NotesPanel extends JPanel {
 			note.xpos = tmpX;
 			tmpX += (note.duration * noteDistance);
 		}
-  }
+    }
 
-  public void setLearningTips(String tip, boolean enable) {
+    public void setLearningTips(String tip, boolean enable)
+    {
     	if (enable == true)
     		learningText.setText(tip);
 
    		learningText.setVisible(enable); 	
-  }
+    }
 
-  public void highlightNote(int index, int clef, boolean enable) {
+    public void highlightNote(int index, int clef, boolean enable)
+    {
     	if (clef == 1)
     	{
     		if (notes.size() == 0) return;
@@ -347,9 +322,10 @@ public class NotesPanel extends JPanel {
     		repaint();
     		singleNote2Index = -1;
     	}
-  }
+    }
 
-  public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent e) 
+	{
 		//System.out.println("Mouse clicked (# of clicks: " + e.getClickCount() + ")");
     	int mouseX = e.getX();
     	int mouseY = e.getY();
@@ -474,25 +450,30 @@ public class NotesPanel extends JPanel {
 			  tmpNotes = notes2;
 			}
 		}
-  }
+	}
 
-  public void mousePressed(MouseEvent e) {
+	public void mousePressed(MouseEvent e) 
+	{
 		//System.out.println("Mouse pressed; # of clicks: " + e.getClickCount());
-  }
+	}
 
-  public void mouseReleased(MouseEvent e) {
+    public void mouseReleased(MouseEvent e) 
+    {
     	//System.out.println("Mouse released; # of clicks: " + e.getClickCount());
-  }
+    }
 
-  public void mouseEntered(MouseEvent e) {
+    public void mouseEntered(MouseEvent e) 
+    {
     	//System.out.println("Mouse entered");
-  }
+    }
 
-  public void mouseExited(MouseEvent e) {
+    public void mouseExited(MouseEvent e) 
+    {
     	//System.out.println("Mouse exited");
-  }
+    }
 
-  private void drawNote(Graphics g, int index, int clef) {
+    private void drawNote(Graphics g, int index, int clef) 
+    {
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     	String symbol = "";
 		Note note = null;
@@ -647,9 +628,10 @@ public class NotesPanel extends JPanel {
     			}
     		}	
     	}
-  }
+    }
 
-  protected void paintComponent(Graphics g) {
+	protected void paintComponent(Graphics g) 
+ 	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		if (globalScale != 1.0)
@@ -684,6 +666,5 @@ public class NotesPanel extends JPanel {
     		else if (singleNoteIndex != -1 && singleNoteIndex < notes2.size())
     			drawNote(g, singleNoteIndex, 2);
     	}
-  }
-
+ 	}
 }

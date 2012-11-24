@@ -1,70 +1,53 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.Vector;
+//import java.awt.Polygon;
+
 import javax.swing.JPanel;
-public class Piano extends JPanel {
-  private static final long serialVersionUID =  -5581159862523677986L;
 
-  Vector<Key> whiteKeys =  new Vector<Key>();
+public class Piano extends JPanel 
+{
+  private static final long serialVersionUID = -5581159862523677986L;
+  Vector<Key> whiteKeys = new Vector<Key>();
+  Vector<Key> blackKeys = new Vector<Key>();
+  Vector<Key> keys = new Vector<Key>(); // Array of whiteKeys + blackKeys
+  
+  // painting parameters
+  int currentWidth = 0;
+  
+  int keysNumber = 73;
+  int firstLowPitch = 40;
+  int firstHighPitch = 42;  
+  int secondLowPitch = 70;
+  int secondHighPitch = 75;
+  int selectedKeyIndex = -1;
 
-  Vector<Key> blackKeys =  new Vector<Key>();
+  // Keys dimensions and offsets
+  final int kw = 16, kh = 80;
+  final int ypos = 5;
+  int leftMargin = 43;
 
-  /**
-   *  Array of whiteKeys + blackKeys
-   */
-  Vector<Key> keys =  new Vector<Key>();
-
-  /**
-   *  painting parameters
-   */
-  int currentWidth =  0;
-
-  int keysNumber =  73;
-
-  int firstLowPitch =  40;
-
-  int firstHighPitch =  42;
-
-  int secondLowPitch =  70;
-
-  int secondHighPitch =  75;
-
-  int selectedKeyIndex =  -1;
-
-  /**
-   *  Keys dimensions and offsets
-   */
-  final int kw =  16;
-
-  /**
-   *  Keys dimensions and offsets
-   */
-  final int kh =  80;
-
-  final int ypos =  5;
-
-  int leftMargin =  43;
-
-  public Piano(int l) {
+  public Piano(int l) 
+  {
     int octavesNumber;
     int transpose;
     int offset = 0;
@@ -126,8 +109,9 @@ public class Piano extends JPanel {
     	this.add(keys.get(i));
     }
   }
-
-  public void reset(boolean highlightStart) {
+  
+  public void reset(boolean highlightStart)
+  {
 	  for (int i = 0; i < whiteKeys.size(); i++)
 	  {
 		  if (highlightStart == true && whiteKeys.get(i).pitch == 60)
@@ -143,10 +127,9 @@ public class Piano extends JPanel {
 	  }
   }
 
-  /**
-   *  highlight a key and returns the note index from 0 to 7
-   */
-  public int highlightKey(int pitch, boolean enable) {
+  // highlight a key and returns the note index from 0 to 7
+  public int highlightKey(int pitch, boolean enable)
+  {
 	  for (int i = 0; i < keys.size(); i++)
 	  {
 		  if (keys.get(i).pitch == pitch)
@@ -162,8 +145,9 @@ public class Piano extends JPanel {
 	  }
 	  return 0;
   }
-
-  public void keyPressed(int pitch, boolean on) {
+  
+  public void keyPressed(int pitch, boolean on)
+  {
 	  for (int i = 0; i < keys.size(); i++)
 	  {
 		  if (keys.get(i).pitch == pitch)
@@ -173,8 +157,9 @@ public class Piano extends JPanel {
 		  }
 	  }
   }
-
-  public int getNoteIndexFromPitch(int pitch) {
+  
+  public int getNoteIndexFromPitch(int pitch)
+  {
 	  for (int i = 0; i < keys.size(); i++)
 	  {
 		  Key tmpKey = keys.get(i);
@@ -188,8 +173,9 @@ public class Piano extends JPanel {
 	  }
 	  return 0;
   }
-
-  public int getOctaveFromPitch(int pitch) {
+  
+  public int getOctaveFromPitch(int pitch)
+  {
 	  for (int i = 0; i < keys.size(); i++)
 	  {
 		  Key tmpKey = keys.get(i);
@@ -198,23 +184,27 @@ public class Piano extends JPanel {
 	  }
 	  return 0;
   }
-
-  public boolean isSelectedBlack() {
+  
+  public boolean isSelectedBlack()
+  {
 	  if (selectedKeyIndex == -1)
 		  return false;
 
 	  return keys.get(selectedKeyIndex).is_black;
   }
 
-  public boolean is73keys() {
+  public boolean is73keys() 
+  {
     return this.keysNumber == 73;
   }
 
-  public boolean is61keys() {
+  public boolean is61keys() 
+  {
     return this.keysNumber == 61;
   }
 
-  public void setNewBound(int low, int high) {
+  public void setNewBound(int low, int high)
+  {
 	  if (low == -1 || high == -1)
 		  return;
 	  // reset previously set keys
@@ -240,7 +230,8 @@ public class Piano extends JPanel {
 	  repaint();
   }
 
-  protected void paintComponent(Graphics g) {
+  protected void paintComponent(Graphics g) 
+  {
     Graphics2D g2 = (Graphics2D) g;
     
     int offx = 0;
@@ -269,5 +260,5 @@ public class Piano extends JPanel {
     	}
     }
   }
+} // End class Piano
 
-}

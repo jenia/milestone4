@@ -1,4 +1,3 @@
-
 package org.jpab;
 
 import java.util.HashMap;
@@ -8,14 +7,15 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-public final class PortAudio {
-  public interface Component {
-  }
 
-  private static HashMap<Integer, Stream> streams =  new HashMap <Integer, Stream> ();
-
-  public static void load(File file) throws UnsatisfiedLinkError
-  {
+public final class PortAudio 
+{
+	public interface Component {}	
+	
+	private static HashMap <Integer, Stream> streams = new HashMap <Integer, Stream> ();
+	
+    public static void load(File file) throws UnsatisfiedLinkError 
+    {
         try {
                 System.load(file.getCanonicalPath());
         } catch (IOException ex) {
@@ -23,9 +23,9 @@ public final class PortAudio {
                 error.initCause(ex);
                 throw error;
         }
-  }
+    }
 
-  static {
+	static {
 		String LIBS_PATH = "libs";
 		String WIN32_ARCH_PATH = "win32";
 		String WIN64_ARCH_PATH = "win64";
@@ -50,43 +50,39 @@ public final class PortAudio {
 			directory = new File(LIBS_PATH + File.separator + LINUX_ARCH_PATH + File.separator);
 		
 		load(new File(directory, System.mapLibraryName("PortAudioJNI")));
-	}  protected static int callback(int id, ByteBuffer input, ByteBuffer output)
-  {
+	}
+	
+	protected static int callback(int id, ByteBuffer input, ByteBuffer output) {
 		if (input != null) {
 			input.limit(input.capacity());
 			input = input.asReadOnlyBuffer();
 		}
 		return streams.get(id).callback.callback(input, output).ordinal();
-  }
-
-  protected static void hook(int id)
-  {
+	}
+	
+	protected static void hook(int id) {
 		streams.get(id).hook.run();
-  }
+	}
+	
+	private PortAudio() {}
 
-  private PortAudio() {
-  }
-
-  public static Stream createStream(StreamConfiguration configuration, Callback callback, Runnable hook) throws PortAudioException
-  {
+	public static Stream createStream(StreamConfiguration configuration, Callback callback, Runnable hook) throws PortAudioException {
 		assert(configuration != null && callback != null && hook != null);
 		final int id = openStream(configuration.serialize());
 		final Stream stream = new Stream(callback, configuration, hook, id);
 		streams.put(id, stream);
 		return stream;
-  }
+	}
 
-  public static HostAPI getDefaultHostAPI() throws PortAudioException
-  {
+	public static HostAPI getDefaultHostAPI() throws PortAudioException {
 		final ByteBuffer buffer = getDefaultHostAPIAsBuffer();
 		buffer.order(ByteOrder.nativeOrder());
 		final HostAPI api = new HostAPI(buffer);
 		free(buffer);
 		return api;
-  }
-
-  public static StreamConfiguration getDefaultStreamConfiguration(StreamConfiguration.Mode mode) throws PortAudioException
-  {
+	}
+	
+	public static StreamConfiguration getDefaultStreamConfiguration(StreamConfiguration.Mode mode) throws PortAudioException {
 		final StreamConfiguration configuration = new StreamConfiguration();
 		configuration.setMode(mode);
 		final HostAPI hostApi = getDefaultHostAPI();
@@ -109,10 +105,9 @@ public final class PortAudio {
 		}
 		configuration.setSampleRate(sampleRate);
 		return configuration;
-  }
-
-  public static List<Device> getDevices() throws PortAudioException
-  {
+	}
+	
+	public static List <Device> getDevices() throws PortAudioException {
 		ArrayList <Device> devices = new ArrayList <Device> ();
 		ByteBuffer data = getDevicesAsBuffer();
 		data.order(ByteOrder.nativeOrder());
@@ -123,10 +118,9 @@ public final class PortAudio {
 			free(data);
 		}
 		return devices;
-  }
-
-  public static List<HostAPI> getHostAPIs() throws PortAudioException
-  {
+	}
+	
+	public static List <HostAPI> getHostAPIs() throws PortAudioException {
 		ArrayList <HostAPI> hostAPIs = new ArrayList <HostAPI> ();
 		ByteBuffer data = getHostAPIsAsBuffer();
 		data.order(ByteOrder.nativeOrder());
@@ -137,66 +131,46 @@ public final class PortAudio {
 			free(data);
 		}
 		return hostAPIs;
-  }
-
-  public static native int getVersion();
-
-  public static native String getVersionText();
-
-  public static native void initialize() throws PortAudioException;
-
-  public static native void terminate() throws PortAudioException;
-
-  protected static native void abortStream(int id) throws PortAudioException;
-
-  protected static native void closeStream(int id) throws PortAudioException;
-
-  protected static native void free(ByteBuffer buffer);
-
-  protected static native ByteBuffer getDefaultHostAPIAsBuffer() throws PortAudioException;
-
-  protected static Device getDevice(int index) throws PortAudioException
-  {
+	}
+	
+	public static native int getVersion();
+	public static native String getVersionText();
+	public static native void initialize() throws PortAudioException;
+	public static native void terminate() throws PortAudioException;
+	protected static native void abortStream(int id) throws PortAudioException;
+	protected static native void closeStream(int id) throws PortAudioException;
+	protected static native void free(ByteBuffer buffer);
+	protected static native ByteBuffer getDefaultHostAPIAsBuffer() throws PortAudioException;
+	
+	protected static Device getDevice(int index) throws PortAudioException {
 		final ByteBuffer buffer = getDeviceAsBuffer(index);
 		buffer.order(ByteOrder.nativeOrder());
 		final Device device = new Device(buffer);
 		free(buffer);
 		return device;
-  }
-
-  protected static native ByteBuffer getDeviceAsBuffer(int index) throws PortAudioException;
-
-  protected static native ByteBuffer getDevicesAsBuffer() throws PortAudioException;
-
-  protected static HostAPI getHostAPI(int index) throws PortAudioException
-  {
+	}
+	
+	protected static native ByteBuffer getDeviceAsBuffer(int index) throws PortAudioException;
+	protected static native ByteBuffer getDevicesAsBuffer() throws PortAudioException;
+	
+	protected static HostAPI getHostAPI(int index) throws PortAudioException {
 		final ByteBuffer buffer = getHostAPIAsBuffer(index);
 		buffer.order(ByteOrder.nativeOrder());
 		final HostAPI api = new HostAPI(buffer);
 		free(buffer);
 		return api;
-  }
-
-  protected static native ByteBuffer getHostAPIAsBuffer(int index) throws PortAudioException;
-
-  protected static native ByteBuffer getHostAPIsAsBuffer() throws PortAudioException;
-
-  protected static native ByteBuffer getHostAPIsDevicesAsBuffer(int hostIndex) throws PortAudioException;
-
-  protected static native double getStreamCpuLoad(int id) throws PortAudioException;
-
-  protected static native double getStreamTime(int id) throws PortAudioException;
-
-  protected static native void isFormatSupported(ByteBuffer configuration) throws PortAudioException;
-
-  protected static native boolean isStreamActive(int id) throws PortAudioException;
-
-  protected static native boolean isStreamStopped(int id) throws PortAudioException;
-
-  protected static native int openStream(ByteBuffer configuration) throws PortAudioException;
-
-  protected static native void startStream(int id) throws PortAudioException;
-
-  protected static native void stopStream(int id) throws PortAudioException;
-
+	}
+	
+	protected static native ByteBuffer getHostAPIAsBuffer(int index) throws PortAudioException;
+	protected static native ByteBuffer getHostAPIsAsBuffer() throws PortAudioException;
+	protected static native ByteBuffer getHostAPIsDevicesAsBuffer(int hostIndex) throws PortAudioException;
+	protected static native double getStreamCpuLoad(int id) throws PortAudioException;
+	protected static native double getStreamTime(int id) throws PortAudioException;
+	protected static native void isFormatSupported(ByteBuffer configuration) throws PortAudioException;
+	protected static native boolean isStreamActive(int id) throws PortAudioException;
+	protected static native boolean isStreamStopped(int id) throws PortAudioException;
+	protected static native int openStream(ByteBuffer configuration) throws PortAudioException;
+	protected static native void startStream(int id) throws PortAudioException;
+	protected static native void stopStream(int id) throws PortAudioException;
+	
 }

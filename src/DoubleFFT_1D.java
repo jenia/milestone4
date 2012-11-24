@@ -1,24 +1,23 @@
-/**
- *  ***** BEGIN LICENSE BLOCK *****
+/* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
+ *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
- * 
+ *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  * for the specific language governing rights and limitations under the
  * License.
- * 
+ *
  * The Original Code is JTransforms.
- * 
+ *
  * The Initial Developer of the Original Code is
  * Piotr Wendykier, Emory University.
  * Portions created by the Initial Developer are Copyright (C) 2007-2009
  * the Initial Developer. All Rights Reserved.
- * 
+ *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
  * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -30,10 +29,11 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- * 
- * ***** END LICENSE BLOCK ***** 
- */
+ *
+ * ***** END LICENSE BLOCK ***** */
+
 import java.util.concurrent.Future;
+
 /**
  * Computes 1D Discrete Fourier Transform (DFT) of complex and real, double
  * precision data. The size of the data can be an arbitrary number. This is a
@@ -45,49 +45,49 @@ import java.util.concurrent.Future;
  * by Baoshe Zhang (http://jfftpack.sourceforge.net/)
  * 
  * @author Piotr Wendykier (piotr.wendykier@gmail.com)
+ * 
  */
 public class DoubleFFT_1D {
-  private enum Plans {
-    SPLIT_RADIX,
-    MIXED_RADIX,
-    BLUESTEIN,;
-  }
 
-  private int n;
+    private static enum Plans {
+        SPLIT_RADIX, MIXED_RADIX, BLUESTEIN
+    }
 
-  private int nBluestein;
+    private int n;
 
-  private int[] ip;
+    private int nBluestein;
 
-  private double[] w;
+    private int[] ip;
 
-  private int nw;
+    private double[] w;
 
-  private int nc;
+    private int nw;
 
-  private double[] wtable;
+    private int nc;
 
-  private double[] wtable_r;
+    private double[] wtable;
 
-  private double[] bk1;
+    private double[] wtable_r;
 
-  private double[] bk2;
+    private double[] bk1;
 
-  private DoubleFFT_1D.Plans plan;
+    private double[] bk2;
 
-  private static final int[] factors =  { 4, 2, 3, 5 };
+    private Plans plan;
 
-  private static final double PI =  3.14159265358979311599796346854418516;
+    private static final int[] factors = { 4, 2, 3, 5 };
 
-  private static final double TWO_PI =  6.28318530717958623199592693708837032;
+    private static final double PI = 3.14159265358979311599796346854418516;
 
-  /**
-   * Creates new instance of DoubleFFT_1D.
-   * 
-   * @param n
-   *            size of data
-   */
-  public DoubleFFT_1D(int n) {
+    private static final double TWO_PI = 6.28318530717958623199592693708837032;
+
+    /**
+     * Creates new instance of DoubleFFT_1D.
+     * 
+     * @param n
+     *            size of data
+     */
+    public DoubleFFT_1D(int n) {
         if (n < 1) {
             throw new IllegalArgumentException("n must be greater than 0");
         }
@@ -136,45 +136,45 @@ public class DoubleFFT_1D {
                 makect(nc, w, nw);
             }
         }
-  }
+    }
 
-  /**
-   * Computes 1D forward DFT of complex data leaving the result in
-   * <code>a</code>. Complex number is stored as two double values in
-   * sequence: the real and imaginary part, i.e. the size of the input array
-   * must be greater or equal 2*n. The physical layout of the input data has
-   * to be as follows:<br>
-   * 
-   * <pre>
-   * a[2*k] = Re[k], 
-   * a[2*k+1] = Im[k], 0&lt;=k&lt;n
-   * </pre>
-   * 
-   * @param a
-   *            data to transform
-   */
-  public void complexForward(double[] a) {
+    /**
+     * Computes 1D forward DFT of complex data leaving the result in
+     * <code>a</code>. Complex number is stored as two double values in
+     * sequence: the real and imaginary part, i.e. the size of the input array
+     * must be greater or equal 2*n. The physical layout of the input data has
+     * to be as follows:<br>
+     * 
+     * <pre>
+     * a[2*k] = Re[k], 
+     * a[2*k+1] = Im[k], 0&lt;=k&lt;n
+     * </pre>
+     * 
+     * @param a
+     *            data to transform
+     */
+    public void complexForward(double[] a) {
         complexForward(a, 0);
-  }
+    }
 
-  /**
-   * Computes 1D forward DFT of complex data leaving the result in
-   * <code>a</code>. Complex number is stored as two double values in
-   * sequence: the real and imaginary part, i.e. the size of the input array
-   * must be greater or equal 2*n. The physical layout of the input data has
-   * to be as follows:<br>
-   * 
-   * <pre>
-   * a[offa+2*k] = Re[k], 
-   * a[offa+2*k+1] = Im[k], 0&lt;=k&lt;n
-   * </pre>
-   * 
-   * @param a
-   *            data to transform
-   * @param offa
-   *            index of the first element in array <code>a</code>
-   */
-  public void complexForward(double[] a, int offa) {
+    /**
+     * Computes 1D forward DFT of complex data leaving the result in
+     * <code>a</code>. Complex number is stored as two double values in
+     * sequence: the real and imaginary part, i.e. the size of the input array
+     * must be greater or equal 2*n. The physical layout of the input data has
+     * to be as follows:<br>
+     * 
+     * <pre>
+     * a[offa+2*k] = Re[k], 
+     * a[offa+2*k+1] = Im[k], 0&lt;=k&lt;n
+     * </pre>
+     * 
+     * @param a
+     *            data to transform
+     * @param offa
+     *            index of the first element in array <code>a</code>
+     */
+    public void complexForward(double[] a, int offa) {
         if (n == 1)
             return;
         switch (plan) {
@@ -188,10 +188,9 @@ public class DoubleFFT_1D {
             bluestein_complex(a, offa, -1);
             break;
         }
-  }
+    }
 
-  private static int getReminder(int n, int[] factors)
-  {
+    private static int getReminder(int n, int factors[]) {
         int reminder = n;
 
         if (n <= 0) {
@@ -205,15 +204,15 @@ public class DoubleFFT_1D {
             }
         }
         return reminder;
-  }
+    }
 
-  /**
-   *  -------- initializing routines -------- 
-   * ---------------------------------------------------------
-   * cffti: initialization of Complex FFT
-   * --------------------------------------------------------
-   */
-  void cffti(int n, int offw) {
+    /* -------- initializing routines -------- */
+
+    /*---------------------------------------------------------
+       cffti: initialization of Complex FFT
+      --------------------------------------------------------*/
+
+    void cffti(int n, int offw) {
         if (n == 1)
             return;
 
@@ -294,9 +293,9 @@ public class DoubleFFT_1D {
             l1 = l2;
         }
 
-  }
+    }
 
-  void cffti() {
+    void cffti() {
         if (n == 1)
             return;
 
@@ -377,9 +376,9 @@ public class DoubleFFT_1D {
             l1 = l2;
         }
 
-  }
+    }
 
-  void rffti() {
+    void rffti() {
 
         if (n == 1)
             return;
@@ -456,9 +455,9 @@ public class DoubleFFT_1D {
             }
             l1 = l2;
         }
-  }
+    }
 
-  private void bluesteini() {
+    private void bluesteini() {
         int k = 0;
         double arg;
         double pi_n = PI / n;
@@ -482,9 +481,9 @@ public class DoubleFFT_1D {
             bk2[2 * nBluestein - i + 1] = bk2[i + 1];
         }
         cftbsub(2 * nBluestein, bk2, 0, ip, nw, w);
-  }
+    }
 
-  private void makewt(int nw) {
+    private void makewt(int nw) {
         int j, nwh, nw0, nw1;
         double delta, wn4r, wk1r, wk1i, wk3r, wk3i;
         double delta2, deltaj, deltaj3;
@@ -546,9 +545,9 @@ public class DoubleFFT_1D {
                 nw0 = nw1;
             }
         }
-  }
+    }
 
-  private void makeipt(int nw) {
+    private void makeipt(int nw) {
         int j, l, m, m2, p, q;
 
         ip[2] = 0;
@@ -564,9 +563,9 @@ public class DoubleFFT_1D {
             }
             m = m2;
         }
-  }
+    }
 
-  private void makect(int nc, double[] c, int startc) {
+    private void makect(int nc, double[] c, int startc) {
         int j, nch;
         double delta, deltaj;
 
@@ -582,9 +581,9 @@ public class DoubleFFT_1D {
                 c[startc + nc - j] = 0.5 * Math.sin(deltaj);
             }
         }
-  }
+    }
 
-  private void bluestein_complex(final double[] a, final int offa, final int isign) {
+    private void bluestein_complex(final double[] a, final int offa, final int isign) {
         final double[] ak = new double[2 * nBluestein];
         int nthreads = 1;
         int threads = ConcurrencyUtils.getNumberOfThreads();
@@ -747,14 +746,14 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  /**
-   * ---------------------------------------------------------
-   * cfftf1: further processing of Complex forward FFT
-   * --------------------------------------------------------
-   */
-  void cfftf(double[] a, int offa, int isign) {
+
+
+    /*---------------------------------------------------------
+       cfftf1: further processing of Complex forward FFT
+      --------------------------------------------------------*/
+    void cfftf(double a[], int offa, int isign) {
         int idot;
         int l1, l2;
         int na, nf, ip, iw, ido, idl1;
@@ -827,15 +826,14 @@ public class DoubleFFT_1D {
             return;
         System.arraycopy(ch, 0, a, offa, twon);
 
-  }
+    }
 
-  /**
-   * ----------------------------------------------------------------------
-   * passf2: Complex FFT's forward/backward processing of factor 2;
-   * isign is +1 for backward and -1 for forward transforms
-   * ----------------------------------------------------------------------
-   */
-  void passf2(final int ido, final int l1, final double[] in, final int in_off, final double[] out, final int out_off, final int offset, final int isign) {
+    /*----------------------------------------------------------------------
+       passf2: Complex FFT's forward/backward processing of factor 2;
+       isign is +1 for backward and -1 for forward transforms
+      ----------------------------------------------------------------------*/
+
+    void passf2(final int ido, final int l1, final double in[], final int in_off, final double out[], final int out_off, final int offset, final int isign) {
         double t1i, t1r;
         int iw1;
         iw1 = offset;
@@ -884,15 +882,13 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  /**
-   * ----------------------------------------------------------------------
-   * passf3: Complex FFT's forward/backward processing of factor 3;
-   * isign is +1 for backward and -1 for forward transforms
-   * ----------------------------------------------------------------------
-   */
-  void passf3(final int ido, final int l1, final double[] in, final int in_off, final double[] out, final int out_off, final int offset, final int isign) {
+    /*----------------------------------------------------------------------
+       passf3: Complex FFT's forward/backward processing of factor 3;
+       isign is +1 for backward and -1 for forward transforms
+      ----------------------------------------------------------------------*/
+    void passf3(final int ido, final int l1, final double in[], final int in_off, final double out[], final int out_off, final int offset, final int isign) {
         final double taur = -0.5;
         final double taui = 0.866025403784438707610604524234076962;
         double ci2, ci3, di2, di3, cr2, cr3, dr2, dr3, ti2, tr2;
@@ -977,15 +973,13 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  /**
-   * ----------------------------------------------------------------------
-   * passf4: Complex FFT's forward/backward processing of factor 4;
-   * isign is +1 for backward and -1 for forward transforms
-   * ----------------------------------------------------------------------
-   */
-  void passf4(final int ido, final int l1, final double[] in, final int in_off, final double[] out, final int out_off, final int offset, final int isign) {
+    /*----------------------------------------------------------------------
+       passf4: Complex FFT's forward/backward processing of factor 4;
+       isign is +1 for backward and -1 for forward transforms
+      ----------------------------------------------------------------------*/
+    void passf4(final int ido, final int l1, final double in[], final int in_off, final double out[], final int out_off, final int offset, final int isign) {
         double ci2, ci3, ci4, cr2, cr3, cr4, ti1, ti2, ti3, ti4, tr1, tr2, tr3, tr4;
         int iw1, iw2, iw3;
         iw1 = offset;
@@ -1090,15 +1084,15 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  /**
-   * ----------------------------------------------------------------------
-   * passf5: Complex FFT's forward/backward processing of factor 5;
-   * isign is +1 for backward and -1 for forward transforms
-   * ----------------------------------------------------------------------
-   */
-  void passf5(final int ido, final int l1, final double[] in, final int in_off, final double[] out, final int out_off, final int offset, final int isign) {
+    /*----------------------------------------------------------------------
+       passf5: Complex FFT's forward/backward processing of factor 5;
+       isign is +1 for backward and -1 for forward transforms
+      ----------------------------------------------------------------------*/
+    void passf5(final int ido, final int l1, final double in[], final int in_off, final double out[], final int out_off, final int offset, final int isign)
+    /* isign==-1 for forward transform and+1 for backward transform */
+    {
         final double tr11 = 0.309016994374947451262869435595348477;
         final double ti11 = 0.951056516295153531181938433292089030;
         final double tr12 = -0.809016994374947340240566973079694435;
@@ -1242,15 +1236,13 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  /**
-   * ----------------------------------------------------------------------
-   * passfg: Complex FFT's forward/backward processing of general factor;
-   * isign is +1 for backward and -1 for forward transforms
-   * ----------------------------------------------------------------------
-   */
-  void passfg(final int[] nac, final int ido, final int ip, final int l1, final int idl1, final double[] in, final int in_off, final double[] out, final int out_off, final int offset, final int isign) {
+    /*----------------------------------------------------------------------
+       passfg: Complex FFT's forward/backward processing of general factor;
+       isign is +1 for backward and -1 for forward transforms
+      ----------------------------------------------------------------------*/
+    void passfg(final int nac[], final int ido, final int ip, final int l1, final int idl1, final double in[], final int in_off, final double out[], final int out_off, final int offset, final int isign) {
         int idij, idlj, idot, ipph, l, jc, lc, idj, idl, inc, idp;
         double w1r, w1i, w2i, w2r;
         int iw1;
@@ -1441,9 +1433,9 @@ public class DoubleFFT_1D {
                 }
             }
         }
-  }
+    }
 
-  private void cftfsub(int n, double[] a, int offa, int[] ip, int nw, double[] w) {
+    private void cftfsub(int n, double[] a, int offa, int[] ip, int nw, double[] w) {
         if (n > 8) {
             if (n > 32) {
                 cftf1st(n, a, offa, w, nw - (n >> 2));
@@ -1469,9 +1461,9 @@ public class DoubleFFT_1D {
         } else if (n == 4) {
             cftxb020(a, offa);
         }
-  }
+    }
 
-  private void cftbsub(int n, double[] a, int offa, int[] ip, int nw, double[] w) {
+    private void cftbsub(int n, double[] a, int offa, int[] ip, int nw, double[] w) {
         if (n > 8) {
             if (n > 32) {
                 cftb1st(n, a, offa, w, nw - (n >> 2));
@@ -1497,9 +1489,9 @@ public class DoubleFFT_1D {
         } else if (n == 4) {
             cftxb020(a, offa);
         }
-  }
+    }
 
-  private void bitrv2(int n, int[] ip, double[] a, int offa) {
+    private void bitrv2(int n, int[] ip, double[] a, int offa) {
         int j1, k1, l, m, nh, nm;
         double xr, xi, yr, yi;
         int idx0, idx1, idx2;
@@ -1909,9 +1901,9 @@ public class DoubleFFT_1D {
                 a[idx2 + 1] = xi;
             }
         }
-  }
+    }
 
-  private void bitrv2conj(int n, int[] ip, double[] a, int offa) {
+    private void bitrv2conj(int n, int[] ip, double[] a, int offa) {
         int j1, k1, l, m, nh, nm;
         double xr, xi, yr, yi;
         int idx0, idx1, idx2;
@@ -2329,9 +2321,9 @@ public class DoubleFFT_1D {
                 a[idx2 + 3] = -a[idx2 + 3];
             }
         }
-  }
+    }
 
-  private void bitrv216(double[] a, int offa) {
+    private void bitrv216(double[] a, int offa) {
         double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, x5r, x5i, x7r, x7i, x8r, x8i, x10r, x10i, x11r, x11i, x12r, x12i, x13r, x13i, x14r, x14i;
 
         x1r = a[offa + 2];
@@ -2382,9 +2374,9 @@ public class DoubleFFT_1D {
         a[offa + 27] = x11i;
         a[offa + 28] = x7r;
         a[offa + 29] = x7i;
-  }
+    }
 
-  private void bitrv216neg(double[] a, int offa) {
+    private void bitrv216neg(double[] a, int offa) {
         double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, x5r, x5i, x6r, x6i, x7r, x7i, x8r, x8i, x9r, x9i, x10r, x10i, x11r, x11i, x12r, x12i, x13r, x13i, x14r, x14i, x15r, x15i;
 
         x1r = a[offa + 2];
@@ -2447,9 +2439,9 @@ public class DoubleFFT_1D {
         a[offa + 29] = x4i;
         a[offa + 30] = x8r;
         a[offa + 31] = x8i;
-  }
+    }
 
-  private void bitrv208(double[] a, int offa) {
+    private void bitrv208(double[] a, int offa) {
         double x1r, x1i, x3r, x3i, x4r, x4i, x6r, x6i;
 
         x1r = a[offa + 2];
@@ -2468,9 +2460,9 @@ public class DoubleFFT_1D {
         a[offa + 9] = x1i;
         a[offa + 12] = x3r;
         a[offa + 13] = x3i;
-  }
+    }
 
-  private void bitrv208neg(double[] a, int offa) {
+    private void bitrv208neg(double[] a, int offa) {
         double x1r, x1i, x2r, x2i, x3r, x3i, x4r, x4i, x5r, x5i, x6r, x6i, x7r, x7i;
 
         x1r = a[offa + 2];
@@ -2501,9 +2493,9 @@ public class DoubleFFT_1D {
         a[offa + 13] = x2i;
         a[offa + 14] = x4r;
         a[offa + 15] = x4i;
-  }
+    }
 
-  private void cftf1st(int n, double[] a, int offa, double[] w, int startw) {
+    private void cftf1st(int n, double[] a, int offa, double[] w, int startw) {
         int j0, j1, j2, j3, k, m, mh;
         double wn4r, csc1, csc3, wk1r, wk1i, wk3r, wk3i, wd1r, wd1i, wd3r, wd3i;
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i;
@@ -2719,9 +2711,9 @@ public class DoubleFFT_1D {
         x0i = x1i - x3r;
         a[idx3 + 2] = wk3i * x0r + wk3r * x0i;
         a[idx3 + 3] = wk3i * x0i - wk3r * x0r;
-  }
+    }
 
-  private void cftb1st(int n, double[] a, int offa, double[] w, int startw) {
+    private void cftb1st(int n, double[] a, int offa, double[] w, int startw) {
         int j0, j1, j2, j3, k, m, mh;
         double wn4r, csc1, csc3, wk1r, wk1i, wk3r, wk3i, wd1r, wd1i, wd3r, wd3i;
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i;
@@ -2938,9 +2930,9 @@ public class DoubleFFT_1D {
         x0i = x1i - x3r;
         a[idx3 + 2] = wk3i * x0r + wk3r * x0i;
         a[idx3 + 3] = wk3i * x0i - wk3r * x0r;
-  }
+    }
 
-  private void cftrec4_th(final int n, final double[] a, final int offa, final int nw, final double[] w) {
+    private void cftrec4_th(final int n, final double[] a, final int offa, final int nw, final double[] w) {
         int i;
         int idiv4, m, nthreads;
         int idx = 0;
@@ -3001,9 +2993,9 @@ public class DoubleFFT_1D {
             }
         }
         ConcurrencyUtils.waitForCompletion(futures);
-  }
+    }
 
-  private void cftrec4(int n, double[] a, int offa, int nw, double[] w) {
+    private void cftrec4(int n, double[] a, int offa, int nw, double[] w) {
         int isplt, j, k, m;
 
         m = n;
@@ -3020,9 +3012,9 @@ public class DoubleFFT_1D {
             isplt = cfttree(m, j, k, a, offa, nw, w);
             cftleaf(m, isplt, a, idx2 + j, nw, w);
         }
-  }
+    }
 
-  private int cfttree(int n, int j, int k, double[] a, int offa, int nw, double[] w) {
+    private int cfttree(int n, int j, int k, double[] a, int offa, int nw, double[] w) {
         int i, isplt, m;
         int idx1 = offa - n;
         if ((k & 3) != 0) {
@@ -3052,9 +3044,9 @@ public class DoubleFFT_1D {
             }
         }
         return isplt;
-  }
+    }
 
-  private void cftleaf(int n, int isplt, double[] a, int offa, int nw, double[] w) {
+    private void cftleaf(int n, int isplt, double[] a, int offa, int nw, double[] w) {
         if (n == 512) {
             cftmdl1(128, a, offa, w, nw - 64);
             cftf161(a, offa, w, nw - 8);
@@ -3108,9 +3100,9 @@ public class DoubleFFT_1D {
             cftf082(a, offa + 208, w, nw - 8);
             cftf081(a, offa + 224, w, nw - 8);
         }
-  }
+    }
 
-  private void cftmdl1(int n, double[] a, int offa, double[] w, int startw) {
+    private void cftmdl1(int n, double[] a, int offa, double[] w, int startw) {
         int j0, j1, j2, j3, k, m, mh;
         double wn4r, wk1r, wk1i, wk3r, wk3i;
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
@@ -3233,9 +3225,9 @@ public class DoubleFFT_1D {
         x0i = x1i - x3r;
         a[idx3] = -wn4r * (x0r + x0i);
         a[idx3 + 1] = -wn4r * (x0i - x0r);
-  }
+    }
 
-  private void cftmdl2(int n, double[] a, int offa, double[] w, int startw) {
+    private void cftmdl2(int n, double[] a, int offa, double[] w, int startw) {
         int j0, j1, j2, j3, k, kr, m, mh;
         double wn4r, wk1r, wk1i, wk3r, wk3i, wd1r, wd1i, wd3r, wd3i;
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y2r, y2i;
@@ -3383,9 +3375,9 @@ public class DoubleFFT_1D {
         a[idx2 + 1] = y0i - y2i;
         a[idx3] = y0r + y2r;
         a[idx3 + 1] = y0i + y2i;
-  }
+    }
 
-  private void cftfx41(int n, double[] a, int offa, int nw, double[] w) {
+    private void cftfx41(int n, double[] a, int offa, int nw, double[] w) {
         if (n == 128) {
             cftf161(a, offa, w, nw - 8);
             cftf162(a, offa + 32, w, nw - 32);
@@ -3397,9 +3389,9 @@ public class DoubleFFT_1D {
             cftf081(a, offa + 32, w, nw - 8);
             cftf081(a, offa + 48, w, nw - 8);
         }
-  }
+    }
 
-  private void cftf161(double[] a, int offa, double[] w, int startw) {
+    private void cftf161(double[] a, int offa, double[] w, int startw) {
         double wn4r, wk1r, wk1i, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i, y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i, y12r, y12i, y13r, y13i, y14r, y14i, y15r, y15i;
 
         wn4r = w[startw + 1];
@@ -3550,9 +3542,9 @@ public class DoubleFFT_1D {
         a[offa + 5] = x1i + x3r;
         a[offa + 6] = x1r + x3i;
         a[offa + 7] = x1i - x3r;
-  }
+    }
 
-  private void cftf162(double[] a, int offa, double[] w, int startw) {
+    private void cftf162(double[] a, int offa, double[] w, int startw) {
         double wn4r, wk1r, wk1i, wk2r, wk2i, wk3r, wk3i, x0r, x0i, x1r, x1i, x2r, x2i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i, y8r, y8i, y9r, y9i, y10r, y10i, y11r, y11i, y12r, y12i, y13r, y13i, y14r, y14i, y15r, y15i;
 
         wn4r = w[startw + 1];
@@ -3726,9 +3718,9 @@ public class DoubleFFT_1D {
         a[offa + 29] = x1i + x2r;
         a[offa + 30] = x1r + x2i;
         a[offa + 31] = x1i - x2r;
-  }
+    }
 
-  private void cftf081(double[] a, int offa, double[] w, int startw) {
+    private void cftf081(double[] a, int offa, double[] w, int startw) {
         double wn4r, x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
 
         wn4r = w[startw + 1];
@@ -3784,9 +3776,9 @@ public class DoubleFFT_1D {
         a[offa + 5] = y2i + y6r;
         a[offa + 6] = y2r + y6i;
         a[offa + 7] = y2i - y6r;
-  }
+    }
 
-  private void cftf082(double[] a, int offa, double[] w, int startw) {
+    private void cftf082(double[] a, int offa, double[] w, int startw) {
         double wn4r, wk1r, wk1i, x0r, x0i, x1r, x1i, y0r, y0i, y1r, y1i, y2r, y2i, y3r, y3i, y4r, y4i, y5r, y5i, y6r, y6i, y7r, y7i;
 
         wn4r = w[startw + 1];
@@ -3852,9 +3844,9 @@ public class DoubleFFT_1D {
         a[offa + 13] = x0i + x1r;
         a[offa + 14] = x0r + x1i;
         a[offa + 15] = x0i - x1r;
-  }
+    }
 
-  private void cftf040(double[] a, int offa) {
+    private void cftf040(double[] a, int offa) {
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
 
         x0r = a[offa] + a[offa + 4];
@@ -3873,9 +3865,9 @@ public class DoubleFFT_1D {
         a[offa + 5] = x0i - x2i;
         a[offa + 6] = x1r + x3i;
         a[offa + 7] = x1i - x3r;
-  }
+    }
 
-  private void cftb040(double[] a, int offa) {
+    private void cftb040(double[] a, int offa) {
         double x0r, x0i, x1r, x1i, x2r, x2i, x3r, x3i;
 
         x0r = a[offa] + a[offa + 4];
@@ -3894,9 +3886,10 @@ public class DoubleFFT_1D {
         a[offa + 5] = x0i - x2i;
         a[offa + 6] = x1r - x3i;
         a[offa + 7] = x1i + x3r;
-  }
+    }
 
-  private void cftxb020(double[] a, int offa) {
+
+    private void cftxb020(double[] a, int offa) {
         double x0r, x0i;
 
         x0r = a[offa] - a[offa + 2];
@@ -3905,6 +3898,5 @@ public class DoubleFFT_1D {
         a[offa + 1] += a[offa + 3];
         a[offa + 2] = x0r;
         a[offa + 3] = x0i;
-  }
-
+    }
 }

@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -24,9 +24,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 import java.util.ResourceBundle;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
+
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -43,74 +45,51 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+
 import org.jpab.Device;
 import org.jpab.PortAudio;
 import org.jpab.PortAudioException;
-public class MidiOptionsDialog extends JDialog {
-  private static final long serialVersionUID =  1L;
 
-  private ResourceBundle appBundle;
+public class MidiOptionsDialog extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+	private ResourceBundle appBundle;
+	private Preferences appPrefs;
+	
+	JPanel backPanel;
 
-  private Preferences appPrefs;
+	private JRadioButton midiInputRadio;
+	private JRadioButton audioInputRadio;
+	private JComboBox inputDeviceComboBox;
+	private JButton audioTestButton;
+	
+    //private JCheckBox soundOnCheckBox;
+    private JComboBox instrumentsComboBox;
+    private JComboBox keyboardLengthComboBox; // virtual keyboard keys number
+    private JSpinner transpositionSpinner; // MIDI IN transposition
+    private JSlider latencySlider;
 
-  JPanel backPanel;
+    private JCheckBox keyboardsoundCheckBox;
+    private JCheckBox accentsCheckBox;
+    private JCheckBox showBeatsCheckBox;
+    
+    private JRadioButton javaSynthRadio;
+    private JRadioButton fluidsynthRadio;
+    private JComboBox fluidDevComboBox;
+    private JTextField sbankPath;
+    private JButton sfSelectButton;
+    
+    JButton okButton;
+    JButton cancelButton;
+    
+    Vector <String>outDevList = new Vector<String>();
+    Vector <Integer>portaudioOutputIndexes = new Vector<Integer>();
+    Vector <Integer>portaudioInputIndexes = new Vector<Integer>();
+    AudioOptionDialog audioOptions;
+    AudioInputController appAudioController;
 
-  private JRadioButton midiInputRadio;
-
-  private JRadioButton audioInputRadio;
-
-  private JComboBox inputDeviceComboBox;
-
-  private JButton audioTestButton;
-
-  /**
-   * private JCheckBox soundOnCheckBox;
-   */
-  private JComboBox instrumentsComboBox;
-
-  /**
-   *  virtual keyboard keys number
-   */
-  private JComboBox keyboardLengthComboBox;
-
-  /**
-   *  MIDI IN transposition
-   */
-  private JSpinner transpositionSpinner;
-
-  private JSlider latencySlider;
-
-  private JCheckBox keyboardsoundCheckBox;
-
-  private JCheckBox accentsCheckBox;
-
-  private JCheckBox showBeatsCheckBox;
-
-  private JRadioButton javaSynthRadio;
-
-  private JRadioButton fluidsynthRadio;
-
-  private JComboBox fluidDevComboBox;
-
-  private JTextField sbankPath;
-
-  private JButton sfSelectButton;
-
-  JButton okButton;
-
-  JButton cancelButton;
-
-  Vector<String> outDevList =  new Vector<String>();
-
-  Vector<Integer> portaudioOutputIndexes =  new Vector<Integer>();
-
-  Vector<Integer> portaudioInputIndexes =  new Vector<Integer>();
-
-  AudioOptionDialog audioOptions;
-
-  AudioInputController appAudioController;
-
-  public MidiOptionsDialog(ResourceBundle b, Preferences p, MidiController midiCtrl, AudioInputController audioCtrl) {
+	public MidiOptionsDialog(ResourceBundle b, Preferences p, MidiController midiCtrl, AudioInputController audioCtrl)
+	{
 		appBundle = b;
 		appPrefs = p;
 		appAudioController = audioCtrl;
@@ -398,9 +377,10 @@ public class MidiOptionsDialog extends JDialog {
         	fluidDevComboBox.addActionListener(this);
         }
 
-  }
-
-  public void reloadInputList() {
+	}
+	
+	public void reloadInputList()
+	{
 		String inputDev = appPrefs.getProperty("inputDevice");
 		int devIndex = -1;
 		if (inputDev != "-1")
@@ -427,9 +407,10 @@ public class MidiOptionsDialog extends JDialog {
 			else
 				inputDeviceComboBox.setSelectedIndex(devIndex);
 		}
-  }
-
-  public void reloadInstruments(List<String> iList) {
+	}
+	
+	public void reloadInstruments(List<String> iList)
+	{
 		instrumentsComboBox.removeAllItems();
 		if (iList != null)
 			System.out.println("Number of instruments: " +  iList.size());
@@ -442,9 +423,10 @@ public class MidiOptionsDialog extends JDialog {
 		{
             instrumentsComboBox.addItem("No instrument available");
         }
-  }
-
-  public void reloadDevicesList(List<String> devList) {
+	}
+	
+	public void reloadDevicesList(List<String> devList)
+	{
 		int idx = 0;
 		String outputDevice = appPrefs.getProperty("outputDevice");
 		String inputDevice = appPrefs.getProperty("inputDevice");
@@ -509,9 +491,10 @@ public class MidiOptionsDialog extends JDialog {
 						fluidDevComboBox.setSelectedIndex(d);
 				}
 		}
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+    {
 		if (ae.getSource() == okButton)
 		{
 			boolean newMidiDev = false;
@@ -684,19 +667,20 @@ public class MidiOptionsDialog extends JDialog {
 	        	System.out.println("Open command cancelled by user.");
 	        }
 		}
-  }
-
+	}
 }
-class BankFilter extends FileFilter {
-  public String getDescription() {
- 
-      return "Soundfont File (*.sf2)"; 
-  }
 
-  public boolean accept(File f) {
+class BankFilter extends FileFilter 
+{
+   public String getDescription() 
+   { 
+      return "Soundfont File (*.sf2)"; 
+   } 
+
+   public boolean accept(File f) 
+   {
 	  if(f.isDirectory()) return true;
 
       return f.getName().toUpperCase().endsWith(".SF2");
-  }
-
+   }
 }

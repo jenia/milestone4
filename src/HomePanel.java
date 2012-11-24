@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,36 +24,23 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ResourceBundle;
+
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-public class HomePanel extends JPanel {
-  private static final long serialVersionUID =  1L;
 
-  Font appFont;
+public class HomePanel extends JPanel
+{
+	private static final long serialVersionUID = 1L;
+	Font appFont;
+	private ResourceBundle appBundle;
+	private BufferedImage MainPic = null;
+	public RoundedButton inlineBtn, rhythmBtn, scoreBtn, statsBtn, lessonsBtn, earTrainBtn;
+	public JPanel homeButtons;
+	private int btnWidth = 220;
+	private int logoHeight = 160;
 
-  private ResourceBundle appBundle;
-
-  private BufferedImage MainPic =  null;
-
-  public RoundedButton inlineBtn;
-
-  public RoundedButton rhythmBtn;
-
-  public RoundedButton scoreBtn;
-
-  public RoundedButton statsBtn;
-
-  public RoundedButton lessonsBtn;
-
-  public RoundedButton earTrainBtn;
-
-  public JPanel homeButtons;
-
-  private int btnWidth =  220;
-
-  private int logoHeight =  160;
-
-  public HomePanel(Font f, ResourceBundle b, Dimension d) {
+	public HomePanel(Font f, ResourceBundle b, Dimension d) 
+	{
 		appFont = f;
 		appBundle = b;
         try 
@@ -107,9 +94,10 @@ public class HomePanel extends JPanel {
 	    homeButtons.add(earTrainBtn);
 	    
 	    add(homeButtons);
-  }
+	}
 
-  protected void paintComponent(Graphics g) {
+	protected void paintComponent(Graphics g) 
+	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		//System.out.println("[paintComponent] width = "+ this.getWidth());
@@ -128,6 +116,5 @@ public class HomePanel extends JPanel {
 		statsBtn.setBounds(30, 20 + btnHeight, btnWidth, btnHeight);
 		lessonsBtn.setBounds(40 + btnWidth, 20 + btnHeight, btnWidth, btnHeight);
 		earTrainBtn.setBounds(50 + (btnWidth * 2), 20 + btnHeight, btnWidth, btnHeight);
-  }
-
+	}
 }

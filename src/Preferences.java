@@ -1,26 +1,27 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-/**
+
+/*
  *  Preferences map:
  *  
  *  language         | the UI global language
@@ -69,46 +70,34 @@ import java.util.Properties;
  *  inputDevice      | input device to use to acquire notes [MIDI | Audio],index
  *  outputDevice     | outputDevice to reproduce notes [Java | Fluidsynth],index
  */
-public class Preferences {
-  public int TREBLE_CLEF =  0x0001;
+public class Preferences 
+{
+	public int TREBLE_CLEF = 0x0001;
+	public int   BASS_CLEF = 0x0002;
+	public int   ALTO_CLEF = 0x0004;
+	public int  TENOR_CLEF = 0x0008;
+	
+	public int GAME_STOPPED        = 0;
+	public int INLINE_SINGLE_NOTES = 1;
+	public int INLINE_MORE_NOTES   = 2;
+	public int INLINE_LEARN_NOTES  = 3;
+	public int SCORE_GAME_LISTEN   = 4;
+	public int RHTYHM_GAME_USER    = 5;
+	public int SCORE_GAME_USER     = 6;
+	public int EAR_TRAINING		   = 7;
+	
+	public int NOTE_NORMAL		   = 0;
+	public int NOTE_ACCIDENTALS	   = 1;
+	public int NOTE_INTERVALS      = 2;
+	public int NOTE_CHORDS   	   = 3;
 
-  public int BASS_CLEF =  0x0002;
+	Properties prefs = new Properties();
+	
+	boolean globalExerciseMode = false;
+	Exercise currentExercise;
 
-  public int ALTO_CLEF =  0x0004;
-
-  public int TENOR_CLEF =  0x0008;
-
-  public int GAME_STOPPED =  0;
-
-  public int INLINE_SINGLE_NOTES =  1;
-
-  public int INLINE_MORE_NOTES =  2;
-
-  public int INLINE_LEARN_NOTES =  3;
-
-  public int SCORE_GAME_LISTEN =  4;
-
-  public int RHTYHM_GAME_USER =  5;
-
-  public int SCORE_GAME_USER =  6;
-
-  public int EAR_TRAINING =  7;
-
-  public int NOTE_NORMAL =  0;
-
-  public int NOTE_ACCIDENTALS =  1;
-
-  public int NOTE_INTERVALS =  2;
-
-  public int NOTE_CHORDS =  3;
-
-  Properties prefs =  new Properties();
-
-  boolean globalExerciseMode =  false;
-
-  Exercise currentExercise;
-
-  public Preferences() {
+	public Preferences()
+	{
 	  try
 	  {
 		prefs.load(new FileInputStream("scoredate.properties"));
@@ -119,31 +108,34 @@ public class Preferences {
   	  {
  	      System.out.println(e);
   	  }
-  }
+	}
 
-  public String getProperty(String prop) {
+	public String getProperty(String prop)
+	{
 		if (prop == "language")
 			return prefs.getProperty(prop, "");
 		else
 			return prefs.getProperty(prop, "-1");
-  }
+	}
 
-  public void setProperty(String prop, String value) {
+	public void setProperty(String prop, String value)
+	{
 		prefs.setProperty(prop, value);
-  }
+	}
 
-  public void storeProperties() {
+	public void storeProperties()
+	{
 		try 
 		{ 
 			prefs.store(new FileOutputStream("scoredate.properties"), null); 
 			prefs.list(System.out);
         } 
         catch (IOException e) { }
-  }
-
-  public void setExerciseMode(boolean enable, Exercise e) {
+	}
+	
+	public void setExerciseMode(boolean enable, Exercise e)
+	{
 		globalExerciseMode = enable;
 		currentExercise = e;
-  }
-
+	}
 }

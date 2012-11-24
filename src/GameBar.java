@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -26,38 +26,33 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-public class GameBar extends JPanel {
-  private static final long serialVersionUID =  6433532306226295481L;
+import javax.swing.JTextField; 
 
-  ResourceBundle appBundle;
+public class GameBar extends JPanel implements ActionListener
+{
+	private static final long serialVersionUID = 6433532306226295481L;
+	ResourceBundle appBundle;
+	Preferences appPrefs;
+	Font appFont;
 
-  Preferences appPrefs;
+	public JComboBox notesNumber;
+	public GradientBar progress;
+	private JLabel scoreLabel;
+	public JTextField scoreCnt;
+	private JLabel precisionLabel;
+	public JTextField precisionCnt;
+	
+	boolean isInline = false;
+	
+	int totalObjWidth = 600;
+	int upperMargin = 7;
 
-  Font appFont;
-
-  public JComboBox notesNumber;
-
-  public GradientBar progress;
-
-  private JLabel scoreLabel;
-
-  public JTextField scoreCnt;
-
-  private JLabel precisionLabel;
-
-  public JTextField precisionCnt;
-
-  boolean isInline =  false;
-
-  int totalObjWidth =  600;
-
-  int upperMargin =  7;
-
-  public GameBar(Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline) {
+	public GameBar (Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline)
+	{
 		appBundle = b;
 		appFont = f;
 		appPrefs = p;
@@ -118,9 +113,10 @@ public class GameBar extends JPanel {
 		add(precisionCnt);
 		
 		updateLanguage(appBundle);
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		appBundle = bundle;
 		scoreLabel.setText(appBundle.getString("_gameScore"));
 		precisionLabel.setText(appBundle.getString("_gamePrecision"));
@@ -133,13 +129,15 @@ public class GameBar extends JPanel {
 			notesNumber.addItem("80 " + appBundle.getString("_menuNotes"));
 			notesNumber.setSelectedIndex(2);
 		}
-  }
+	}
 
-  public void actionPerformed(ActionEvent ae) {
+	public void actionPerformed(ActionEvent ae)
+	{
 		
-  }
-
-  protected void paintComponent(Graphics g) {
+	}
+	
+	protected void paintComponent(Graphics g) 
+	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		GradientPaint vertGrad = new GradientPaint(0, 0, Color.decode("0xE7E734"), 0, getHeight() - 30, Color.decode("0xE7A935"));
 		((Graphics2D) g).setPaint(vertGrad);
@@ -160,6 +158,6 @@ public class GameBar extends JPanel {
 		precisionLabel.setBounds(posX, upperMargin, 110, 30);
 		posX += 120;
 		precisionCnt.setBounds(posX, upperMargin, 70, 30);
-  }
-
+	}
 }
+

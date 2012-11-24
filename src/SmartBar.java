@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
+
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -32,65 +33,53 @@ import javax.swing.event.ChangeEvent;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JTextField; 
 import javax.swing.JSlider;
 import javax.swing.UIManager;
-public class SmartBar extends JPanel {
-  private static final long serialVersionUID =  4914147249638690529L;
 
-  ResourceBundle appBundle;
+public class SmartBar extends JPanel implements ActionListener, ChangeListener 
+{
+	private static final long serialVersionUID = 4914147249638690529L;
+	ResourceBundle appBundle;
+	Preferences appPrefs;
+	Font appFont;
+	
+	public RoundedButton homeBtn;
 
-  Preferences appPrefs;
+	RoundPanel tempoContainer;
+	public JPanel tempoPanel;
+	public JSlider tempoSlider;
+	private JTextField tempoLabel;
+	public JCheckBox metronomeCheckBox;
+	
+	public RoundedButton clefNoteBtn;
+	private RoundPanel gameContainer;
+	public JComboBox gameSelector;
+	public JComboBox gameType;
+	public RoundedButton refreshBtn;
+	public RoundedButton playBtn;
+	public RoundedButton listenBtn;
 
-  Font appFont;
+	private int buttonSize = 70;
+	private int totalObjWidth = 725;
+	private int upperMargin = 20;
+	private boolean isInline = false;
+	private boolean isEarTraining = false;
 
-  public RoundedButton homeBtn;
+	private ClefNotesOptionDialog clefNotesDialog;
 
-  RoundPanel tempoContainer;
+	private Color compColor = Color.decode("0x749CC5");
 
-  public JPanel tempoPanel;
-
-  public JSlider tempoSlider;
-
-  private JTextField tempoLabel;
-
-  public JCheckBox metronomeCheckBox;
-
-  public RoundedButton clefNoteBtn;
-
-  private RoundPanel gameContainer;
-
-  public JComboBox gameSelector;
-
-  public JComboBox gameType;
-
-  public RoundedButton refreshBtn;
-
-  public RoundedButton playBtn;
-
-  public RoundedButton listenBtn;
-
-  private int buttonSize =  70;
-
-  private int totalObjWidth =  725;
-
-  private int upperMargin =  20;
-
-  private boolean isInline =  false;
-
-  private boolean isEarTraining =  false;
-
-  private ClefNotesOptionDialog clefNotesDialog;
-
-  private Color compColor =  Color.decode("0x749CC5");
-
-  public SmartBar(Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline, boolean earTraining) {
+	public SmartBar (Dimension d, ResourceBundle b, Font f, Preferences p, boolean inline, boolean earTraining)
+	{
 		appBundle = b;
 		appFont = f;
 		appPrefs = p;
@@ -261,9 +250,10 @@ public class SmartBar extends JPanel {
 		this.add(playBtn);
 		if (inline == false)
 			this.add(listenBtn);		
-  }
-
-  public void updateLanguage(ResourceBundle bundle) {
+	}
+	
+	public void updateLanguage(ResourceBundle bundle)
+	{
 		appBundle = bundle;
 		
 		clefNoteBtn.setResBundle(appBundle);
@@ -311,9 +301,10 @@ public class SmartBar extends JPanel {
 		}
 		else
 			metronomeCheckBox.setText(appBundle.getString("_menuMetronom"));
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == clefNoteBtn)
 		{
 			System.out.println("SmartBar Event received !! (" + ae.getActionCommand() + ")");
@@ -338,9 +329,10 @@ public class SmartBar extends JPanel {
 				appPrefs.setProperty("metronome", "0");
 			appPrefs.storeProperties();
 		}
-  }
-
-  public void stateChanged(ChangeEvent e) {
+	}
+	
+	public void stateChanged(ChangeEvent e) 
+	{
 		if (e.getSource() == tempoSlider)
 		{
 			if (isInline == false)
@@ -353,9 +345,10 @@ public class SmartBar extends JPanel {
 					tempoLabel.setText(Integer.toString(tempoSlider.getValue()));
 			}
 		}
-  }
-
-  protected void paintComponent(Graphics g) {
+    }
+	
+	protected void paintComponent(Graphics g) 
+	{
 		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		//System.out.println("SmartBar paintComponent. w: " + getWidth() + ", h: " + getHeight());
 		//g.setColor(Color.decode("0xAFC6E9"));
@@ -386,6 +379,5 @@ public class SmartBar extends JPanel {
 
 		if (isInline == false)
 			listenBtn.setBounds(posX, upperMargin, buttonSize, buttonSize);
-  }
-
+	}
 }

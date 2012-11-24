@@ -1,21 +1,23 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
+
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -26,102 +28,75 @@ import java.awt.event.WindowEvent;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.PropertyResourceBundle;
+import java.util.PropertyResourceBundle; 
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Transmitter;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+
 /**
  * @author Massimo Callegari
  * @email massimocallegari@yahoo.it
  * @homepage http://www.mindmatter.it/scoredate/
+ *
  */
-public class ScoreDate extends JFrame {
-  private static final long serialVersionUID =  0x5C03EDA7EL;
+public class ScoreDate extends JFrame implements ActionListener 
+{
+	 private static final long serialVersionUID = 0x5C03EDA7EL;
+	 private Preferences prefs; 
+	 private ResourceBundle bundle;
+	 Font MusiSync; // font used to render scores
+	 private String language = "en";
+	 private String[] supportedLanguages = { "de", "da", "en", "eo", "es", "it", "fi", "ko", "pl", "pt", "hu", "he", "fr", "tr", "ru"};
 
-  private Preferences prefs;
+	 // GUI elements
+	 SDMenuBar menuBar;
+	 private HomePanel homePanel;
+	 private InlinePanel inlinePanel = null;
+	 private ScorePanel rhythmPanel = null;
+	 private ScorePanel scorePanel = null;
+	 private StatsPanel statsPanel = null;
+	 private ExercisesPanel exsPanel = null;
+	 private EarTrainingPanel earPanel = null;
+	 
+	 // MIDI Resources
+	 public MidiController midiControl = null;
+	 private MidiDevice midiDev = null;
+	 
+	 // Audio Resources
+	 AudioInputController audioControl;
+	 
+	 // MIDI option dialog
+	 private MidiOptionsDialog midiOptions;
+	 
+     private int currentContext; // HOMEPANEL, NOTEREADING, RHYTHMREADING, SCOREREADING
+     private static int HOMEPANEL = 0;
+     private static int NOTEREADING = 1;
+     private static int RHYTHMREADING = 2;
+     private static int SCOREREADING = 3;
+     private static int STATISTICS = 4;
+     private static int EXERCISES = 5;
+     private static int EARTRAINING = 6;
+     
+     private int transposition = 0;
 
-  private ResourceBundle bundle;
-
-  /**
-   *  font used to render scores
-   */
-  Font MusiSync;
-
-  private String language =  "en";
-
-  private String[] supportedLanguages =  { "de", "da", "en", "eo", "es", "it", "fi", "ko", "pl", "pt", "hu", "he", "fr", "tr", "ru"};
-
-  /**
-   *  GUI elements
-   */
-  SDMenuBar menuBar;
-
-  private HomePanel homePanel;
-
-  private InlinePanel inlinePanel =  null;
-
-  private ScorePanel rhythmPanel =  null;
-
-  private ScorePanel scorePanel =  null;
-
-  private StatsPanel statsPanel =  null;
-
-  private ExercisesPanel exsPanel =  null;
-
-  private EarTrainingPanel earPanel =  null;
-
-  /**
-   *  MIDI Resources
-   */
-  public MidiController midiControl =  null;
-
-  private MidiDevice midiDev =  null;
-
-  /**
-   *  Audio Resources
-   */
-  AudioInputController audioControl;
-
-  /**
-   *  MIDI option dialog
-   */
-  private MidiOptionsDialog midiOptions;
-
-  /**
-   *  HOMEPANEL, NOTEREADING, RHYTHMREADING, SCOREREADING
-   */
-  private int currentContext;
-
-  private static int HOMEPANEL =  0;
-
-  private static int NOTEREADING =  1;
-
-  private static int RHYTHMREADING =  2;
-
-  private static int SCOREREADING =  3;
-
-  private static int STATISTICS =  4;
-
-  private static int EXERCISES =  5;
-
-  private static int EARTRAINING =  6;
-
-  private int transposition =  0;
-
-  public ScoreDate() {
+	 public ScoreDate() 
+	 {
 		 // first of all try to change the application look & feel using Nimbus
 		 try 
 		 {
@@ -284,12 +259,13 @@ public class ScoreDate extends JFrame {
          });
 
 		 setVisible(true);
-  }
+	 }
 
-  /**
-   * ACTION LISTENER - listens to all buttons that require a switch of context
-   */
-  public void actionPerformed(ActionEvent ae) {
+	 /*
+	  * ACTION LISTENER - listens to all buttons that require a switch of context
+	  */
+	 public void actionPerformed(ActionEvent ae)
+	 {
 		 System.out.println("Event received !! (cmd:" + ae.getActionCommand() + ")");
 		 Dimension wSize = new Dimension(getWidth(), getHeight());
 		 if (ae.getSource() == homePanel.inlineBtn)
@@ -453,9 +429,10 @@ public class ScoreDate extends JFrame {
 			 scorePanel.sBar.homeBtn.addActionListener(this);
 			 this.pack();
 	     }
-  }
-
-  public void menuBarActionPerformed(String s) {
+	 }
+	 
+	 public void menuBarActionPerformed(String s)
+	 {
 		 System.out.println(s);
 		 String currLanguage = language;
 			if (s == "langEN") language = "en";
@@ -538,16 +515,18 @@ public class ScoreDate extends JFrame {
 			}
 			
 			if (language != currLanguage) updateLanguage();
-  }
-
-  private boolean isLanguageSupported(String lang) {
+	 }
+	 
+	 private boolean isLanguageSupported(String lang)
+	 {
 		 for (int i = 0; i < 13; i++)
 			 if (lang.equals(supportedLanguages[i]))
 				 return true;
 		 return false;
-  }
+	 }
 
-  private void updateLanguage() {
+	 private void updateLanguage()
+	 {
 		if ("iw".equals(language) || "he".equals(language) || "hu".equals(language) || "ru".equals(language) || "eo".equals(language))
 		{
 			try 
@@ -605,13 +584,14 @@ public class ScoreDate extends JFrame {
 	    {
 	    	earPanel.updateLanguage(bundle);
 	    }
-  }
+	 }
 
-  private class MidiReceiver extends Receiver {
-    public MidiReceiver() {
-    }
+	 private class MidiReceiver implements Receiver 
+	 {
+        public MidiReceiver() { }
 
-    public void send(MidiMessage event, long time) {
+        public void send(MidiMessage event, long time) 
+        {
         	if (event instanceof ShortMessage) 
         	{
         		switch (event.getStatus()&0xf0) 
@@ -666,16 +646,13 @@ public class ScoreDate extends JFrame {
 */
         		}
         	}
-    }
-
-    public void close() {
-    }
-
-  }
-
-  public static void main(String[] args)
-  {
+        }
+        
+        public void close() {}
+	 }
+	 
+	 public static void main(String[] args) 
+	 {
 		 new ScoreDate();
-  }
-
+	 }
 }

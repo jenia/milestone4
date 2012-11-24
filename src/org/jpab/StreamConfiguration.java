@@ -1,4 +1,3 @@
-
 package org.jpab;
 
 import java.util.HashMap;
@@ -7,184 +6,166 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 public class StreamConfiguration implements PortAudio.Component {
-  public enum Mode {
-    INPUT_ONLY,
-    OUTPUT_ONLY,
-    BIDIRECTIONAL,;
-  }
 
-  public class SampleFormat {
-    private static final HashMap<Integer, StreamConfiguration.SampleFormat> map =  new HashMap <Integer, SampleFormat> ();
+	public enum Mode {
+		INPUT_ONLY, OUTPUT_ONLY, BIDIRECTIONAL;
+	}
+	
+	public static class SampleFormat {
 
-    private static final HashSet<StreamConfiguration.SampleFormat> set =  new HashSet <SampleFormat> ();
+		private final static HashMap <Integer, SampleFormat> map = new HashMap <Integer, SampleFormat> ();
+		private final static HashSet <SampleFormat> set = new HashSet <SampleFormat> ();
+		
+		public static final SampleFormat 
+			FLOAT_32 = new SampleFormat("32-Bit Float", 0x00000001),
+			SIGNED_INTEGER_8 = new SampleFormat("8-Bit Signed Integer", 0x00000010),
+			UNSIGNED_INTEGER_8 = new SampleFormat("8-Bit Unsigned Integer", 0x00000020),
+			SIGNED_INTEGER_16 = new SampleFormat("16-Bit Signed Integer", 0x00000008),
+			SIGNED_INTEGER_24 = new SampleFormat("24-Bit Signed Integer", 0x00000004),
+			SIGNED_INTEGER_32 = new SampleFormat("32-Bit Signed Integer", 0x00000002);
 
-    public static final StreamConfiguration.SampleFormat FLOAT_32 =  new SampleFormat("32-Bit Float", 0x00000001);
-
-    public static final StreamConfiguration.SampleFormat SIGNED_INTEGER_8 =  new SampleFormat("8-Bit Signed Integer", 0x00000010);
-
-    public static final StreamConfiguration.SampleFormat UNSIGNED_INTEGER_8 =  new SampleFormat("8-Bit Unsigned Integer", 0x00000020);
-
-    public static final StreamConfiguration.SampleFormat SIGNED_INTEGER_16 =  new SampleFormat("16-Bit Signed Integer", 0x00000008);
-
-    public static final StreamConfiguration.SampleFormat SIGNED_INTEGER_24 =  new SampleFormat("24-Bit Signed Integer", 0x00000004);
-
-    public static final StreamConfiguration.SampleFormat SIGNED_INTEGER_32 =  new SampleFormat("32-Bit Signed Integer", 0x00000002);
-
-    public static Set<StreamConfiguration.SampleFormat> values()
-    {
+		public static Set <SampleFormat> values() {
 			return Collections.unmodifiableSet(set);
-    }
-
-    public static StreamConfiguration.SampleFormat resolve(int code)
-    {
+		}
+		
+		public static SampleFormat resolve(int code) {
 			return map.get(code);
-    }
-
-    private final int code;
-
-    private final String name;
-
-    public SampleFormat(String name, int code) {
+		}
+		
+		private final int code;
+		private final String name;
+		
+		public SampleFormat(String name, int code) {
 			if (map.containsValue(code)) throw new IllegalArgumentException();
 			this.name = name;
 			this.code = code;
 			map.put(code, this);
 			set.add(this);
-    }
+		}
 
-    public int getCode() {
+		public int getCode() {
 			return code;
-    }
+		}
 
-    public String getName() {
+		public String getName() {
 			return name;
-    }
-
-    public String toString() {
+		}
+		
+		public String toString() {
 			return name;
-    }
+		}
+		
+	}
+	
+	private int flags;
+	private int inputChannels;
+	private Device inputDevice;
+	private SampleFormat inputFormat;
+	private double inputLatency;
+	private Mode mode;
+	private int outputChannels;
+	private Device outputDevice;
+	private SampleFormat outputFormat;
+	private double outputLatency;
+	private double sampleRate;
+	
+	public StreamConfiguration() {}
 
-  }
-
-  private int flags;
-
-  private int inputChannels;
-
-  private Device inputDevice;
-
-  private StreamConfiguration.SampleFormat inputFormat;
-
-  private double inputLatency;
-
-  private StreamConfiguration.Mode mode;
-
-  private int outputChannels;
-
-  private Device outputDevice;
-
-  private StreamConfiguration.SampleFormat outputFormat;
-
-  private double outputLatency;
-
-  private double sampleRate;
-
-  public StreamConfiguration() {
-  }
-
-  public int getFlags() {
+	public int getFlags() {
 		return flags;
-  }
+	}
 
-  public int getInputChannels() {
+	public int getInputChannels() {
 		return inputChannels;
-  }
+	}
 
-  public Device getInputDevice() {
+	public Device getInputDevice() {
 		return inputDevice;
-  }
+	}
 
-  public StreamConfiguration.SampleFormat getInputFormat() {
+	public SampleFormat getInputFormat() {
 		return inputFormat;
-  }
+	}
 
-  public double getInputLatency() {
+	public double getInputLatency() {
 		return inputLatency;
-  }
+	}
 
-  public StreamConfiguration.Mode getMode() {
+	public Mode getMode() {
 		return mode;
-  }
+	}
 
-  public int getOutputChannels() {
+	public int getOutputChannels() {
 		return outputChannels;
-  }
+	}
 
-  public Device getOutputDevice() {
+	public Device getOutputDevice() {
 		return outputDevice;
-  }
+	}
 
-  public StreamConfiguration.SampleFormat getOutputFormat() {
+	public SampleFormat getOutputFormat() {
 		return outputFormat;
-  }
+	}
 
-  public double getOutputLatency() {
+	public double getOutputLatency() {
 		return outputLatency;
-  }
-
-  public double getSampleRate() {
+	}
+	
+	public double getSampleRate() {
 		return sampleRate;
-  }
-
-  public void isSupported() throws PortAudioException {
+	}
+	
+	public void isSupported() throws PortAudioException {
 		PortAudio.isFormatSupported(serialize());
-  }
-
-  public void setFlags(int flags) {
+	}
+	
+	public void setFlags(int flags) {
 		this.flags = flags;
-  }
+	}
 
-  public void setInputChannels(int inputChannels) {
+	public void setInputChannels(int inputChannels) {
 		this.inputChannels = inputChannels;
-  }
+	}
 
-  public void setInputDevice(Device inputDevice) {
+	public void setInputDevice(Device inputDevice) {
 		this.inputDevice = inputDevice;
-  }
+	}
 
-  public void setInputFormat(StreamConfiguration.SampleFormat inputFormat) {
+	public void setInputFormat(SampleFormat inputFormat) {
 		this.inputFormat = inputFormat;
-  }
+	}
 
-  public void setInputLatency(double inputLatency) {
+	public void setInputLatency(double inputLatency) {
 		this.inputLatency = inputLatency;
-  }
+	}
 
-  public void setMode(StreamConfiguration.Mode mode) {
+	public void setMode(Mode mode) {
 		this.mode = mode;
-  }
+	}
 
-  public void setOutputChannels(int outputChannels) {
+	public void setOutputChannels(int outputChannels) {
 		this.outputChannels = outputChannels;
-  }
+	}
 
-  public void setOutputDevice(Device outputDevice) {
+	public void setOutputDevice(Device outputDevice) {
 		this.outputDevice = outputDevice;
-  }
+	}
 
-  public void setOutputFormat(StreamConfiguration.SampleFormat outputFormat) {
+	public void setOutputFormat(SampleFormat outputFormat) {
 		this.outputFormat = outputFormat;
-  }
+	}
 
-  public void setOutputLatency(double outputLatency) {
+	public void setOutputLatency(double outputLatency) {
 		this.outputLatency = outputLatency;
-  }
+	}
 
-  public void setSampleRate(double sampleRate) {
+	public void setSampleRate(double sampleRate) {
 		this.sampleRate = sampleRate;
-  }
+	}
 
-  public String toString() {
+	public String toString() {
 		return "Port Audio Stream Configuration { \n\tFlags: " + flags + 
 		"\n\tInput Channels: " + inputChannels +
 		"\n\tInput Device: " + (inputDevice == null ? "NULL" : inputDevice.getID()) +
@@ -196,9 +177,9 @@ public class StreamConfiguration implements PortAudio.Component {
 		"\n\tOutput Format: " + outputFormat +
 		"\n\tOutput Latency: " + outputLatency +
 		"\n\tSample Rate: " + sampleRate + "\n}";
-  }
+	}
 
-  protected ByteBuffer serialize() throws PortAudioException {
+	protected ByteBuffer serialize() throws PortAudioException {
 		if (mode == null || (mode != Mode.INPUT_ONLY && (outputFormat == null || outputDevice == null)) || (mode != Mode.OUTPUT_ONLY && (inputFormat == null || inputDevice == null)))
 			throw new PortAudioException("Illegal Stream Configuration!");
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(45);
@@ -215,6 +196,6 @@ public class StreamConfiguration implements PortAudio.Component {
 		buffer.put((byte) outputChannels);
 		buffer.put((byte) (outputDevice == null ? -1 : outputDevice.getID()));
 		return buffer;
-  }
-
+	}
+	
 }

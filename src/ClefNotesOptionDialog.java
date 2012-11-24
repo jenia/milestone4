@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
+
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -32,58 +33,42 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-public class ClefNotesOptionDialog extends JDialog {
-  private static final long serialVersionUID =  -2654540587350157146L;
 
-  ResourceBundle appBundle;
+public class ClefNotesOptionDialog extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = -2654540587350157146L;
+	ResourceBundle appBundle;
+	Font appFont;
+	Preferences appPrefs;
+	
+	ClefSelector trebleClef;
+	ClefSelector bassClef;
+	ClefSelector altoClef;
+	ClefSelector tenorClef;
+	
+	JComboBox accCB;
+	
+	JCheckBox wholeCB;
+	JCheckBox halfCB;
+	JCheckBox halfQuarterCB;
+	JCheckBox quarterCB;
+	JCheckBox quarterEighthCB;
+	JCheckBox eighthCB;
+	JCheckBox tripletCB;
+	JCheckBox silenceCB;
+	
+	JRadioButton fourfourButton;
+	JRadioButton twofourButton;
+	JRadioButton threefourButton;
+	JRadioButton sixeightButton;
+	JRadioButton sixfourButton;
+	JRadioButton threeeightButton;
 
-  Font appFont;
-
-  Preferences appPrefs;
-
-  ClefSelector trebleClef;
-
-  ClefSelector bassClef;
-
-  ClefSelector altoClef;
-
-  ClefSelector tenorClef;
-
-  JComboBox accCB;
-
-  JCheckBox wholeCB;
-
-  JCheckBox halfCB;
-
-  JCheckBox halfQuarterCB;
-
-  JCheckBox quarterCB;
-
-  JCheckBox quarterEighthCB;
-
-  JCheckBox eighthCB;
-
-  JCheckBox tripletCB;
-
-  JCheckBox silenceCB;
-
-  JRadioButton fourfourButton;
-
-  JRadioButton twofourButton;
-
-  JRadioButton threefourButton;
-
-  JRadioButton sixeightButton;
-
-  JRadioButton sixfourButton;
-
-  JRadioButton threeeightButton;
-
-  JButton okButton;
-
-  JButton cancelButton;
-
-  public ClefNotesOptionDialog(Font f, ResourceBundle b, Preferences p) {
+	JButton okButton;
+    JButton cancelButton;
+	
+	public ClefNotesOptionDialog(Font f, ResourceBundle b, Preferences p)
+	{
 		appFont = f;
 		appBundle = b;
 		appPrefs = p;
@@ -373,9 +358,10 @@ public class ClefNotesOptionDialog extends JDialog {
 		add(clefsPanel);
 		add(notesPanel);
 		add(buttonsPanel);
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == okButton)
 		{
 			int clefsMask = 0;
@@ -483,6 +469,5 @@ public class ClefNotesOptionDialog extends JDialog {
 		{
 			this.dispose();
 		}
-  }
-
+	}
 }

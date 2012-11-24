@@ -1,50 +1,43 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Rectangle;
+
 import javax.swing.JButton;
-public class Key extends JButton {
-  private static final long serialVersionUID =  8886689336934022704L;
 
-  boolean is_black =  false;
+public class Key extends JButton
+{
+	private static final long serialVersionUID = 8886689336934022704L;
 
-  boolean is_highlighted =  false;
+    boolean is_black = false;
+    boolean is_highlighted = false;
+    int pitch;
+    int octave;
+    int noteIndex; // holds the index of the seven note scale (C, D, E, F, G, A, B)
+    int offx; // just for black keys since they have an irregular pattern
 
-  int pitch;
-
-  int octave;
-
-  /**
-   *  holds the index of the seven note scale (C, D, E, F, G, A, B)
-   */
-  int noteIndex;
-
-  /**
-   *  just for black keys since they have an irregular pattern
-   */
-  int offx;
-
-  public Key(int x, int y, int w, int h, int kpitch, int koctave, int idx, int offset, boolean black) {
+    public Key(int x, int y, int w, int h, int kpitch, int koctave, int idx, int offset, boolean black) 
+    {
       pitch = kpitch;
       octave = koctave;
       is_black = black;
@@ -57,9 +50,10 @@ public class Key extends JButton {
     	  setBackground(Color.black);
       else
     	  setBackground(Color.white); 
-  }
-
-  public void highlight(boolean on, boolean learning) {
+    }
+    
+    public void highlight(boolean on, boolean learning)
+    {
     	is_highlighted = on;
     	if (on == true)
     	{
@@ -75,9 +69,10 @@ public class Key extends JButton {
 			setBackground(Color.black);
 		else
 			setBackground(Color.white); 
-  }
-
-  public void setPressed(boolean on) {
+    }
+    
+    public void setPressed(boolean on)
+    {
     	if (on == true)
     		setBackground(Color.decode("0xB8D8FF"));
     	else
@@ -89,19 +84,22 @@ public class Key extends JButton {
     		else
     			setBackground(Color.white); 
     	}
-  }
-
-  public void setXpos(int newx) {
+    }
+    
+    public void setXpos(int newx)
+    {
     	Rectangle b = getBounds();
     	b.x = newx;
     	setBounds(b);
-  }
+    }
 
-  public int getXoffset() {
+    public int getXoffset(){
       return this.offx;
-  }
+    }
 
-  protected void paintComponent(Graphics g) {
+
+    protected void paintComponent(Graphics g) 
+    {
     	((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
    		//System.out.println("Draw Key: size = " + getSize().width);
     	
@@ -125,6 +123,5 @@ public class Key extends JButton {
     		g.fillRect(1, 0, getSize().width-2, getSize().height-7);
     	g.setColor(Color.black);
     	g.drawLine(0,0,getSize().width,0);
-  }
-
+	}
 }

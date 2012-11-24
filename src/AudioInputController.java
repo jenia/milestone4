@@ -1,91 +1,75 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.util.Vector;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.TargetDataLine;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.channels.FileChannel;
 import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
 import org.jpab.*;
 import org.jpab.StreamConfiguration.SampleFormat;
-public class AudioInputController {
-  Preferences appPrefs;
 
-  /**
-   *  vector holding the generated frequencies lookup table
-   */
-  Vector<Double> freqList =  new Vector<Double>();
+public class AudioInputController
+{
+	Preferences appPrefs;
+	Vector<Double> freqList = new Vector<Double>(); // vector holding the generated frequencies lookup table
+	Vector<String> audioDevList = new Vector<String>(); // list of available device (Java + ASIO)
+	
+	// PortAudio variables
+	Device paInputDev = null;
+	Stream paStream = null;
+	//private float[] PortAudioFFTBuffer; // buffer on which FFT is performed. Try to reach 4k
+	//private int PortAudioBufferSize = 0; // buffer received from ASIO. Can have any user-defined size
+	//private int PortAudioBufferMax = 0;  // number of ASIO buffer to accumulate into asioSoundBuffer
+	//private int PortAudioBufferCount = 0; // counter of cumulative ASIO buffers
 
-  /**
-   *  list of available device (Java + ASIO)
-   */
-  Vector<String> audioDevList =  new Vector<String>();
+	float sampleRate = 44100;
+	int sampleSizeInBits = 16;
+	int bufferSize = 4096;
+	AudioFormat inputFormat;
+	TargetDataLine inputLine;
+	int sensitivity = 40;
+	long latency = 0;
+	int previousVolume = 0;
 
-  /**
-   *  PortAudio variables
-   */
-  org.jpab.Device paInputDev =  null;
+	boolean infoEnabled = false;
+	AudioMonitor audioMon;
+	int currentVolume = 0;
 
-  org.jpab.Stream paStream =  null;
+	//private AudioCaptureThread captureThread = null;
+	boolean captureStarted = false;
 
-  /**
-   * private float[] PortAudioFFTBuffer; // buffer on which FFT is performed. Try to reach 4k
-   * private int PortAudioBufferSize = 0; // buffer received from ASIO. Can have any user-defined size
-   * private int PortAudioBufferMax = 0;  // number of ASIO buffer to accumulate into asioSoundBuffer
-   * private int PortAudioBufferCount = 0; // counter of cumulative ASIO buffers
-   */
-  float sampleRate =  44100;
-
-  int sampleSizeInBits =  16;
-
-  int bufferSize =  4096;
-
-  AudioFormat inputFormat;
-
-  TargetDataLine inputLine;
-
-  int sensitivity =  40;
-
-  long latency =  0;
-
-  int previousVolume =  0;
-
-  boolean infoEnabled =  false;
-
-  AudioMonitor audioMon;
-
-  int currentVolume =  0;
-
-  /**
-   * private AudioCaptureThread captureThread = null;
-   */
-  boolean captureStarted =  false;
-
-  public AudioInputController(Preferences p) {
+	public AudioInputController(Preferences p)
+	{
 		appPrefs = p;
 		initialize();
-  }
+	}
 
-  public boolean initialize() {
+	public boolean initialize() 
+	{
 	    initFrequenciesList();
 
 	    String userAudioDev = appPrefs.getProperty("inputDevice");
@@ -97,9 +81,10 @@ public class AudioInputController {
 	    audioDevList = getDevicesList(audioDevIndex);
 
 		return true;
-  }
+	}
 
-  public void initFrequenciesList() {
+	public void initFrequenciesList()
+	{
 		double freqFactor = Math.pow(2, 1.0/12.0); // calculate the factor between frequencies
 		double aFreq = 27.50;
 		double currFreq = 16.35; // frequency of C0
@@ -121,9 +106,10 @@ public class AudioInputController {
 			}
 			//System.out.print("\n");
 		}
-  }
+	}
 
-  public Vector<String> getDevicesList(int devIdx) {
+	public Vector<String> getDevicesList(int devIdx)
+	{
 		int tmpIdx = 0;
 		Vector<String> devList = new Vector<String>();
 
@@ -144,14 +130,16 @@ public class AudioInputController {
 			e.printStackTrace();
 		};
 		return devList;
-  }
-
-  public void enableInfo(AudioMonitor am) {
+	}
+	
+	public void enableInfo(AudioMonitor am)
+	{
 		infoEnabled = true;
 		audioMon = am;
-  }
-
-  public int frequencyLookup(double freq) {
+	}
+	
+	public int frequencyLookup(double freq)
+	{
 		int startIdx = 0;
 		if (freq > freqList.get(freqList.size() / 2))
 			startIdx = freqList.size() / 2;
@@ -161,14 +149,16 @@ public class AudioInputController {
 				return i + 23;
 		}
 		return 0;
-  }
-
-  public void setSensitivity(int s) {
+	}
+	
+	public void setSensitivity(int s)
+	{
 		System.out.println("Set new sensitivity: " + s);
 		sensitivity = 100 - s;
-  }
+	}
 
-  public void startCapture() {
+	public void startCapture()
+	{
 		if (captureStarted == true)
 		{
 			try {
@@ -205,18 +195,20 @@ public class AudioInputController {
 			//Thread.sleep(24000);
 		} catch (PortAudioException ex) {  }
 		captureStarted = true;
-  }
+	}
 
-  public void stopCapture() {
+	public void stopCapture()
+	{
 		try {
 			if (paStream != null)
 				paStream.stop();
 		} catch (PortAudioException ex) {  }
 		paStream = null;
 		captureStarted = false;
-  }
-
-  public void saveToFile(ByteBuffer buf) {
+	}
+	
+	public void saveToFile(ByteBuffer buf)
+	{
 		File file = new File("audioCap.wav");
 
 		// Set to true if the bytes should be appended to the file;
@@ -235,9 +227,10 @@ public class AudioInputController {
 		    // Close the file
 		    wChannel.close();
 		} catch (IOException e) { }
-  }
-
-  private void performPeakDetection(ByteBuffer tmpBuf) {
+	}
+	
+	private void performPeakDetection(ByteBuffer tmpBuf)
+	{
 		int bufLength = tmpBuf.capacity();
 		//saveToFile(tmpBuf); // Just for debug: this call prevents the FFT to work
 		System.out.println("Performing FFT on " + bufLength + " bytes");
@@ -309,6 +302,57 @@ public class AudioInputController {
 				audioMon.showPitch(pitch);
 		}
 		previousVolume = currentVolume;
-  }
+	}
+/*
+	// ************************** capture thread ******************************
 
+	private class AudioCaptureThread extends Thread 
+	{
+		int readBytes = 0;
+		boolean checkLatency = true;
+		
+		public AudioCaptureThread()
+		{
+			System.out.println("[AudioCaptureThread] created");
+		}
+		
+		public void saveToFile(byte buf[])
+		{
+			FileWriter out = null;
+			try
+			{
+				out = new FileWriter("audioCap.wav", true);
+				String str = new String(buf);
+				char cbuf[] = new char[bufferSize];
+				cbuf = str.toCharArray();
+				out.write(cbuf);
+			} catch (IOException e) { }
+		}
+
+		public void run() 
+		{
+			System.out.println("[AudioCaptureThread] started");
+			while(captureStarted)
+			{
+				if (checkLatency == true)
+					latency = System.currentTimeMillis();
+				readBytes = inputLine.read(javaSoundBuffer, 0, javaSoundBuffer.length);
+				if (checkLatency == true)
+				{
+					latency = System.currentTimeMillis() - latency;
+					System.out.println("[AudioCaptureThread] latency = " + latency);
+					checkLatency = false;
+				}
+					
+				if (readBytes > 0)
+				{
+					//long time = System.currentTimeMillis();
+					//System.out.println("[AudioCaptureThread] got " + readBytes + " bytes);
+					//saveToFile(buffer);
+					performPeakDetection();
+				}
+			}
+		}
+	}
+*/
 }

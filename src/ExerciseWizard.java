@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -23,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.event.ChangeListener;
 import java.util.ResourceBundle;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
@@ -33,30 +34,25 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
-/**
+
+/*
  * 
  *                EXERCISE WIZARD - FIRST STEP DIALOG
+ * 
  */
-public class ExerciseWizard extends JDialog {
-  private static final long serialVersionUID =  2656910435412692590L;
+public class ExerciseWizard extends JDialog
+{
+	private static final long serialVersionUID = 2656910435412692590L;
+	ResourceBundle appBundle;
+	Preferences appPrefs;
+	Font appFont;
+	
+	JPanel backPanel;
+	JLabel gameTitle;
+	public RoundedButton inlineExBtn, rhythmExBtn, scoreExBtn;
 
-  ResourceBundle appBundle;
-
-  Preferences appPrefs;
-
-  Font appFont;
-
-  JPanel backPanel;
-
-  JLabel gameTitle;
-
-  public RoundedButton inlineExBtn;
-
-  public RoundedButton rhythmExBtn;
-
-  public RoundedButton scoreExBtn;
-
-  public ExerciseWizard(ResourceBundle b, Preferences p, Font f) {
+	public ExerciseWizard(ResourceBundle b, Preferences p, Font f)
+	{
 		appBundle = b;
 		appPrefs = p;
 		appFont = f;
@@ -109,75 +105,44 @@ public class ExerciseWizard extends JDialog {
 	    backPanel.add(scoreExBtn);
 	    
 	    add(backPanel);
-  }
-
+	}
 }
-/**
+
+/*
  * 
  *                  EXERCISE WIZARD - SECOND STEP DIALOG
+ * 
  */
-class ExerciseScoreWizard extends JDialog {
-  private static final long serialVersionUID =  4264234519336822654L;
+class ExerciseScoreWizard extends JDialog implements ActionListener, ChangeListener
+{
+	private static final long serialVersionUID = 4264234519336822654L;
+	ResourceBundle appBundle;
+	Preferences appPrefs;
+	Font appFont;
+	
+	Exercise currExercise;
+	
+	JTextField titleTextField;
+	JComboBox accCB;
+	JRadioButton trebleClefCB, bassClefCB, altoClefCB, tenorClefCB;
+	JCheckBox secondClefCB;
+	JRadioButton trebleClefCB2, bassClefCB2, altoClefCB2, tenorClefCB2;
 
-  ResourceBundle appBundle;
+	JRadioButton fourfourButton, twofourButton, threefourButton, sixeightButton, sixfourButton, threeeightButton;
+	
+	JLabel tempoLabel;
+	JSlider tempoSlider;
+	
+	JRadioButton randYes, randNo;
+	
+	RoundedButton nextButton;
+	
+	boolean clefsActive = false;
+	boolean accidentalsActive = false;
+	boolean meausersActive = false;
 
-  Preferences appPrefs;
-
-  Font appFont;
-
-  Exercise currExercise;
-
-  JTextField titleTextField;
-
-  JComboBox accCB;
-
-  JRadioButton trebleClefCB;
-
-  JRadioButton bassClefCB;
-
-  JRadioButton altoClefCB;
-
-  JRadioButton tenorClefCB;
-
-  JCheckBox secondClefCB;
-
-  JRadioButton trebleClefCB2;
-
-  JRadioButton bassClefCB2;
-
-  JRadioButton altoClefCB2;
-
-  JRadioButton tenorClefCB2;
-
-  JRadioButton fourfourButton;
-
-  JRadioButton twofourButton;
-
-  JRadioButton threefourButton;
-
-  JRadioButton sixeightButton;
-
-  JRadioButton sixfourButton;
-
-  JRadioButton threeeightButton;
-
-  JLabel tempoLabel;
-
-  JSlider tempoSlider;
-
-  JRadioButton randYes;
-
-  JRadioButton randNo;
-
-  RoundedButton nextButton;
-
-  boolean clefsActive =  false;
-
-  boolean accidentalsActive =  false;
-
-  boolean meausersActive =  false;
-
-  public ExerciseScoreWizard(ResourceBundle b, Preferences p, Font f, Exercise e) {
+	public ExerciseScoreWizard(ResourceBundle b, Preferences p, Font f, Exercise e)
+	{
 		appBundle = b;
 		appPrefs = p;
 		appFont = f;
@@ -452,9 +417,10 @@ class ExerciseScoreWizard extends JDialog {
         setLocationRelativeTo(null); // Center the window on the display
         
         add(backPanel);
-  }
-
-  public void actionPerformed(ActionEvent ae) {
+	}
+	
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == secondClefCB)
 		{
 			boolean state = secondClefCB.isSelected();
@@ -534,9 +500,10 @@ class ExerciseScoreWizard extends JDialog {
 			this.firePropertyChange("gotoScoreEditor", false, true);
 			this.dispose();
 		}
-  }
+	}
 
-  public void stateChanged(ChangeEvent e) {
+	public void stateChanged(ChangeEvent e) 
+	{
 		if (e.getSource() == tempoSlider)
 		{
 			if (currExercise.type != 0)
@@ -544,6 +511,5 @@ class ExerciseScoreWizard extends JDialog {
 			else
 				tempoLabel.setText(appBundle.getString("_speed") + ": " + Integer.toString(tempoSlider.getValue()));
 		}
-  }
-
+    }
 }

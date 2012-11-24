@@ -1,21 +1,21 @@
-/**
- * This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
- * 
- * ScoreDate is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * ScoreDate is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * ********************************************
- */
+/***********************************************
+This file is part of the ScoreDate project (http://www.mindmatter.it/scoredate/).
+
+ScoreDate is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+ScoreDate is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with ScoreDate.  If not, see <http://www.gnu.org/licenses/>.
+
+**********************************************/
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -25,6 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.Sequencer;
@@ -33,86 +34,48 @@ import javax.swing.JDialog;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-public class ExerciseScoreEditor extends JDialog {
-  private static final long serialVersionUID =  -4561500030719709787L;
 
-  ResourceBundle appBundle;
 
-  Preferences appPrefs;
+public class ExerciseScoreEditor extends JDialog implements ActionListener, PropertyChangeListener
+{
+	private static final long serialVersionUID = -4561500030719709787L;
+	ResourceBundle appBundle;
+	Preferences appPrefs;
+	Font appFont;
+	MidiController appMidi;
+	
+	Exercise currExercise;
+	Vector<Note> exNotes; // pointer to the currently selected clef notes
 
-  Font appFont;
+	private RoundedButton wholeBtn, halfBtn, quartBtn, eightBtn, dottedHalfBtn, dottedQuartBtn;
+	private RoundedButton wholePauseBtn, halfPauseBtn, quartPauseBtn, eightPauseBtn; 
+	private RoundedButton sharpBtn, flatBtn, normalBtn;
+	
+	private RoundedButton playBtn;
+	
+	private JScrollPane scoreScrollPanel;
+	private JLayeredPane layers;
+	private Staff scoreStaff;
+	private NotesPanel notesEditLayer;
+	private NoteGenerator exerciseNG;
+	private Sequencer playback;
 
-  MidiController appMidi;
+	RoundedButton removeNoteButton;
+	RoundedButton finishButton;
 
-  Exercise currExercise;
+	//private int rowsDistance = 90; // distance in pixel between staff rows
+	private int timeNumerator = 4;
+	private int timeDenominator = 4;
 
-  /**
-   *  pointer to the currently selected clef notes
-   */
-  Vector<Note> exNotes;
+	private int selectedClef = 1;
+	private int measuresNumber = 1;
+	private double measureCounter = 0;
+	private double timeCounter = 0;
 
-  private RoundedButton wholeBtn;
+	private boolean isPlaying = false;
 
-  private RoundedButton halfBtn;
-
-  private RoundedButton quartBtn;
-
-  private RoundedButton eightBtn;
-
-  private RoundedButton dottedHalfBtn;
-
-  private RoundedButton dottedQuartBtn;
-
-  private RoundedButton wholePauseBtn;
-
-  private RoundedButton halfPauseBtn;
-
-  private RoundedButton quartPauseBtn;
-
-  private RoundedButton eightPauseBtn;
-
-  private RoundedButton sharpBtn;
-
-  private RoundedButton flatBtn;
-
-  private RoundedButton normalBtn;
-
-  private RoundedButton playBtn;
-
-  private JScrollPane scoreScrollPanel;
-
-  private JLayeredPane layers;
-
-  private Staff scoreStaff;
-
-  private NotesPanel notesEditLayer;
-
-  private NoteGenerator exerciseNG;
-
-  private Sequencer playback;
-
-  RoundedButton removeNoteButton;
-
-  RoundedButton finishButton;
-
-  /**
-   * private int rowsDistance = 90; // distance in pixel between staff rows
-   */
-  private int timeNumerator =  4;
-
-  private int timeDenominator =  4;
-
-  private int selectedClef =  1;
-
-  private int measuresNumber =  1;
-
-  private double measureCounter =  0;
-
-  private double timeCounter =  0;
-
-  private boolean isPlaying =  false;
-
-  public ExerciseScoreEditor(ResourceBundle b, Preferences p, Font f, MidiController mc, Exercise e) {
+	public ExerciseScoreEditor(ResourceBundle b, Preferences p, Font f, MidiController mc, Exercise e)
+	{
 		appBundle = b;
 		appPrefs = p;
 		appFont = f;
@@ -375,9 +338,10 @@ public class ExerciseScoreEditor extends JDialog {
 
         add(backPanel);
         setButtonsState();
-  }
-
-  private void calculateMeasureState() {
+	}
+	
+	private void calculateMeasureState()
+	{
 		if (exNotes.size() == 0)
 		{
 			measuresNumber = 1;
@@ -393,9 +357,10 @@ public class ExerciseScoreEditor extends JDialog {
 		measureCounter = timeDivision - (lastTS + lastDur - (timeDivision * (measuresNumber - 1)));
 		timeCounter = lastTS + lastDur;
 		System.out.println("Calculated measure counter: " + measureCounter);
-  }
-
-  private int getTotalMeasuresNumber() {
+	}
+	
+	private int getTotalMeasuresNumber()
+	{
 		int meas1 = 0, meas2 = 0;
 		double lastTS = 0;
 		double lastDur = 0;
@@ -416,9 +381,10 @@ public class ExerciseScoreEditor extends JDialog {
 		if (meas2 > meas1) return meas2;
 
 		return meas1;
-  }
-
-  private void setButtonsState() {
+	}
+	
+	private void setButtonsState()
+	{
 		if (currExercise.type == 0)
 			return;
 		System.out.println("[setButtonsState] Measure counter = " + measureCounter);
@@ -468,9 +434,10 @@ public class ExerciseScoreEditor extends JDialog {
 			finishButton.setEnabled(true);
 		else
 			finishButton.setEnabled(false);
-  }
-
-  private boolean checkStaffResize(int amount) {
+	}
+	
+	private boolean checkStaffResize(int amount)
+	{
     	if (selectedClef == 1 && currExercise.notes2.size() == 0)
     		return true;
     	double lastTS, lastDur;
@@ -502,9 +469,10 @@ public class ExerciseScoreEditor extends JDialog {
     		return true;
 
 		return false;
-  }
-
-  private void addEditNote(double type, boolean isSilence) {
+	}
+	
+	private void addEditNote(double type, boolean isSilence)
+	{
 		Note tmpNote;
 		if (measureCounter == 0)
 		{
@@ -591,9 +559,10 @@ public class ExerciseScoreEditor extends JDialog {
 		layers.repaint();
 		removeNoteButton.setEnabled(true);
 		setButtonsState();
-  }
+	}
 
-  private void changeAlteration(int type) {
+	private void changeAlteration(int type)
+	{
 		int idx = notesEditLayer.getEditNoteIndex();
 		Note tmpNote = exNotes.get(idx);
 		double timeDivision = (double)timeNumerator / (timeDenominator / 4);
@@ -646,9 +615,10 @@ public class ExerciseScoreEditor extends JDialog {
 			}
 		}
 		layers.repaint();
-  }
+	}
 
-  public void actionPerformed(ActionEvent ae) {
+	public void actionPerformed(ActionEvent ae)
+	{
 		if (ae.getSource() == wholeBtn)
 			addEditNote(0, false);
 		else if (ae.getSource() == halfBtn)
@@ -760,9 +730,10 @@ public class ExerciseScoreEditor extends JDialog {
 			this.firePropertyChange("exerciseSaved", false, true);
 			this.dispose();
 		}
-  }
-
-  public void checkAlterationButtons(int idx) {
+	}
+	
+	public void checkAlterationButtons(int idx)
+	{
 		if (currExercise.type == 1)
 			return;
 		boolean showNormal = false;
@@ -783,9 +754,10 @@ public class ExerciseScoreEditor extends JDialog {
 		flatBtn.setVisible(!showNormal);
 		flatBtn.setEnabled(!showNormal);
 		normalBtn.setVisible(showNormal);
-  }
-
-  public void propertyChange(PropertyChangeEvent evt) {
+	}
+	
+	public void propertyChange(PropertyChangeEvent evt)
+	{
 		if (evt.getPropertyName() == "newSelectedClef")
 		{
 			selectedClef = Integer.parseInt(evt.getNewValue().toString());
@@ -849,6 +821,5 @@ public class ExerciseScoreEditor extends JDialog {
 				}
 			}			
 		}
-  }
-
+	}
 }
