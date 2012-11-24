@@ -1,0 +1,102 @@
+July ??, 2012 - version 3.2
+- NEW: increased exercise editor size. Now it can be scrolled vertically
+- NEW: full double clef support added !
+	* Random exercises can be played with simultaneous notes on two clefs 
+	* Exercises can now be created, edited and saved with two clefs
+- NEW: added 6/4 and 3/8 time signatures
+- changed: improved exercise save procedure. Less disk space is now required
+- fixed: rendering of flats on bass, alto and tenor clef
+- fixed: MIDI input device selection
+- fixed: 6/8 exercise editing
+- fixed: tonality display of a saved exercise
+
+June 21st, 2012 - version 3.1
+
+- NEW: exercises bigger than the window size can now be scrolled
+- NEW: automatic scroll of long exercises during listening and playback 
+- NEW: Portuguese translation (thanks to Raquel)
+- changed: simplified output device selection
+- fixed: improved display of exercises answers
+- fixed: do not play pauses of exercises played inline
+- fixed: stop last suspended note when listening with Fluidsynth
+- fixed: all the dialog windows will stay always on top
+- fixed: dotted quarter accidental position
+- fixed: stop playback when closing the exercise view
+- fixed: staff rendering of exercises with 6/8 time signature
+
+April 22nd, 2012 - version 3.0
+
+- NEW: Integrated low latency sound synthesis through Fluidsynth
+- NEW: possibility to load user sound banks with Soundfont format (.SF2)
+- NEW: added dotted half and quarter notes
+- NEW: highlight virtual piano keys when playing with an external MIDI device 
+- NEW: added some more exercises
+- fixed: editing of exercises with accidentals on clef
+- fixed: missing strings on some translations
+
+December 16th, 2011 - version 2.3
+
+- NEW: previously saved exercises can be modified
+- NEW: added accidentals to Exercise editor
+- fixed MIDI IN device selection which didn't work in some cases
+- fixed a potential score reading game crash
+- rhythm exercise can now be played with the computer keyboard
+
+December 7th, 2011 - version 2.2
+
+- MAJOR: added ear training panel. 4 levels available: novice, intermediate, expert and custom 
+- notes range extended up to 4 additional lines above and below staff
+- notes panel is now cleaned up when repeating an exercise
+- fixed 6/8 time signature notes display
+- added an option to enable metronome accents, to simplify compound time signatures 
+- fixed silence insertion for different notes types selection
+- latency maximum value extended to 500ms
+
+December 1st, 2011 - version 2.1
+
+- if GM soundbank is not present, ask the user to download it from internet
+- MIDI input transposition is now based on semitones, to allow more flexibility 
+- redesigned MIDI input configuration window
+- Line game: fixed potential crash on key release
+- updated russian and hungarian translations
+
+November 27th, 2011 - version 2.0
+
+- MAJOR: added exercises panel. This feature includes:
+	* Tree listing of previously saved XML exercises
+	* preview of the exercise score properly scaled to fit the panel
+	* playback of the exercise to listen to it before playing it
+	* buttons to start exercising. Score reading can be also interpreted as notes in line
+	* exercise editor
+		> create any kind of exercise: line, rhythm, score
+		> set clef, accidentals, time signature, speed, random feature
+		> add notes and pauses to the score and edit the pitch by just pointing and clicking with the mouse
+		> previous notes selection
+		> last note removal 
+		> playback preview of the notes sequence
+		> save on XML file
+- fixed statistics daily view and empty panel
+- fixed resize of home panel when closing another panel
+
+November 13th, 2011 - version 1.0
+
+- NEW: added statistics panel showing monthly and daily views
+- line game: added random accidentals exercise
+- line game: fixed intervals and chords display
+- line game: fixed learning info on altered notes
+- line game: fixed accidentals rendering for alto and tenor clef
+- line game: added combo box to select how many notes to play on line game
+- line game: notes number and progress bar are disabled in learning mode
+- line game: can be started by pressing C3
+- line game: chords and intervals can be played with the virtual piano too
+- score reading: added pauses when double clef is on
+- rhythm game: always shows one clef
+- fixed SmartBar and GameBar resize when going fullscreen
+- games are stopped when going to home screen
+- MusiSyncForScoreDate passed FontForge validation + improved sharp symbol
+- added icon to main window 
+- fixed italian translation
+
+November 5th, 2011 - version 1.0 alpha
+
+Initial version of Score Date
