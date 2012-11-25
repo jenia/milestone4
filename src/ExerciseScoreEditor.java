@@ -350,8 +350,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			return;
 		}
 		double timeDivision = (double)timeNumerator / (timeDenominator / 4);
-		double lastTS = exNotes.get(exNotes.size() - 1).timestamp;
-		double lastDur = exNotes.get(exNotes.size() - 1).duration;
+		double lastTS = exNotes.get(exNotes.size() - 1).getTimestamp();
+		double lastDur = exNotes.get(exNotes.size() - 1).getDuration();
     	measuresNumber = (int)Math.ceil((lastTS + lastDur) / timeDivision);
 		System.out.println("Measures: " + measuresNumber + ", last timestamp: " + lastTS);
 		measureCounter = timeDivision - (lastTS + lastDur - (timeDivision * (measuresNumber - 1)));
@@ -367,14 +367,14 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		double timeDivision = (double)timeNumerator / (timeDenominator / 4);
 		if (currExercise.notes.size() > 0)
 		{
-			lastTS = currExercise.notes.get(currExercise.notes.size() - 1).timestamp;
-			lastDur = currExercise.notes.get(currExercise.notes.size() - 1).duration;
+			lastTS = currExercise.notes.get(currExercise.notes.size() - 1).getTimestamp();
+			lastDur = currExercise.notes.get(currExercise.notes.size() - 1).getDuration();
 			meas1 = (int)Math.ceil((lastTS + lastDur) / timeDivision);
 		}
 		if (currExercise.notes2.size() > 0)
 		{
-			lastTS = currExercise.notes2.get(currExercise.notes2.size() - 1).timestamp;
-			lastDur = currExercise.notes2.get(currExercise.notes2.size() - 1).duration;
+			lastTS = currExercise.notes2.get(currExercise.notes2.size() - 1).getTimestamp();
+			lastDur = currExercise.notes2.get(currExercise.notes2.size() - 1).getDuration();
 			meas2 = (int)Math.ceil((lastTS + lastDur) / timeDivision);
 		}
 		if (meas1 == 0 && meas2 == 0) return 1;
@@ -447,8 +447,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 
     	if (exNotes.size() > 0)
     	{
-    		lastTS = exNotes.get(exNotes.size() - 1).timestamp;
-    		lastDur = exNotes.get(exNotes.size() - 1).duration;
+    		lastTS = exNotes.get(exNotes.size() - 1).getTimestamp();
+    		lastDur = exNotes.get(exNotes.size() - 1).getDuration();
     		measures = (int)Math.ceil((lastTS + lastDur) / timeDivision);
     	}
     	
@@ -459,8 +459,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
     	
     	if (tmpNotes.size() > 0)
     	{
-    		lastTS = tmpNotes.get(tmpNotes.size() - 1).timestamp;
-    		lastDur = tmpNotes.get(tmpNotes.size() - 1).duration;
+    		lastTS = tmpNotes.get(tmpNotes.size() - 1).getTimestamp();
+    		lastDur = tmpNotes.get(tmpNotes.size() - 1).getDuration();
         	measures2 = (int)Math.ceil((lastTS + lastDur) / timeDivision);
     	}
     	System.out.println("[checkStaffResize] measure1: " + measures + ", measures2: "+ measures2);
@@ -505,7 +505,7 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			flatBtn.setEnabled(false);
 			normalBtn.setVisible(false);
 			tmpNote = new Note(0, notesEditLayer.getClef(selectedClef - 1), 12, pitch, 5, false, 0);
-			tmpNote.duration = type;
+			tmpNote.setDuration(type);
 		}
 		else
 		{
@@ -516,30 +516,30 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			  {
 				Note nNote = exNotes.get(i);
 				double timeDivision = (double)timeNumerator / (timeDenominator / 4);
-				if ((int)Math.floor(nNote.timestamp / timeDivision) != measuresNumber - 1)
+				if ((int)Math.floor(nNote.getTimestamp() / timeDivision) != measuresNumber - 1)
 					break;
 				//System.out.println("note #" + i + " p: " + nNote.pitch);
 				//System.out.println("nNote.level: " + nNote.level + ", tmpNote.level: " + tmpNote.level);
-				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
-					nNote.altType != 0)
+				if ((nNote.getLevel() == tmpNote.getLevel()  || nNote.getLevel() == tmpNote.getLevel() - 7 || nNote.getLevel() == tmpNote.getLevel() + 7) &&
+					nNote.getAltType() != 0)
 				{
-					if (nNote.altType == 2)
-						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
+					if (nNote.getAltType() == 2)
+						tmpNote.setPitch(exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.getLevel()));
 					else
-						tmpNote.pitch += nNote.altType;
+						tmpNote.setPitch(tmpNote.getPitch() + nNote.getAltType());
 
-					System.out.println("[addEditNote] NEW pitch = " + tmpNote.pitch);
+					System.out.println("[addEditNote] NEW pitch = " + tmpNote.getPitch());
 					break;
 				}
 			  }
 			}
 		}
 		if (selectedClef == 2)
-			tmpNote.secondRow = true;
+			tmpNote.setSecondRow(true);
 
-		measureCounter -= tmpNote.duration;
+		measureCounter -= tmpNote.getDuration();
 		tmpNote.setTimeStamp(timeCounter);
-		timeCounter += tmpNote.duration;
+		timeCounter += tmpNote.getDuration();
 
 		if (selectedClef == 1)
 		{
@@ -566,52 +566,52 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		int idx = notesEditLayer.getEditNoteIndex();
 		Note tmpNote = exNotes.get(idx);
 		double timeDivision = (double)timeNumerator / (timeDenominator / 4);
-		int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeDivision);
-		System.out.println("[changeAlteration] Current Measure = " + currentMeasure + ", pitch: " + tmpNote.pitch);
-		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
+		int currentMeasure = (int)Math.floor(tmpNote.getTimestamp() / timeDivision);
+		System.out.println("[changeAlteration] Current Measure = " + currentMeasure + ", pitch: " + tmpNote.getPitch());
+		int naturalPitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.getLevel());
 		switch (type)
 		{
 			case 1:
 			case -1:
-				if (tmpNote.altType == type)
+				if (tmpNote.getAltType() == type)
 				{
-					tmpNote.altType = 0;
-					tmpNote.pitch = naturalPitch;
+					tmpNote.setAltType(0);
+					tmpNote.setPitch(naturalPitch);
 				}
 				else
 				{
-					tmpNote.altType = type;
-					tmpNote.pitch = naturalPitch + type;
+					tmpNote.setAltType(type);
+					tmpNote.setPitch(naturalPitch + type);
 				}
 			break;
 			case 2:
-				if (tmpNote.altType == type)
+				if (tmpNote.getAltType() == type)
 				{
-					tmpNote.altType = 0;
-					tmpNote.pitch = exerciseNG.getAlteredFromBase(naturalPitch); 
+					tmpNote.setAltType(0);
+					tmpNote.setPitch(exerciseNG.getAlteredFromBase(naturalPitch)); 
 				}
 				else
 				{
-					tmpNote.altType = 2;
-					tmpNote.pitch = naturalPitch;
+					tmpNote.setAltType(2);
+					tmpNote.setPitch(naturalPitch);
 				}
 			break;
 		}
-		System.out.println("[changeAlteration] NEW pitch: " + tmpNote.pitch);
+		System.out.println("[changeAlteration] NEW pitch: " + tmpNote.getPitch());
 		for (int i = idx + 1; i < exNotes.size(); i++)
 		{
 			Note nNote = exNotes.get(i);
-			if ((int)Math.floor(nNote.timestamp / timeDivision) != currentMeasure)
+			if ((int)Math.floor(nNote.getTimestamp() / timeDivision) != currentMeasure)
 				break;
-			if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
+			if (nNote.getLevel() == tmpNote.getLevel()  || nNote.getLevel() == tmpNote.getLevel() - 7 || nNote.getLevel() == tmpNote.getLevel() + 7)
 			{
-				nNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.level); // retrieve the base pitch of this level and clef
+				nNote.setPitch(exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.getLevel())); // retrieve the base pitch of this level and clef
 
-				if (tmpNote.altType == 0)
-					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
-				else if (tmpNote.altType < 2)
-					nNote.pitch += type;
-				nNote.altType = 0;
+				if (tmpNote.getAltType() == 0)
+					nNote.setPitch(exerciseNG.getAlteredFromBase(nNote.getPitch())); // retrieve a new pitch if it is altered
+				else if (tmpNote.getAltType() < 2)
+					nNote.setPitch(nNote.getPitch() + type);
+				nNote.setAltType(0);
 			}
 		}
 		layers.repaint();
@@ -684,8 +684,8 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		{
 			int lastIdx =  exNotes.size() - 1;
 			System.out.println("[remove] measureCounter: " + measureCounter + ", measuresNumber: " + measuresNumber);
-			measureCounter += exNotes.get(lastIdx).duration;
-			timeCounter -= exNotes.get(lastIdx).duration;
+			measureCounter += exNotes.get(lastIdx).getDuration();
+			timeCounter -= exNotes.get(lastIdx).getDuration();
 			if (measureCounter == ((double)timeNumerator / (timeDenominator / 4)))
 			{
 				measureCounter = 0;
@@ -737,9 +737,9 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 		if (currExercise.type == 1)
 			return;
 		boolean showNormal = false;
-		int alt = exNotes.get(idx).altType;
-		int pitch = exNotes.get(idx).pitch;
-		int lev = exNotes.get(idx).level;
+		int alt = exNotes.get(idx).getAltType();
+		int pitch = exNotes.get(idx).getPitch();
+		int lev = exNotes.get(idx).getLevel();
 		
 		if (alt == 2)
 			showNormal = true;
@@ -786,15 +786,15 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			for (int i = idx - 1; i >= 0; i--)
 			{
 				Note nNote = exNotes.get(i);
-				if ((int)Math.floor(nNote.timestamp / timeDivision) != measuresNumber - 1)
+				if ((int)Math.floor(nNote.getTimestamp() / timeDivision) != measuresNumber - 1)
 					break;
-				if ((nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7) &&
-					nNote.altType != 0)
+				if ((nNote.getLevel() == tmpNote.getLevel()  || nNote.getLevel() == tmpNote.getLevel() - 7 || nNote.getLevel() == tmpNote.getLevel() + 7) &&
+					nNote.getAltType() != 0)
 				{
-					if (nNote.altType == 2)
-						tmpNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.level);
+					if (nNote.getAltType() == 2)
+						tmpNote.setPitch(exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), tmpNote.getLevel()));
 					else
-						tmpNote.pitch += nNote.altType;
+						tmpNote.setPitch(tmpNote.getPitch() + nNote.getAltType());
 					break;
 				}
 			}
@@ -807,17 +807,17 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
 			int idx = notesEditLayer.getEditNoteIndex();
 			Note tmpNote = exNotes.get(idx);
 			double timeDivision = (double)timeNumerator / (timeDenominator / 4);
-			int currentMeasure = (int)Math.floor(tmpNote.timestamp / timeDivision);
+			int currentMeasure = (int)Math.floor(tmpNote.getTimestamp() / timeDivision);
 			for (int i = idx + 1; i < exNotes.size(); i++)
 			{
 				Note nNote = exNotes.get(i);
-				if ((int)Math.floor(nNote.timestamp / timeDivision) != currentMeasure)
+				if ((int)Math.floor(nNote.getTimestamp() / timeDivision) != currentMeasure)
 					break;
-				if (nNote.level == tmpNote.level  || nNote.level == tmpNote.level - 7 || nNote.level == tmpNote.level + 7)
+				if (nNote.getLevel() == tmpNote.getLevel()  || nNote.getLevel() == tmpNote.getLevel() - 7 || nNote.getLevel() == tmpNote.getLevel() + 7)
 				{
-					nNote.pitch = exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.level); // retrieve the base pitch of this level and clef
-					nNote.pitch = exerciseNG.getAlteredFromBase(nNote.pitch); // retrieve a new pitch if it is altered
-					nNote.altType = 0; 
+					nNote.setPitch(exerciseNG.getPitchFromClefAndLevel(notesEditLayer.getClef(selectedClef - 1), nNote.getLevel())); // retrieve the base pitch of this level and clef
+					nNote.setPitch(exerciseNG.getAlteredFromBase(nNote.getPitch())); // retrieve a new pitch if it is altered
+					nNote.setAltType(0); 
 				}
 			}			
 		}

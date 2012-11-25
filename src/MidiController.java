@@ -599,38 +599,38 @@ public class MidiController
 		 for (int i = 0; i < notes.size(); i++)
 		 {
 			 Note cNote = notes.get(i);
-			 tick = (int)((cNote.timestamp + timeOffset) * ppq);
+			 tick = (int)((cNote.getTimestamp() + timeOffset) * ppq);
 			 
-			 if (playOnly == true && cNote.type != 5) // do not play silence !
+			 if (playOnly == true && cNote.getType() != 5) // do not play silence !
 			 {
 				 if (useFluidsynth == false)
-					 tracks[0].add(createNoteOnEvent(cNote.pitch, 90, tick));
+					 tracks[0].add(createNoteOnEvent(cNote.getPitch(), 90, tick));
 				 else
 				 {
-					 String textb = "fsnOn" + cNote.pitch;
+					 String textb = "fsnOn" + cNote.getPitch();
 					 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 				 }
 			 }
 
 			 String textb = "nOn";
-			 if (cNote.secondRow == true)
+			 if (cNote.isSecondRow() == true)
 				 textb = "n2On";
 			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
-			 tick+=(int)((cNote.duration)*ppq);
+			 tick+=(int)((cNote.getDuration())*ppq);
 			 
-			 if (playOnly == true && cNote.type != 5) // do not play silence !
+			 if (playOnly == true && cNote.getType() != 5) // do not play silence !
 			 {
 				 if (useFluidsynth == false)
-					 tracks[0].add(createNoteOffEvent(cNote.pitch, tick));
+					 tracks[0].add(createNoteOffEvent(cNote.getPitch(), tick));
 				 else
 				 {
-					 textb = "fsnOff" + cNote.pitch;
+					 textb = "fsnOff" + cNote.getPitch();
 		  			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
 				 }
 			 }
 
 			 textb = "nOff";
-			 if (cNote.secondRow == true)
+			 if (cNote.isSecondRow() == true)
 				 textb = "n2Off";
   			 addMidiEvent(tracks[0], metaType, textb.getBytes(), tick);
   			 if (tick > endtick)

@@ -172,7 +172,7 @@ public class NotesPanel extends JPanel implements MouseListener
     		row1H = 90;
     		for (int i = 0; i < n.size(); i++)
     		{
-    			int lev = n.get(i).level;
+    			int lev = n.get(i).getLevel();
     			if (lev < minLev) minLev = lev;
     			if (lev > maxLev) maxLev = lev;
     		}
@@ -188,7 +188,7 @@ public class NotesPanel extends JPanel implements MouseListener
     		row2H = 90;
   		    for (int i = 0; i < n2.size(); i++)
     		{
-  		    	int lev = n2.get(i).level;
+  		    	int lev = n2.get(i).getLevel();
     			if (lev < minLev) minLev = lev;
     			if (lev > maxLev) maxLev = lev;
     		}
@@ -229,8 +229,8 @@ public class NotesPanel extends JPanel implements MouseListener
 
     public void setSingleNotePosition(Note note, boolean setXpos)
     {
-   		int type = note.type;
-   		int ypos = (note.level * 5) + 11;
+   		int type = note.getType();
+   		int ypos = (note.getLevel() * 5) + 11;
    		int yOffset = 0;
 
 		if (tmpX >= staffWidth)
@@ -239,60 +239,62 @@ public class NotesPanel extends JPanel implements MouseListener
 			tmpY += rowsDistance;
 		}
 
-		if (note.secondRow == true)
+		if (note.isSecondRow() == true)
 			yOffset += (rowsDistance / 2);
 
-		note.addLinesNumber = 0;
+		note.setAddLinesNumber(0);
 
-		if (note.level < 7)
+		if (note.getLevel() < 7)
 		{
-			note.addLinesNumber = 4 - (note.level / 2);
-			note.addLinesYpos = ypos + tmpY - 6 + ((note.level%2) * 5);
-			if (note.secondRow == true)
-				note.addLinesYpos+=rowsDistance/2;
+			note.setAddLinesNumber(4 - (note.getLevel() / 2));
+			note.setAddLinesYpos(ypos + tmpY - 6 + ((note.getLevel()%2) * 5));
+			if (note.isSecondRow() == true)
+				note.setAddLinesYpos(note.getAddLinesYpos()
+						+ (rowsDistance/2));
 		}
-		else if  (note.level > 17)
+		else if  (note.getLevel() > 17)
 		{
-			note.addLinesNumber = (note.level / 2) - 8;
-			note.addLinesYpos = ypos + tmpY - 6 - ((note.level - 18) * 5);
-			if (note.secondRow == true)
-				note.addLinesYpos+=rowsDistance/2;
+			note.setAddLinesNumber((note.getLevel() / 2) - 8);
+			note.setAddLinesYpos(ypos + tmpY - 6 - ((note.getLevel() - 18) * 5));
+			if (note.isSecondRow() == true)
+				note.setAddLinesYpos(note.getAddLinesYpos()
+						+ (rowsDistance/2));
 		}
 
 		if (type == 0) // whole note
 			ypos++;
 		else if (type == 2 || type == 7) // quarter or dotted quarter note
 		{
-			if (note.level < 12)
+			if (note.getLevel() < 12)
 				ypos += 41;
 		}
 		else if (type == 3) // eighth note
 		{
-			if (note.level < 12) 
+			if (note.getLevel() < 12) 
 				ypos += 30;
 		}
 		else if (type == 4) // triplets
 		{
-			if (note.tripletValue < 0)
+			if (note.getTripletValue() < 0)
 				ypos += 41;
 		}    		
 		else if (type == 5) // silence
 		{
-			if (note.duration == 4)
+			if (note.getDuration() == 4)
 				ypos -= 16;
-			else if (note.duration == 2)
+			else if (note.getDuration() == 2)
 				ypos -= 12;
-			else if (note.duration == 1)
+			else if (note.getDuration() == 1)
 				ypos += 13;
-			else if (note.duration == 0.5)
+			else if (note.getDuration() == 0.5)
 				ypos += 13;
 		}
 
-		note.ypos = ypos + tmpY + yOffset;
+		note.setYpos(ypos + tmpY + yOffset);
 		if (inlineMode == false && setXpos == true) // the inline game controls X position itself
 		{
-			note.xpos = tmpX;
-			tmpX += (note.duration * noteDistance);
+			note.setXpos(tmpX);
+			tmpX += (note.getDuration() * noteDistance);
 		}
     }
 
@@ -310,7 +312,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	{
     		if (notes.size() == 0) return;
     		singleNoteIndex = index;
-    		notes.get(index).highlight = enable;
+    		notes.get(index).setHighlight(enable);
     		repaint();
     		singleNoteIndex = -1;
     	}
@@ -318,7 +320,7 @@ public class NotesPanel extends JPanel implements MouseListener
     	{
     		if (notes2.size() == 0) return;
     		singleNote2Index = index;
-    		notes2.get(index).highlight = enable;
+    		notes2.get(index).setHighlight(enable);
     		repaint();
     		singleNote2Index = -1;
     	}
@@ -369,24 +371,24 @@ public class NotesPanel extends JPanel implements MouseListener
 				tmpNote = notes.get(editNoteIndex);
 			else if (selectedClef == 2)
 				tmpNote = notes2.get(editNoteIndex);
-			int origLevel = tmpNote.level;
+			int origLevel = tmpNote.getLevel();
 			int newLevel = (mouseY - editNoteSelY - 4) / 5;
 			if (newLevel != origLevel)
 			{
-				tmpNote.level = (mouseY - editNoteSelY - 4) / 5;
-				tmpX = tmpNote.xpos; // must 'rewind' xpos to avoid wrong check for second line
+				tmpNote.setLevel((mouseY - editNoteSelY - 4) / 5);
+				tmpX = tmpNote.getXpos(); // must 'rewind' xpos to avoid wrong check for second line
 				if (selectedClef == 1)
 					tmpY = editNoteSelY;
 				else if (selectedClef == 2)
 					tmpY = editNoteSelY - (rowsDistance/2);
 				setSingleNotePosition(tmpNote, false); // do not touch X position !
-				tmpNote.pitch = editNG.getPitchFromClefAndLevel(clefs.get(selectedClef - 1), tmpNote.level); // retrieve the base pitch of this level and clef
-				tmpNote.pitch = editNG.getAlteredFromBase(tmpNote.pitch); // retrieve a new pitch if it is altered
-				if (tmpNote.altType != 0)
+				tmpNote.setPitch(editNG.getPitchFromClefAndLevel(clefs.get(selectedClef - 1), tmpNote.getLevel())); // retrieve the base pitch of this level and clef
+				tmpNote.setPitch(editNG.getAlteredFromBase(tmpNote.getPitch())); // retrieve a new pitch if it is altered
+				if (tmpNote.getAltType() != 0)
 					this.firePropertyChange("levelWasAltered", origLevel, newLevel);
-				tmpNote.altType = 0;
+				tmpNote.setAltType(0);
 
-				System.out.println("[Edit mode] note level: " + tmpNote.level + ", pitch = " + tmpNote.pitch);
+				System.out.println("[Edit mode] note level: " + tmpNote.getLevel() + ", pitch = " + tmpNote.getPitch());
 				this.firePropertyChange("levelChanged", origLevel, newLevel);
 				repaint();
 			}
@@ -407,7 +409,7 @@ public class NotesPanel extends JPanel implements MouseListener
 				Note tmpNote = tmpNotes.get(i);
 
 				//System.out.println("Clef: " + tmpClef + " - #" + i + ": nX: " + (lookupX - 5) + ", nY: " + lookupY + ", nX1: " + (int)(lookupX + (tmpNote.duration * noteDistance)) + ", nY1: " + (tmpY + selH));
-				if (mouseX >= lookupX - 5 && mouseX < (int)(lookupX + (tmpNote.duration * noteDistance)) && 
+				if (mouseX >= lookupX - 5 && mouseX < (int)(lookupX + (tmpNote.getDuration() * noteDistance)) && 
 					mouseY >= lookupY && mouseY < lookupY + selH)
 				{
 					if (tmpClef != selectedClef)
@@ -415,13 +417,13 @@ public class NotesPanel extends JPanel implements MouseListener
 						this.firePropertyChange("newSelectedClef", selectedClef, tmpClef);
 						selectedClef = tmpClef;
 					}
-					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + tmpNote.pitch);
+					System.out.println("[Edit mode] selected note #" + i + ", pitch = " + tmpNote.getPitch());
 					this.firePropertyChange("selectionChanged", editNoteIndex, i);
 					setEditNoteIndex(i);
 					repaint();
 					return;
 				}
-				lookupX += (tmpNote.duration * noteDistance);
+				lookupX += (tmpNote.getDuration() * noteDistance);
 				if (lookupX >= staffWidth)
 				{
 					lookupX = firstNoteXPos;
@@ -479,7 +481,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		Note note = null;
 		if (clef == 1) note = notes.get(index);
 		else if (clef == 2) note = notes2.get(index);
-		int type = note.type;
+		int type = note.getType();
 
 		if (editMode == true && clef == selectedClef && index == editNoteIndex)
 		{
@@ -492,7 +494,7 @@ public class NotesPanel extends JPanel implements MouseListener
 			int lookupY = (clef - 1) * (rowsDistance / 2);
 			for (int i = 0; i < editNoteIndex; i++)
 			{
-				lookupX += (tmpNotes.get(i).duration * noteDistance);
+				lookupX += (tmpNotes.get(i).getDuration() * noteDistance);
 				if (lookupX >= staffWidth)
 				{
 					lookupX = firstNoteXPos;
@@ -500,9 +502,9 @@ public class NotesPanel extends JPanel implements MouseListener
 				}
 			}
 			g.setColor(new Color(0xA2, 0xDD, 0xFF, 0x7F));
-			editNoteSelX = note.xpos - 5;
+			editNoteSelX = note.getXpos() - 5;
 			editNoteSelY = lookupY;
-			editNoteSelW = (int)(note.duration * noteDistance);
+			editNoteSelW = (int)(note.getDuration() * noteDistance);
 			editNoteSelH = 130;
 			g.fillRoundRect(editNoteSelX, editNoteSelY, editNoteSelW, editNoteSelH, 10, 10);
 			if (clefs.size() > 1)
@@ -513,17 +515,17 @@ public class NotesPanel extends JPanel implements MouseListener
 			}
 		}
 
-		if (note.highlight == true)
+		if (note.isHighlight() == true)
 	    	g.setColor(Color.blue);
 		else 
 			g.setColor(Color.black);
 
 		// draw additional lines if needed
-		if (note.addLinesNumber > 0)
+		if (note.getAddLinesNumber() > 0)
 		{
-			int addLineWidth = (note.type == 0)?23:16;
-			for (int j = 0; j < note.addLinesNumber; j++)
-				g.drawLine(note.xpos - 5, note.addLinesYpos + (j * 10), note.xpos + addLineWidth, note.addLinesYpos + (j * 10));
+			int addLineWidth = (note.getType() == 0)?23:16;
+			for (int j = 0; j < note.getAddLinesNumber(); j++)
+				g.drawLine(note.getXpos() - 5, note.getAddLinesYpos() + (j * 10), note.getXpos() + addLineWidth, note.getAddLinesYpos() + (j * 10));
 		}
 
     	g.setFont(appFont.deriveFont(57f));
@@ -532,99 +534,99 @@ public class NotesPanel extends JPanel implements MouseListener
 		{
 			symbol = "h"; // half note
 			if (type == 6) // dotted half
-				g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
+				g.fillOval(note.getXpos() + 15, note.getYpos() - 8, 5, 5);
 		}
 		else if (type == 2 || type == 7)
 		{
-			if (note.level >= 12) symbol = "q"; // quarter note upward
+			if (note.getLevel() >= 12) symbol = "q"; // quarter note upward
 			else symbol = "" + (char)0xF6; // quarter note downward
 			if (type == 7) // dotted quarter
 			{
-				if (note.level >= 12)
-					g.fillOval(note.xpos + 15, note.ypos - 8, 5, 5);
+				if (note.getLevel() >= 12)
+					g.fillOval(note.getXpos() + 15, note.getYpos() - 8, 5, 5);
 				else
-					g.fillOval(note.xpos + 15, note.ypos - 49, 5, 5);
+					g.fillOval(note.getXpos() + 15, note.getYpos() - 49, 5, 5);
 			}
 		}
 		else if (type == 3)
 		{
-			if (note.level >= 12) symbol = "" + (char)0xC8; // eighth note upward 
+			if (note.getLevel() >= 12) symbol = "" + (char)0xC8; // eighth note upward 
 			else symbol = "" + (char)0xCA; // eighth note downward
 		}
 		else if (type == 4)
 		{
-			if (note.tripletValue > 0)
+			if (note.getTripletValue() > 0)
 				symbol = "q"; // triplet note upward
 			else symbol = "" + (char)0xF6; // triplet note downward
 		}
 		else if (type == 5) // silence
 		{
-			if (note.duration == 4)
-				g.fillRect(note.xpos + (int)(noteDistance * 1.55), note.ypos, 14, 6);
-			else if (note.duration == 2)
-				g.fillRect(note.xpos, note.ypos, 14, 6);
-			else if (note.duration == 1)
+			if (note.getDuration() == 4)
+				g.fillRect(note.getXpos() + (int)(noteDistance * 1.55), note.getYpos(), 14, 6);
+			else if (note.getDuration() == 2)
+				g.fillRect(note.getXpos(), note.getYpos(), 14, 6);
+			else if (note.getDuration() == 1)
 				symbol = "Q";
-			else if (note.duration == 0.5)
+			else if (note.getDuration() == 0.5)
 			{
 				g.setFont(appFont.deriveFont(50f));
 				symbol = "E";
 			}
 		}
 
-		g.drawString(symbol, note.xpos, note.ypos);
+		g.drawString(symbol, note.getXpos(), note.getYpos());
 
 		// draw alteration symbol if required
-		if (note.altType != 0)
+		if (note.getAltType() != 0)
 		{
 			int altYOff = 0;
 			g.setFont(appFont.deriveFont(50f));
-			if (note.level < 12)
+			if (note.getLevel() < 12)
 			{
-				if (note.type == 2 || note.type == 7) 
+				if (note.getType() == 2 || note.getType() == 7) 
 					altYOff = -41;
-				else if (note.type == 3)
+				else if (note.getType() == 3)
 					altYOff = -30;
 			}
-			if (note.altType == -2)
+			if (note.getAltType() == -2)
 			{
-				g.drawString("b", note.xpos - 19, note.ypos + altYOff);
-				g.drawString("b", note.xpos - 12, note.ypos + altYOff);
+				g.drawString("b", note.getXpos() - 19, note.getYpos() + altYOff);
+				g.drawString("b", note.getXpos() - 12, note.getYpos() + altYOff);
 			}
-			else if (note.altType == -1)
-				g.drawString("b", note.xpos - 12, note.ypos + altYOff);
-			else if (note.altType == 1)
-				g.drawString("B", note.xpos - 12, note.ypos + altYOff);
-			else if (note.altType == 2)
-				g.drawString("" + (char)0xBD, note.xpos - 14, note.ypos + altYOff);
+			else if (note.getAltType() == -1)
+				g.drawString("b", note.getXpos() - 12, note.getYpos() + altYOff);
+			else if (note.getAltType() == 1)
+				g.drawString("B", note.getXpos() - 12, note.getYpos() + altYOff);
+			else if (note.getAltType() == 2)
+				g.drawString("" + (char)0xBD, note.getXpos() - 14, note.getYpos() + altYOff);
 		}
 
 		// draw triplets special graphics
-    	if (note.tripletValue != 0)
+    	if (note.getTripletValue() != 0)
     	{
     		int tsub = 0; 
-    		if (note.tripletValue < 0) // notes downward
+    		if (note.getTripletValue() < 0) // notes downward
     		{
-    			if (note.tripletValue <= -1000) tsub = 1000;
-    			int tripletBarYPos = note.ypos + (((Math.abs(note.tripletValue) - tsub) - note.level) * 5);
-    			g.drawLine(note.xpos, note.ypos - 15, note.xpos, tripletBarYPos - 15);
-    			if (note.tripletValue > -1000)
+    			if (note.getTripletValue() <= -1000) tsub = 1000;
+    			int tripletBarYPos = note.getYpos() + (((Math.abs(note.getTripletValue()) - tsub) - note.getLevel()) * 5);
+    			g.drawLine(note.getXpos(), note.getYpos() - 15, note.getXpos(), tripletBarYPos - 15);
+    			if (note.getTripletValue() > -1000)
     			{
     				g.setFont(new Font("Arial", Font.BOLD, 15));
-            		g.drawString("3", note.xpos + 22, tripletBarYPos + 3);
-    				g.fillRect(note.xpos, tripletBarYPos - 15, 49, 5);
+            		g.drawString("3", note.getXpos() + 22, tripletBarYPos + 3);
+    				g.fillRect(note.getXpos(), tripletBarYPos - 15, 49, 5);
     			}
     		}
     		else // notes upward
     		{
-    			if (note.tripletValue >= 1000) tsub = 1000;
-    			int tripletBarYPos = note.ypos - ((note.level - (note.tripletValue - tsub)) * 5);
-    			g.drawLine(note.xpos + 11, note.ypos - 40, note.xpos + 11, tripletBarYPos - 40);
-    			if (note.tripletValue < 1000)
+    			if (note.getTripletValue() >= 1000) tsub = 1000;
+    			int tripletBarYPos = note.getYpos() - ((note.getLevel() - (note.getTripletValue() - tsub)) * 5);
+    			g.drawLine(note.getXpos() + 11, note.getYpos() - 40, note.getXpos() + 11, tripletBarYPos - 40);
+    			if (note.getTripletValue() < 1000)
     			{
     				g.setFont(new Font("Arial", Font.BOLD, 15));
-            		g.drawString("3", note.xpos + 32, tripletBarYPos - 42);
-    				g.fillRect(note.xpos + 11, tripletBarYPos - 40, 49, 5);
+            		g.drawString("3", note.getXpos() + 32, tripletBarYPos - 42);
+    				g.fillRect(note.getXpos() + 11, tripletBarYPos - 40, 49, 5);
     			}
     		}	
     	}

@@ -266,14 +266,14 @@ public class InlinePanel extends JPanel implements ActionListener
 	{
 		if (gameNotes.size() == 0)
 			return;
-		int noteIdx = piano.highlightKey(gameNotes.get(0).pitch, enable);
+		int noteIdx = piano.highlightKey(gameNotes.get(0).getPitch(), enable);
 		String noteInfo = "";
 		String altInfo = "";
 		String chord = "";
 		
 		if (gameNotes.size() > 1)
 			for (int i = 1; i < gameNotes.size(); i++)
-				piano.highlightKey(gameNotes.get(i).pitch, enable);
+				piano.highlightKey(gameNotes.get(i).getPitch(), enable);
 
 		if (enable == true)
 		{
@@ -281,19 +281,19 @@ public class InlinePanel extends JPanel implements ActionListener
 			int altType = 0;
 			if (gameSubType == appPrefs.NOTE_ACCIDENTALS)
 			{
-				altType = gameNotes.get(0).altType;
+				altType = gameNotes.get(0).getAltType();
 				if (altType == 0) // maybe the alteration is on the clef. Check it out
-					altType = inlineNG.getAlteration(gameNotes.get(0).pitch);
+					altType = inlineNG.getAlteration(gameNotes.get(0).getPitch());
 			}
 			else
-				altType = inlineNG.getAlteration(gameNotes.get(0).pitch);
+				altType = inlineNG.getAlteration(gameNotes.get(0).getPitch());
 				
 			if (altType == 1)
 			{
 				if (noteIdx != 2 && noteIdx != 6 && piano.isSelectedBlack() == true) // E and B are already OK
 					altInfo = "#";
 			}
-			else if (gameNotes.get(0).altType == -1)
+			else if (gameNotes.get(0).getAltType() == -1)
 			{
 				altInfo = "b";
 				noteIdx++;
@@ -391,7 +391,7 @@ public class InlinePanel extends JPanel implements ActionListener
 			gameStarted = false;
 			sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 			for (int i = 0; i < gameNotes.size(); i++)
-				appMidi.stopNote(gameNotes.get(i).pitch, 0);
+				appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 			gameNotes.clear();
 			gameType = appPrefs.GAME_STOPPED;
 		}
@@ -491,7 +491,7 @@ public class InlinePanel extends JPanel implements ActionListener
 				{
 				  for (int i = 0; i < gameNotes.size(); i++)
 				  {
-					appMidi.stopNote(gameNotes.get(i).pitch, 0);
+					appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 					if (gameType == appPrefs.INLINE_LEARN_NOTES)
 						setLearningInfo(false, -1);
 				  }
@@ -546,7 +546,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		{
 			for (int j = 0; j < user.size(); j++)
 			{
-				if (game.get(i).pitch == user.get(j))
+				if (game.get(i).getPitch() == user.get(j))
 				{
 					matchCount++;
 					break;
@@ -566,7 +566,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		int score = 0;
 		if (gameType != appPrefs.INLINE_LEARN_NOTES)
 		{
-			int xdelta = gameNotes.get(0).xpos - noteXStartPos;
+			int xdelta = gameNotes.get(0).getXpos() - noteXStartPos;
 			score = (xdelta * 100) / (getWidth() -  (staffHMargin * 2)); // find linear score based on note position
 			score = 100 - score; // invert it to scale from 0 to 100
 			score *= (currentSpeed / 40); // multiply by speed factor
@@ -598,7 +598,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		refreshPanel();
 		for (int i = 0; i < gameNotes.size(); i++)
 		{
-			appMidi.stopNote(gameNotes.get(i).pitch, 0);
+			appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 			//if (gameType == appPrefs.INLINE_LEARN_NOTES)
 			//	setLearningInfo(gameNotes.get(i).pitch, false);
 		}
@@ -683,7 +683,7 @@ public class InlinePanel extends JPanel implements ActionListener
 								setLearningInfo(true, chordType);
 							if (gameType != appPrefs.INLINE_MORE_NOTES)
 								for (int j = 0; j < gameNotes.size(); j++)
-									appMidi.playNote(gameNotes.get(j).pitch, 90);
+									appMidi.playNote(gameNotes.get(j).getPitch(), 90);
 						}
 						else if (gameSubType == appPrefs.NOTE_INTERVALS)
 						{
@@ -692,7 +692,7 @@ public class InlinePanel extends JPanel implements ActionListener
 								setLearningInfo(true, intervalType);
 							if (gameType != appPrefs.INLINE_MORE_NOTES)
 								for (int j = 0; j < gameNotes.size(); j++)
-									appMidi.playNote(gameNotes.get(j).pitch, 90);
+									appMidi.playNote(gameNotes.get(j).getPitch(), 90);
 						}
 						else
 						{
@@ -701,14 +701,14 @@ public class InlinePanel extends JPanel implements ActionListener
 								newNote = inlineNG.getRandomNote(0, true, -1);
 							else
 								newNote = inlineNG.getRandomNote(0, false, -1);
-							newNote.duration = 0; // set duration to 0 not to mess up X position
-							newNote.xpos = noteXStartPos;
+							newNote.setDuration(0); // set duration to 0 not to mess up X position
+							newNote.setXpos(noteXStartPos);
 							gameNotes.add(newNote);
 							if (gameType == appPrefs.INLINE_LEARN_NOTES)
 								setLearningInfo(true, -1);
-							System.out.println("Got note with pitch: " + newNote.pitch + " (level:" + newNote.level + ")");
+							System.out.println("Got note with pitch: " + newNote.getPitch() + " (level:" + newNote.getLevel() + ")");
 							if (gameType != appPrefs.INLINE_MORE_NOTES)
-								appMidi.playNote(newNote.pitch, 90);
+								appMidi.playNote(newNote.getPitch(), 90);
 						}
 
 						notesLayer.setNotesPositions();
@@ -718,12 +718,12 @@ public class InlinePanel extends JPanel implements ActionListener
 					{
 						for (int i = 0; i < gameNotes.size(); i++)
 						{
-							gameNotes.get(i).xpos+=noteXincrement;
-							if ((gameType != appPrefs.INLINE_MORE_NOTES && gameNotes.get(i).xpos > marginX) ||
-								(gameType == appPrefs.INLINE_MORE_NOTES && i == 0 && gameNotes.get(i).xpos < marginX))
+							gameNotes.get(i).setXpos(gameNotes.get(i).getXpos() + noteXincrement);
+							if ((gameType != appPrefs.INLINE_MORE_NOTES && gameNotes.get(i).getXpos() > marginX) ||
+								(gameType == appPrefs.INLINE_MORE_NOTES && i == 0 && gameNotes.get(i).getXpos() < marginX))
 							{
 								if (gameType != appPrefs.INLINE_MORE_NOTES)
-									appMidi.stopNote(gameNotes.get(i).pitch, 0);
+									appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 								updateGameStats(0);
 								if (gameType == appPrefs.INLINE_LEARN_NOTES)
 									setLearningInfo(false, -1);
@@ -733,7 +733,7 @@ public class InlinePanel extends JPanel implements ActionListener
 						if (gameNotes.size() == 0)
 							needNewNote = true;
 						
-						if (gameType == appPrefs.INLINE_MORE_NOTES && gameNotes.lastElement().xpos < noteXStartPos - 50)
+						if (gameType == appPrefs.INLINE_MORE_NOTES && gameNotes.lastElement().getXpos() < noteXStartPos - 50)
 							needNewNote = true;
 					}
 					//sleep(260 - currentSpeed);

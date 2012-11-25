@@ -242,7 +242,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			gameNotes = currEx.notes;
 			gameNotes2 = currEx.notes2;
-			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).timestamp + currEx.notes.get(currEx.notes.size() - 1).duration;
+			double totalDuration = currEx.notes.get(currEx.notes.size() - 1).getTimestamp() + currEx.notes.get(currEx.notes.size() - 1).getDuration();
 	        staffLayer.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
 	        notesLayer.setNotesSequence(currEx.notes, currEx.notes2);
 			rowsDistance = notesLayer.getRowsDistance();
@@ -328,9 +328,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		if (currentNoteIndex < 0 || currentNoteIndex >= gameNotes.size())
 			return;
 		// find the closest pitch against current clefs notes
-		delta1 = Math.abs(pitch - gameNotes.get(currentNoteIndex).pitch);
+		delta1 = Math.abs(pitch - gameNotes.get(currentNoteIndex).getPitch());
 		if (gameNotes2.size() > 0 && currentNote2Index != -1)
-			delta2 = Math.abs(pitch - gameNotes2.get(currentNote2Index).pitch);
+			delta2 = Math.abs(pitch - gameNotes2.get(currentNote2Index).getPitch());
 		if (delta2 == -1 || delta1 < delta2)
 			checkAnswer(cursorPos, currentNoteIndex, gameNotes, pitch, press, false);
 		else
@@ -354,7 +354,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			if (n.size() == 0) return; // security check
 			int lookupIndex = noteIdx;
-			int noteMargin = n.get(lookupIndex).xpos - (accuracy / 2);
+			int noteMargin = n.get(lookupIndex).getXpos() - (accuracy / 2);
 			boolean noteFound = false;
 
 			// check against current note X position + margins
@@ -367,7 +367,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 				lookupIndex++;
 				if (n.size() == 0 || lookupIndex >= n.size()) 
 					return; // security check
-				noteMargin = n.get(lookupIndex).xpos - (accuracy / 2);
+				noteMargin = n.get(lookupIndex).getXpos() - (accuracy / 2);
 					
 				if (cursorPos > noteMargin && cursorPos < noteMargin + accuracy)
 					noteFound = true;
@@ -383,9 +383,9 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			{
 				if (n.size() == 0) return; // security check
 
-				if ((pitch == n.get(lookupIndex).pitch || 
+				if ((pitch == n.get(lookupIndex).getPitch() || 
 					gameType == appPrefs.RHTYHM_GAME_USER) && // any pitch is OK for rhythm game 
-					n.get(lookupIndex).type != 5)  
+					n.get(lookupIndex).getType() != 5)  
 					{
 						answersLayer.drawAnswer(1, cursorPos, answerY); // pitch and rhythm correct
 						updateGameStats(1);
@@ -399,7 +399,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 
 			if (n.size() == 0) return; // security check
 		    System.out.println("[checkNote *pressed*] noteIdx: " + noteIdx + 
-					   ", xpos: " + n.get(noteIdx).xpos +
+					   ", xpos: " + n.get(noteIdx).getXpos() +
 					   ", cursor: " + cursorPos +
 			           ", noteMargin: " + noteMargin);
 		}
@@ -407,14 +407,14 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		{
 			int idx = noteIdx;
 			/* at high speed, it might happen that two notes get overlapped, so look at the previous one */
-			if (idx > 0 && pitch != n.get(idx).pitch) 
+			if (idx > 0 && pitch != n.get(idx).getPitch()) 
 				idx--;
-			int releaseXpos = n.get(idx).xpos + (int)(72 * n.get(idx).duration) + (accuracy / 2);
+			int releaseXpos = n.get(idx).getXpos() + (int)(72 * n.get(idx).getDuration()) + (accuracy / 2);
 			System.out.println("[checkNote *release*] cursorPos: " +  cursorPos + 
-						", noteXpos: " + n.get(idx).xpos + ", releaseXpos: " + releaseXpos);
+						", noteXpos: " + n.get(idx).getXpos() + ", releaseXpos: " + releaseXpos);
 			 
 			if (((cursorPos < releaseXpos - (accuracy * 2) && cursorPos > cursorStartX + accuracy) || cursorPos > releaseXpos) && 
-				  cursorPos > n.get(idx).xpos + accuracy)
+				  cursorPos > n.get(idx).getXpos() + accuracy)
 			//if (cursorPos < releaseXpos - (accuracy * 2) || cursorPos > releaseXpos)
 			{
 				answersLayer.drawAnswer(2, cursorPos, answerY);

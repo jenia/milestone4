@@ -294,14 +294,14 @@ public class NoteGenerator
     		}
     		if (idx < n.size())
     		{
-    			if (n.get(idx).type == 5) { idx++; continue; }
-    			ts = n.get(idx).timestamp;
+    			if (n.get(idx).getType() == 5) { idx++; continue; }
+    			ts = n.get(idx).getTimestamp();
     			ts2 = 999999;
     		}
     		if (idx2 < n2.size())
     		{
-    			if (n2.get(idx2).type == 5) { idx2++; continue; }
-    			ts2 = n2.get(idx2).timestamp;
+    			if (n2.get(idx2).getType() == 5) { idx2++; continue; }
+    			ts2 = n2.get(idx2).getTimestamp();
     			if (ts == -1) ts = 999999;
     		}
     		System.out.println("[NG setNotesList] idx: " + idx + " (ts="+ ts + ") idx2: " + idx2 + " (ts2=" + ts2 + ")");
@@ -395,7 +395,7 @@ public class NoteGenerator
     	}
 
     	for (int n = 0; n < randomPitchList.size(); n++)
-    		System.out.print(randomPitchList.get(n).pitch + ", ");
+    		System.out.print(randomPitchList.get(n).getPitch() + ", ");
     	System.out.println("");
     }
     
@@ -408,7 +408,7 @@ public class NoteGenerator
     {
     	if (randomPitchList.size() == 0)
     		return -1;
-    	return randomPitchList.get(0).pitch;
+    	return randomPitchList.get(0).getPitch();
     }
     
     public int getFirstHighPitch()
@@ -416,23 +416,23 @@ public class NoteGenerator
     	if (randomPitchList.size() == 0)
     		return -1;
     	if (addRangeIndex != -1)
-    		return randomPitchList.get(addRangeIndex - 1).pitch;
+    		return randomPitchList.get(addRangeIndex - 1).getPitch();
     	else
-    		return randomPitchList.get(randomPitchList.size() - 1).pitch;
+    		return randomPitchList.get(randomPitchList.size() - 1).getPitch();
     }
     
     public int getSecondLowPitch()
     {
     	if (randomPitchList.size() == 0 || addRangeIndex == -1)
     		return -1;
-    	return randomPitchList.get(addRangeIndex).pitch;
+    	return randomPitchList.get(addRangeIndex).getPitch();
     }
     
     public int getSecondHighPitch()
     {
     	if (randomPitchList.size() == 0 || addRangeIndex == -1)
     		return -1;
-    	return randomPitchList.get(randomPitchList.size() - 1).pitch;
+    	return randomPitchList.get(randomPitchList.size() - 1).getPitch();
     }
     
     public int getAlteration(int pitch)
@@ -490,35 +490,35 @@ public class NoteGenerator
     	int type = forcedType;
     	if (forcedType == -1)
     		type = notesTypeList.get((int) (notesTypeList.size() * Math.random()));
-    	Note randNote = new Note(0, tmpNote.clef, tmpNote.level, tmpNote.pitch, type, tmpNote.secondRow, tmpNote.altType);
-    	randNote.type = type;
-    	randNote.duration = randNote.getDuration(type);
+    	Note randNote = new Note(0, tmpNote.getClef(), tmpNote.getLevel(), tmpNote.getPitch(), type, tmpNote.isSecondRow(), tmpNote.getAltType());
+    	randNote.setType(type);
+    	randNote.setDuration(randNote.getDuration(type));
     	
     	if (altered == true)
     	{
     		int randAlt = (int)(Math.random() * 3) - 1; // get a value between -1 and +1
-    		int altIdx = alteredList.indexOf(randNote.pitch);
+    		int altIdx = alteredList.indexOf(randNote.getPitch());
     		int altOffset = alteredList.get(altIdx) - baseList.get(altIdx);
     		
     		//System.out.println("[NG getRandomNote] pitch: " + randNote.pitch + ", randAlt: " + randAlt + ", altOffset: " + altOffset);
-    		randNote.pitch += randAlt;
+    		randNote.setPitch(randNote.getPitch() + randAlt);
     		
     		switch (altOffset)
     		{
     			case 0:
-    				randNote.altType = randAlt;
+    				randNote.setAltType(randAlt);
     			break;
     			case -1:
     				if (randAlt == 1)
-    					randNote.altType = 2; // natural needed
+    					randNote.setAltType(2); // natural needed
     				else if (randAlt == -1)
-    					randNote.level++;
+    					randNote.setLevel(randNote.getLevel() + 1);
     			break;
     			case 1:
     				if (randAlt == -1)
-    					randNote.altType = 2; // natural needed
+    					randNote.setAltType(2); // natural needed
     				else if (randAlt == 1)
-    					randNote.level--;
+    					randNote.setLevel(randNote.getLevel() - 1);
     			break;
     		}
     	}
@@ -540,7 +540,7 @@ public class NoteGenerator
 
     	for (int i = 0; i < upperIndex; i++)
     	{
-    		if (randomPitchList.get(i).pitch == basePitch)
+    		if (randomPitchList.get(i).getPitch() == basePitch)
     		{
     			baseIndex = i;
     			break;
@@ -561,7 +561,7 @@ public class NoteGenerator
     	int randIndex = baseIndex + shift + (int)(Math.random() * delta);
     	Note baseNote = randomPitchList.get(baseIndex);
     	Note newNote = randomPitchList.get(randIndex);
-    	Note randNote = new Note(0, baseNote.clef, newNote.level, newNote.pitch, 4, baseNote.secondRow, newNote.altType);
+    	Note randNote = new Note(0, baseNote.getClef(), newNote.getLevel(), newNote.getPitch(), 4, baseNote.isSecondRow(), newNote.getAltType());
 
     	//System.out.println("Triplet base: " + basePitch + ", baseIndex: " + baseIndex + ", randIdx: " + randIndex);
     	//System.out.println("Triplet new note: " +  randNote.pitch + ", level: " + randNote.level + ", dur: " + randNote.duration);
@@ -584,31 +584,36 @@ public class NoteGenerator
     		while (measureCounter != 0)
     		{
     			Note tmpNote = getRandomNote(-1, false, forcedClef);
-    			if (tmpNote.type == 4) // triplet
+    			if (tmpNote.getType() == 4) // triplet
     			{
     				if (measureCounter < 1 || eighthPresent == true)
     					continue;
-    				Note secondNote = getTripletRandomNote(tmpNote.pitch);
-    				Note thirdNote = getTripletRandomNote(tmpNote.pitch);
+    				Note secondNote = getTripletRandomNote(tmpNote.getPitch());
+    				Note thirdNote = getTripletRandomNote(tmpNote.getPitch());
     				if (isRhythm == true)
     				{
-    					tmpNote.level = secondNote.level = thirdNote.level = 12;
-    					tmpNote.pitch = secondNote.pitch = thirdNote.pitch = getRhythmPitch(tmpNote.clef);
+    					tmpNote.setLevel(12);
+    					secondNote.setLevel(12);
+    					thirdNote.setLevel(12);
+    					
+    					tmpNote.setPitch(getRhythmPitch(tmpNote.getClef()));
+    					secondNote.setPitch(getRhythmPitch(tmpNote.getClef()));
+    					thirdNote.setPitch(getRhythmPitch(tmpNote.getClef()));
     				}
     				
-    				int tripletLevel = tmpNote.level;
+    				int tripletLevel = tmpNote.getLevel();
     				int mult = 1;
     				if (isRhythm == false)
     				{
-    				  if (tmpNote.level >= 12) // oriented upward. Find the lowest level
+    				  if (tmpNote.getLevel() >= 12) // oriented upward. Find the lowest level
     				  {
-    					if (secondNote.level < tripletLevel) tripletLevel = secondNote.level;
-    					if (thirdNote.level < tripletLevel) tripletLevel = thirdNote.level;
+    					if (secondNote.getLevel() < tripletLevel) tripletLevel = secondNote.getLevel();
+    					if (thirdNote.getLevel() < tripletLevel) tripletLevel = thirdNote.getLevel();
     				  }
     				  else // oriented downward. Find the highest level
     			 	  {
-    					if (secondNote.level > tripletLevel) tripletLevel = secondNote.level;
-    					if (thirdNote.level > tripletLevel) tripletLevel = thirdNote.level;
+    					if (secondNote.getLevel() > tripletLevel) tripletLevel = secondNote.getLevel();
+    					if (thirdNote.getLevel() > tripletLevel) tripletLevel = thirdNote.getLevel();
     					mult = -1; // negative values will tell the renderer to stretch downward
     				  }
     				  tripletLevel *= mult;
@@ -619,49 +624,49 @@ public class NoteGenerator
     				thirdNote.setTripletValue(tripletLevel + (mult * 1000));
     				
     				tmpNote.setTimeStamp(timeCounter);
-    				timeCounter+=tmpNote.duration;
+    				timeCounter+=tmpNote.getDuration();
     				secondNote.setTimeStamp(timeCounter);
-    				timeCounter+=secondNote.duration;
+    				timeCounter+=secondNote.getDuration();
     				thirdNote.setTimeStamp(timeCounter);
-    				timeCounter+=thirdNote.duration;
+    				timeCounter+=thirdNote.getDuration();
     				
 					measureCounter--; // one quarter for the triplet group
     				seq.add(tmpNote);
-    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.pitch + ", level: " + tmpNote.level);
+    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + tmpNote.getPitch() + ", level: " + tmpNote.getLevel());
     				seq.add(secondNote);
-    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + secondNote.pitch + ", level: " + secondNote.level);
+    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + secondNote.getPitch() + ", level: " + secondNote.getLevel());
     				seq.add(thirdNote);
-    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + thirdNote.pitch + ", level: " + thirdNote.level);
+    				System.out.println("Random Note: #" + seq.size() + ": Pitch: " + thirdNote.getPitch() + ", level: " + thirdNote.getLevel());
     				continue;
     				
     			}
-    			else if (tmpNote.type == 5) // if this is silence, then set a random duration
+    			else if (tmpNote.getType() == 5) // if this is silence, then set a random duration
     			{
     				int randTypeIdx = (int)((notesTypeList.size() - 1) * Math.random());
     				if (notesTypeList.get(randTypeIdx) == 6 || notesTypeList.get(randTypeIdx) == 7)
     					continue;
-    				tmpNote.duration = tmpNote.getDuration(notesTypeList.get(randTypeIdx));
-    				if (tmpNote.duration == (1.0 / 3.0))
+    				tmpNote.setDuration(tmpNote.getDuration(notesTypeList.get(randTypeIdx)));
+    				if (tmpNote.getDuration() == (1.0 / 3.0))
     					continue;
     			}
 
     			if (isRhythm == true)
     			{
-    				tmpNote.level = 12;
+    				tmpNote.setLevel(12);
     				//tmpNote.ypos = 62;
-    				tmpNote.pitch = getRhythmPitch(tmpNote.clef);
+    				tmpNote.setPitch(getRhythmPitch(tmpNote.getClef()));
     			}
 
     			//System.out.println("Generated note pitch: " + tmpNote.pitch + ", duration: " + tmpNote.duration);
-    			if (tmpNote.duration <= measureCounter)
+    			if (tmpNote.getDuration() <= measureCounter)
     			{
-    				measureCounter -= tmpNote.duration;
+    				measureCounter -= tmpNote.getDuration();
     				seq.add(tmpNote);
-    				if (tmpNote.type == 3)
+    				if (tmpNote.getType() == 3)
     					eighthPresent = true;
     				tmpNote.setTimeStamp(timeCounter);
     				//System.out.println("Random Note: #" + seq.size() + ": p: " + tmpNote.pitch + ", lev: " + tmpNote.level + ", type: " + tmpNote.type + ", ts: " + timeCounter);
-    				timeCounter+=tmpNote.duration;
+    				timeCounter+=tmpNote.getDuration();
     			}
     			//System.out.println("tempMesCnt: " + measureCounter);
     		}
@@ -688,7 +693,7 @@ public class NoteGenerator
     	
     	System.out.println("[getRandomChordorInterval] randType: " + randType);
     	
-    	baseNote.xpos = xpos;
+    	baseNote.setXpos(xpos);
     	seq.add(baseNote);
     	
     	if (chord == true) 
@@ -697,17 +702,17 @@ public class NoteGenerator
     	for (int i = 0; i < notesWanted; i++)
     	{
     		if (chord == true)
-    			addNotes[i] = baseNote.pitch + chordsIntervals[randType][i];
+    			addNotes[i] = baseNote.getPitch() + chordsIntervals[randType][i];
     		else
     		{
-    			addNotes[i] = baseNote.pitch + intervals[intervalDegree] + randType;
+    			addNotes[i] = baseNote.getPitch() + intervals[intervalDegree] + randType;
     		}
     		int level = 0;
     		if (chord == true)
-    			level = baseNote.level - (2 * (i + 1)); // calculate 3rd and 5th position
+    			level = baseNote.getLevel() - (2 * (i + 1)); // calculate 3rd and 5th position
     		else
-    			level = baseNote.level - intervalDegree + 1;
-        	int addNoteBasePitch = getPitchFromClefAndLevel(baseNote.clef, level);
+    			level = baseNote.getLevel() - intervalDegree + 1;
+        	int addNoteBasePitch = getPitchFromClefAndLevel(baseNote.getClef(), level);
         	int addNoteIdx = baseList.indexOf(addNoteBasePitch);
         	int altOnClef = alteredList.get(addNoteIdx) - baseList.get(addNoteIdx);
         	int altType = addNotes[i] - alteredList.get(addNoteIdx);
@@ -724,7 +729,7 @@ public class NoteGenerator
         	System.out.println("AFTER altType: " + altType + ", altOnClef: " + altOnClef);
         	if (chord == false && intervalDegree == 2)
         		xpos -= 20;
-        	Note newNote = new Note(xpos, baseNote.clef, level, addNotes[i], 0, baseNote.secondRow, altType);
+        	Note newNote = new Note(xpos, baseNote.getClef(), level, addNotes[i], 0, baseNote.isSecondRow(), altType);
         	seq.add(newNote);
     	}
     	

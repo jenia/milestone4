@@ -285,7 +285,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 			gameStarted = false;
 			sBar.playBtn.setButtonImage(new ImageIcon(getClass().getResource("/resources/playback.png")).getImage());
 			for (int i = 0; i < gameNotes.size(); i++)
-				appMidi.stopNote(gameNotes.get(i).pitch, 0);
+				appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 			gameNotes.clear();
 			gameType = appPrefs.GAME_STOPPED;
 		}
@@ -302,7 +302,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 
 		if (gameSubType == 2 || gameSubType == 3 || fromMidi == true)
 		{
-			if (gameNotes.size() > 0 && value == gameNotes.get(0).pitch)
+			if (gameNotes.size() > 0 && value == gameNotes.get(0).getPitch())
 				rightAnswer = true;
 			noteIdx = piano.getNoteIndexFromPitch(value);
 			if (gameSubType == 2 || gameSubType == 3)
@@ -318,7 +318,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 			noteIdx = value;
 			if (gameNotes.size() > 0)
 			{
-				int qIdx = piano.getNoteIndexFromPitch(gameNotes.get(0).pitch);
+				int qIdx = piano.getNoteIndexFromPitch(gameNotes.get(0).getPitch());
 				if (noteIdx == qIdx)
 					rightAnswer = true;
 			}
@@ -394,10 +394,10 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		if (gameNotes.size() > 0)
 		{
 			int alt = 0;
-			int noteIdx = piano.getNoteIndexFromPitch(gameNotes.get(0).pitch);
+			int noteIdx = piano.getNoteIndexFromPitch(gameNotes.get(0).getPitch());
 			int octave = -1;
 			if (gameSubType == 2 || gameSubType == 3)
-				octave = piano.getOctaveFromPitch(gameNotes.get(0).pitch);
+				octave = piano.getOctaveFromPitch(gameNotes.get(0).getPitch());
 			if (noteIdx >= 100)
 			{
 				alt = 1;
@@ -407,7 +407,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		}
 		questionLabel.setIcon(null);
 		for (int i = 0; i < gameNotes.size(); i++)
-			appMidi.stopNote(gameNotes.get(i).pitch, 0);
+			appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 	}
 	
 	private void gameFinished(boolean win)
@@ -417,7 +417,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 		refreshPanel();
 		for (int i = 0; i < gameNotes.size(); i++)
 		{
-			appMidi.stopNote(gameNotes.get(i).pitch, 0);
+			appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 			//if (gameType == appPrefs.INLINE_LEARN_NOTES)
 			//	setLearningInfo(gameNotes.get(i).pitch, false);
 		}
@@ -535,7 +535,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 						else newNote = earNG.getRandomNote(0, false, -1);
 						
 						gameNotes.add(newNote);
-						appMidi.playNote(newNote.pitch, 90);
+						appMidi.playNote(newNote.getPitch(), 90);
 						needNewNote = false;
 						questionLabel.setText("");
 						answerLabel.setText("");
@@ -547,7 +547,7 @@ public class EarTrainingPanel extends JPanel implements ActionListener
 					if (timeoutCounter == noteTimeout) // timed out without an answer
 					{
 						for (int i = 0; i < gameNotes.size(); i++)
-							appMidi.stopNote(gameNotes.get(i).pitch, 0);
+							appMidi.stopNote(gameNotes.get(i).getPitch(), 0);
 						needNewNote = true;
 						timeoutCounter = 0;
 						showQuestion();

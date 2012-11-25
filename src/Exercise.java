@@ -110,14 +110,14 @@ public class Exercise
 			exSequence.appendChild(exNote);
 			
 			Note tmpNote = n.get(i);
-			exNote.setAttribute("t", Integer.toString(tmpNote.type));
-			exNote.setAttribute("p", Integer.toString(tmpNote.pitch));
-			exNote.setAttribute("l", Integer.toString(tmpNote.level));
-			exNote.setAttribute("ts", Double.toString(tmpNote.timestamp));
-			exNote.setAttribute("d", Double.toString(tmpNote.duration));
-			exNote.setAttribute("c", Integer.toString(tmpNote.clef));
-			if (tmpNote.altType != 0)
-				exNote.setAttribute("a", Integer.toString(tmpNote.altType));
+			exNote.setAttribute("t", Integer.toString(tmpNote.getType()));
+			exNote.setAttribute("p", Integer.toString(tmpNote.getPitch()));
+			exNote.setAttribute("l", Integer.toString(tmpNote.getLevel()));
+			exNote.setAttribute("ts", Double.toString(tmpNote.getTimestamp()));
+			exNote.setAttribute("d", Double.toString(tmpNote.getDuration()));
+			exNote.setAttribute("c", Integer.toString(tmpNote.getClef()));
+			if (tmpNote.getAltType() != 0)
+				exNote.setAttribute("a", Integer.toString(tmpNote.getAltType()));
 /*
 			Element nType = d.createElement("t");
 			nType.appendChild(d.createTextNode(Integer.toString(tmpNote.type)));
@@ -340,14 +340,14 @@ public class Exercise
 
 					   tmpNote = new Note(0, nClef, nLevel, nPitch, nType, false, 0);
 					   if (nAlt > -3)
-						   tmpNote.altType = nAlt;
+						   tmpNote.setAltType(nAlt);
 					   tmpNote.setTimeStamp(nStamp);
-					   tmpNote.duration = nDur;
+					   tmpNote.setDuration(nDur);
 					   if (seq == 0)
 						   notes.add(tmpNote);
 					   else if (seq == 1)
 					   {
-						   tmpNote.secondRow = true;
+						   tmpNote.setSecondRow(true);
 						   notes2.add(tmpNote);
 					   }
 				   }
