@@ -87,84 +87,21 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
         /*
          * ***** First panel: Contains the ClefSelector objects to select clefs ******
          */
-		JPanel clefsPanel = new JPanel();
-		clefsPanel.setLayout(null);
-		clefsPanel.setBackground(Color.white);
-		clefsPanel.setPreferredSize(new Dimension((clefSelWidth * 2) + 15, (clefSelHeight * 2) + 20));
-		clefsPanel.setBounds(0, 0, (clefSelWidth * 2) + 15, (clefSelHeight * 2) + 20);
+		JPanel clefsPanel = createClefsPanel(clefSelHeight, clefSelWidth);
 		
 		int clefsMask = Integer.parseInt(appPrefs.getProperty("clefsMask")); 
 		if (clefsMask == -1) clefsMask = appPrefs.TREBLE_CLEF;
 
-		trebleClef = new ClefSelector(appBundle, "G");
-		trebleClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
-		trebleClef.setBounds(5, 10, clefSelWidth, clefSelHeight);
-		trebleClef.setFont(appFont);
-		if ((clefsMask & appPrefs.TREBLE_CLEF) > 0)
-			trebleClef.setEnabled(true);
-		else
-			trebleClef.setEnabled(false);
+		createTrebleClef(clefSelHeight, clefSelWidth, clefsMask);
+		createBassClef(clefSelHeight, clefSelWidth, clefsMask);
+		createAlto(clefSelHeight, clefSelWidth, clefsMask);
+		createTenorClef(clefSelHeight, clefSelWidth, clefsMask);
 		
 		NoteGenerator tmpNG = new NoteGenerator(appPrefs, null, false);
-		// retrieve previously saved pitches and convert them into levels 
-		int lowerPitch = Integer.parseInt(appPrefs.getProperty("trebleClefLower"));
-		if (lowerPitch == -1) lowerPitch = 64; // default, set to E3
-		int higherPitch = Integer.parseInt(appPrefs.getProperty("trebleClefUpper"));
-		if (higherPitch == -1) higherPitch = 77; // default, set to F4
-		System.out.println("Treble Clef pitches: " + lowerPitch + " to " + higherPitch);
-		trebleClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, lowerPitch, false), 
-							 24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, higherPitch, false));
-		
-		bassClef = new ClefSelector(appBundle, "?");
-		bassClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
-		bassClef.setBounds(clefSelWidth + 10, 10, clefSelWidth, clefSelHeight);
-		bassClef.setFont(appFont);
-		if ((clefsMask & appPrefs.BASS_CLEF) > 0)
-			bassClef.setEnabled(true);
-		else
-			bassClef.setEnabled(false);
-		// retrieve previously saved pitches and convert them into levels 
-		lowerPitch = Integer.parseInt(appPrefs.getProperty("bassClefLower"));
-		if (lowerPitch == -1) lowerPitch = 43; // default, set to G1
-		higherPitch = Integer.parseInt(appPrefs.getProperty("bassClefUpper"));
-		if (higherPitch == -1) higherPitch = 57; // default, set to A2
-		System.out.println("Bass Clef pitches: " + lowerPitch + " to " + higherPitch);
-		bassClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, lowerPitch, false), 
-						   24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, higherPitch, false));
-
-		altoClef = new ClefSelector(appBundle, "ALTO");
-		altoClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
-		altoClef.setBounds(5, clefSelHeight + 15, clefSelWidth, clefSelHeight);
-		altoClef.setFont(appFont);
-		if ((clefsMask & appPrefs.ALTO_CLEF) > 0)
-			altoClef.setEnabled(true);
-		else
-			altoClef.setEnabled(false);
-		// retrieve previously saved pitches and convert them into levels 
-		lowerPitch = Integer.parseInt(appPrefs.getProperty("altoClefLower"));
-		if (lowerPitch == -1) lowerPitch = 53; // default, set to F2
-		higherPitch = Integer.parseInt(appPrefs.getProperty("altoClefUpper"));
-		if (higherPitch == -1) higherPitch = 67; // default, set to G3
-		System.out.println("Alto Clef pitches: " + lowerPitch + " to " + higherPitch);
-		altoClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, lowerPitch, false), 
-						   24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, higherPitch, false));
-		
-		tenorClef = new ClefSelector(appBundle, "TENOR");
-		tenorClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
-		tenorClef.setBounds(clefSelWidth + 10, clefSelHeight + 15, clefSelWidth, clefSelHeight);
-		tenorClef.setFont(appFont);
-		if ((clefsMask & appPrefs.TENOR_CLEF) > 0)
-			tenorClef.setEnabled(true);
-		else
-			tenorClef.setEnabled(false);
-		// retrieve previously saved pitches and convert them into levels 
-		lowerPitch = Integer.parseInt(appPrefs.getProperty("tenorClefLower"));
-		if (lowerPitch == -1) lowerPitch = 50; // default, set to D2
-		higherPitch = Integer.parseInt(appPrefs.getProperty("tenorClefUpper"));
-		if (higherPitch == -1) higherPitch = 64; // default, set to E3
-		System.out.println("Tenor Clef pitches: " + lowerPitch + " to " + higherPitch);
-		tenorClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, lowerPitch, false), 
-							24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, higherPitch, false));
+		setTrebleLevel(tmpNG);
+		setBassLevel(tmpNG);
+		setAltoLevel(tmpNG);
+		setTenorLevel(tmpNG);
 		
 		clefsPanel.add(trebleClef);
 		clefsPanel.add(bassClef);
@@ -174,49 +111,150 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		 /*
 		  * ***** Second panel: contains accidentals, notes type and time signature selections  ******
 		  */
-		JPanel notesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-		notesPanel.setBackground(Color.white);
-		notesPanel.setBounds((clefSelWidth * 2) + 15, 0, getWidth() - (clefSelWidth * 2) - 20, getHeight() - 75);
-		notesPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 20, getHeight() - 95));
+		JPanel notesPanel = createNotePanel(clefSelWidth);
 
-		// ****** Sub panel of notesPanel. Contains accidental selection (label + combobox)
-		RoundPanel accidentalsPanel = new RoundPanel();
-		accidentalsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
-		accidentalsPanel.setBackground(Color.white);
-		accidentalsPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 50));
+		//subPanels inside the notesPanel
+		RoundPanel accidentalsPanel = createAccidentalPanel(clefSelWidth);
+		RoundPanel notesTypePanel = createNoteTypePanel(clefSelWidth);
+		RoundPanel tsPanel = createTimeSignaturePanel(clefSelWidth);
 
-		JLabel accLabel = new JLabel(appBundle.getString("_accidentals") + "  ");
-		accLabel.setFont(new Font("Arial", Font.BOLD, 20));
-		accidentalsPanel.add(accLabel);
+		notesPanel.add(accidentalsPanel);
+		notesPanel.add(notesTypePanel);
+		notesPanel.add(tsPanel);
+		
+		 /*
+		  * ***** Third panel: contains OK and Cancel buttons  ******
+		  */
+        JPanel buttonsPanel = createConfirmPanel(clefSelHeight);
+        
+		add(clefsPanel);
+		add(notesPanel);
+		add(buttonsPanel);
+	}
 
-		accCB = new JComboBox();
-		accCB.setPreferredSize(new Dimension(150, 27));
-		accCB.addItem(appBundle.getString("_nosharpflat"));
-		accCB.addItem("1 "+ appBundle.getString("_sharp"));
-		accCB.addItem("2 "+ appBundle.getString("_sharp"));
-		accCB.addItem("3 "+ appBundle.getString("_sharp"));
-		accCB.addItem("4 "+ appBundle.getString("_sharp"));
-		accCB.addItem("5 "+ appBundle.getString("_sharp"));
-		accCB.addItem("6 "+ appBundle.getString("_sharp"));
-		accCB.addItem("7 "+ appBundle.getString("_sharp"));
-		accCB.addItem("1 "+ appBundle.getString("_flat"));
-		accCB.addItem("2 "+ appBundle.getString("_flat"));
-		accCB.addItem("3 "+ appBundle.getString("_flat"));
-		accCB.addItem("4 "+ appBundle.getString("_flat"));
-		accCB.addItem("5 "+ appBundle.getString("_flat"));
-		accCB.addItem("6 "+ appBundle.getString("_flat"));
-		accCB.addItem("7 "+ appBundle.getString("_flat"));
-		//accCB.addItem(appBundle.getString("_random")); // TODO: implement random accidentals
-		accidentalsPanel.add(accCB);
-		int accIdx = Integer.parseInt(appPrefs.getProperty("accidentals"));
-		if (accIdx == -1)
-			accCB.setSelectedIndex(0);
-		else
-			accCB.setSelectedIndex(accIdx);
+	private void setTenorLevel(NoteGenerator tmpNG) {
+		int lowerPitch;
+		int higherPitch;
+		// retrieve previously saved pitches and convert them into levels 
+		lowerPitch = Integer.parseInt(appPrefs.getProperty("tenorClefLower"));
+		if (lowerPitch == -1) lowerPitch = 50; // default, set to D2
+		higherPitch = Integer.parseInt(appPrefs.getProperty("tenorClefUpper"));
+		if (higherPitch == -1) higherPitch = 64; // default, set to E3
+		System.out.println("Tenor Clef pitches: " + lowerPitch + " to " + higherPitch);
+		tenorClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, lowerPitch, false), 
+							24 - tmpNG.getIndexFromPitch(tmpNG.TENOR_CLEF_BASEPITCH, higherPitch, false));
+	}
 
-		/*
-		 * ***** Sub panel of notesPanel. Contains notes type selection (label + checkboxes)
-		 */
+	private void setAltoLevel(NoteGenerator tmpNG) {
+		int lowerPitch;
+		int higherPitch;
+		// retrieve previously saved pitches and convert them into levels 
+		lowerPitch = Integer.parseInt(appPrefs.getProperty("altoClefLower"));
+		if (lowerPitch == -1) lowerPitch = 53; // default, set to F2
+		higherPitch = Integer.parseInt(appPrefs.getProperty("altoClefUpper"));
+		if (higherPitch == -1) higherPitch = 67; // default, set to G3
+		System.out.println("Alto Clef pitches: " + lowerPitch + " to " + higherPitch);
+		altoClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, lowerPitch, false), 
+						   24 - tmpNG.getIndexFromPitch(tmpNG.ALTO_CLEF_BASEPITCH, higherPitch, false));
+	}
+
+	private void setBassLevel(NoteGenerator tmpNG) {
+		int lowerPitch;
+		int higherPitch;
+		// retrieve previously saved pitches and convert them into levels 
+		lowerPitch = Integer.parseInt(appPrefs.getProperty("bassClefLower"));
+		if (lowerPitch == -1) lowerPitch = 43; // default, set to G1
+		higherPitch = Integer.parseInt(appPrefs.getProperty("bassClefUpper"));
+		if (higherPitch == -1) higherPitch = 57; // default, set to A2
+		System.out.println("Bass Clef pitches: " + lowerPitch + " to " + higherPitch);
+		bassClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, lowerPitch, false), 
+						   24 - tmpNG.getIndexFromPitch(tmpNG.BASS_CLEF_BASEPITCH, higherPitch, false));
+	}
+
+	private void setTrebleLevel(NoteGenerator tmpNG) {
+		// retrieve previously saved pitches and convert them into levels 
+		int lowerPitch = Integer.parseInt(appPrefs.getProperty("trebleClefLower"));
+		if (lowerPitch == -1) lowerPitch = 64; // default, set to E3
+		int higherPitch = Integer.parseInt(appPrefs.getProperty("trebleClefUpper"));
+		if (higherPitch == -1) higherPitch = 77; // default, set to F4
+		System.out.println("Treble Clef pitches: " + lowerPitch + " to " + higherPitch);
+		trebleClef.setLevels(24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, lowerPitch, false), 
+							 24 - tmpNG.getIndexFromPitch(tmpNG.TREBLE_CLEF_BASEPITCH, higherPitch, false));
+	}
+
+	private JPanel createConfirmPanel(int clefSelHeight) {
+		JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setPreferredSize(new Dimension(getWidth(), 50));
+        buttonsPanel.setBounds(0, (clefSelHeight * 2) + 20, getWidth(), 50);
+
+		okButton = new JButton(appBundle.getString("_buttonok"));
+        okButton.setIcon(new ImageIcon(getClass().getResource("/resources/correct.png")));
+        okButton.addActionListener(this);
+
+        cancelButton = new JButton(appBundle.getString("_buttoncancel"));
+        cancelButton.setIcon(new ImageIcon(getClass().getResource("/resources/wrong.png")));
+        cancelButton.addActionListener(this);
+        
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
+        buttonsPanel.setBackground(Color.white);
+		return buttonsPanel;
+	}
+
+	private RoundPanel createTimeSignaturePanel(int clefSelWidth) {
+		RoundPanel tsPanel = new RoundPanel();
+		tsPanel.setBackground(Color.white);
+		tsPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 125));
+		
+		JLabel timeSignLabel = new JLabel(appBundle.getString("_timeSignature") + "  ");
+		timeSignLabel.setFont(new Font("Arial", Font.BOLD, 22));
+		timeSignLabel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 60, 40));
+		ButtonGroup rbGroup = new ButtonGroup();
+		
+		fourfourButton = new JRadioButton("$"); // 4/4 symbol
+		fourfourButton.setFont(appFont.deriveFont(45f));
+		twofourButton = new JRadioButton("@"); // 2/4 symbol
+		twofourButton.setFont(appFont.deriveFont(45f));
+		threefourButton = new JRadioButton("#"); // 3/4 symbol
+		threefourButton.setFont(appFont.deriveFont(45f));
+		sixeightButton = new JRadioButton("P"); // 6/8 symbol
+		sixeightButton.setFont(appFont.deriveFont(45f));
+		sixfourButton = new JRadioButton("^"); // 6/4 symbol
+		sixfourButton.setFont(appFont.deriveFont(45f));
+		threeeightButton = new JRadioButton(")"); // 3/8 symbol
+		threeeightButton.setFont(appFont.deriveFont(45f));
+		
+		int tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
+		if (tsIdx == 0 || tsIdx == -1)
+			fourfourButton.setSelected(true);
+		else if (tsIdx == 1)
+			twofourButton.setSelected(true);
+		else if (tsIdx == 2)
+			threefourButton.setSelected(true);
+		else if (tsIdx == 3)
+			sixeightButton.setSelected(true);
+		else if (tsIdx == 4)
+			sixfourButton.setSelected(true);
+		else if (tsIdx == 5)
+			threeeightButton.setSelected(true);
+		rbGroup.add(fourfourButton);
+		rbGroup.add(twofourButton);
+		rbGroup.add(threefourButton);
+		rbGroup.add(sixeightButton);
+		rbGroup.add(sixfourButton);
+		rbGroup.add(threeeightButton);
+		
+		tsPanel.add(timeSignLabel);
+		tsPanel.add(fourfourButton);
+		tsPanel.add(twofourButton);
+		tsPanel.add(threefourButton);
+		tsPanel.add(sixeightButton);
+		tsPanel.add(sixfourButton);
+		tsPanel.add(threeeightButton);
+		return tsPanel;
+	}
+
+	private RoundPanel createNoteTypePanel(int clefSelWidth) {
 		RoundPanel notesTypePanel = new RoundPanel();
 		notesTypePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
 		notesTypePanel.setBackground(Color.white);
@@ -278,86 +316,108 @@ public class ClefNotesOptionDialog extends JDialog implements ActionListener
 		notesTypePanel.add(eighthCB);
 		notesTypePanel.add(tripletCB);
 		notesTypePanel.add(silenceCB);
+		return notesTypePanel;
+	}
 
-		/*
-		 * ***** Sub panel of notesPanel. Contains time signature selection (label + group of radio buttons)
-		 */
-		RoundPanel tsPanel = new RoundPanel();
-		tsPanel.setBackground(Color.white);
-		tsPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 125));
-		
-		JLabel timeSignLabel = new JLabel(appBundle.getString("_timeSignature") + "  ");
-		timeSignLabel.setFont(new Font("Arial", Font.BOLD, 22));
-		timeSignLabel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 60, 40));
-		ButtonGroup rbGroup = new ButtonGroup();
-		
-		fourfourButton = new JRadioButton("$"); // 4/4 symbol
-		fourfourButton.setFont(appFont.deriveFont(45f));
-		twofourButton = new JRadioButton("@"); // 2/4 symbol
-		twofourButton.setFont(appFont.deriveFont(45f));
-		threefourButton = new JRadioButton("#"); // 3/4 symbol
-		threefourButton.setFont(appFont.deriveFont(45f));
-		sixeightButton = new JRadioButton("P"); // 6/8 symbol
-		sixeightButton.setFont(appFont.deriveFont(45f));
-		sixfourButton = new JRadioButton("^"); // 6/4 symbol
-		sixfourButton.setFont(appFont.deriveFont(45f));
-		threeeightButton = new JRadioButton(")"); // 3/8 symbol
-		threeeightButton.setFont(appFont.deriveFont(45f));
-		
-		int tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
-		if (tsIdx == 0 || tsIdx == -1)
-			fourfourButton.setSelected(true);
-		else if (tsIdx == 1)
-			twofourButton.setSelected(true);
-		else if (tsIdx == 2)
-			threefourButton.setSelected(true);
-		else if (tsIdx == 3)
-			sixeightButton.setSelected(true);
-		else if (tsIdx == 4)
-			sixfourButton.setSelected(true);
-		else if (tsIdx == 5)
-			threeeightButton.setSelected(true);
-		rbGroup.add(fourfourButton);
-		rbGroup.add(twofourButton);
-		rbGroup.add(threefourButton);
-		rbGroup.add(sixeightButton);
-		rbGroup.add(sixfourButton);
-		rbGroup.add(threeeightButton);
-		
-		tsPanel.add(timeSignLabel);
-		tsPanel.add(fourfourButton);
-		tsPanel.add(twofourButton);
-		tsPanel.add(threefourButton);
-		tsPanel.add(sixeightButton);
-		tsPanel.add(sixfourButton);
-		tsPanel.add(threeeightButton);
+	private RoundPanel createAccidentalPanel(int clefSelWidth) {
+		RoundPanel accidentalsPanel = new RoundPanel();
+		accidentalsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
+		accidentalsPanel.setBackground(Color.white);
+		accidentalsPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 40, 50));
 
-		notesPanel.add(accidentalsPanel);
-		notesPanel.add(notesTypePanel);
-		notesPanel.add(tsPanel);
-		
-		 /*
-		  * ***** Third panel: contains OK and Cancel buttons  ******
-		  */
-        JPanel buttonsPanel = new JPanel();
-        buttonsPanel.setPreferredSize(new Dimension(getWidth(), 50));
-        buttonsPanel.setBounds(0, (clefSelHeight * 2) + 20, getWidth(), 50);
+		JLabel accLabel = new JLabel(appBundle.getString("_accidentals") + "  ");
+		accLabel.setFont(new Font("Arial", Font.BOLD, 20));
+		accidentalsPanel.add(accLabel);
 
-		okButton = new JButton(appBundle.getString("_buttonok"));
-        okButton.setIcon(new ImageIcon(getClass().getResource("/resources/correct.png")));
-        okButton.addActionListener(this);
+		accCB = new JComboBox();
+		accCB.setPreferredSize(new Dimension(150, 27));
+		accCB.addItem(appBundle.getString("_nosharpflat"));
+		accCB.addItem("1 "+ appBundle.getString("_sharp"));
+		accCB.addItem("2 "+ appBundle.getString("_sharp"));
+		accCB.addItem("3 "+ appBundle.getString("_sharp"));
+		accCB.addItem("4 "+ appBundle.getString("_sharp"));
+		accCB.addItem("5 "+ appBundle.getString("_sharp"));
+		accCB.addItem("6 "+ appBundle.getString("_sharp"));
+		accCB.addItem("7 "+ appBundle.getString("_sharp"));
+		accCB.addItem("1 "+ appBundle.getString("_flat"));
+		accCB.addItem("2 "+ appBundle.getString("_flat"));
+		accCB.addItem("3 "+ appBundle.getString("_flat"));
+		accCB.addItem("4 "+ appBundle.getString("_flat"));
+		accCB.addItem("5 "+ appBundle.getString("_flat"));
+		accCB.addItem("6 "+ appBundle.getString("_flat"));
+		accCB.addItem("7 "+ appBundle.getString("_flat"));
+		//accCB.addItem(appBundle.getString("_random")); // TODO: implement random accidentals
+		accidentalsPanel.add(accCB);
+		int accIdx = Integer.parseInt(appPrefs.getProperty("accidentals"));
+		if (accIdx == -1)
+			accCB.setSelectedIndex(0);
+		else
+			accCB.setSelectedIndex(accIdx);
+		return accidentalsPanel;
+	}
 
-        cancelButton = new JButton(appBundle.getString("_buttoncancel"));
-        cancelButton.setIcon(new ImageIcon(getClass().getResource("/resources/wrong.png")));
-        cancelButton.addActionListener(this);
-        
-        buttonsPanel.add(okButton);
-        buttonsPanel.add(cancelButton);
-        buttonsPanel.setBackground(Color.white);
-        
-		add(clefsPanel);
-		add(notesPanel);
-		add(buttonsPanel);
+	private JPanel createNotePanel(int clefSelWidth) {
+		JPanel notesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+		notesPanel.setBackground(Color.white);
+		notesPanel.setBounds((clefSelWidth * 2) + 15, 0, getWidth() - (clefSelWidth * 2) - 20, getHeight() - 75);
+		notesPanel.setPreferredSize(new Dimension(getWidth() - (clefSelWidth * 2) - 20, getHeight() - 95));
+		return notesPanel;
+	}
+
+	private void createTenorClef(int clefSelHeight, int clefSelWidth,
+			int clefsMask) {
+		tenorClef = new ClefSelector(appBundle, "TENOR");
+		tenorClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
+		tenorClef.setBounds(clefSelWidth + 10, clefSelHeight + 15, clefSelWidth, clefSelHeight);
+		tenorClef.setFont(appFont);
+		if ((clefsMask & appPrefs.TENOR_CLEF) > 0)
+			tenorClef.setEnabled(true);
+		else
+			tenorClef.setEnabled(false);
+	}
+
+	private void createAlto(int clefSelHeight, int clefSelWidth, int clefsMask) {
+		altoClef = new ClefSelector(appBundle, "ALTO");
+		altoClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
+		altoClef.setBounds(5, clefSelHeight + 15, clefSelWidth, clefSelHeight);
+		altoClef.setFont(appFont);
+		if ((clefsMask & appPrefs.ALTO_CLEF) > 0)
+			altoClef.setEnabled(true);
+		else
+			altoClef.setEnabled(false);
+	}
+
+	private void createBassClef(int clefSelHeight, int clefSelWidth,
+			int clefsMask) {
+		bassClef = new ClefSelector(appBundle, "?");
+		bassClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
+		bassClef.setBounds(clefSelWidth + 10, 10, clefSelWidth, clefSelHeight);
+		bassClef.setFont(appFont);
+		if ((clefsMask & appPrefs.BASS_CLEF) > 0)
+			bassClef.setEnabled(true);
+		else
+			bassClef.setEnabled(false);
+	}
+
+	private void createTrebleClef(int clefSelHeight, int clefSelWidth,
+			int clefsMask) {
+		trebleClef = new ClefSelector(appBundle, "G");
+		trebleClef.setPreferredSize(new Dimension(clefSelWidth, clefSelHeight));
+		trebleClef.setBounds(5, 10, clefSelWidth, clefSelHeight);
+		trebleClef.setFont(appFont);
+		if ((clefsMask & appPrefs.TREBLE_CLEF) > 0)
+			trebleClef.setEnabled(true);
+		else
+			trebleClef.setEnabled(false);
+	}
+
+	private JPanel createClefsPanel(int clefSelHeight, int clefSelWidth) {
+		JPanel clefsPanel = new JPanel();
+		clefsPanel.setLayout(null);
+		clefsPanel.setBackground(Color.white);
+		clefsPanel.setPreferredSize(new Dimension((clefSelWidth * 2) + 15, (clefSelHeight * 2) + 20));
+		clefsPanel.setBounds(0, 0, (clefSelWidth * 2) + 15, (clefSelHeight * 2) + 20);
+		return clefsPanel;
 	}
 	
 	public void actionPerformed(ActionEvent ae)
