@@ -177,7 +177,7 @@ public class InlinePanel extends JPanel implements ActionListener
 		piano.reset(true);
 		if (exerciseMode == false)
 		{
-			inlineNG.update();
+			int clefMask = inlineNG.update();			
 
 			int lowerPitch = inlineNG.getFirstLowPitch();
 			int higherPitch = inlineNG.getFirstHighPitch();
@@ -186,8 +186,8 @@ public class InlinePanel extends JPanel implements ActionListener
 			higherPitch = inlineNG.getSecondHighPitch();
 			piano.setNewBound(lowerPitch, higherPitch);
 
-			inlineStaff.setClefs(inlineNG.getClefMask());
-			notesLayer.setClefs(inlineNG.getClefMask(), appPrefs);
+			inlineStaff.setClefs(clefMask);
+			notesLayer.setClefs(clefMask, appPrefs);
 			rowsDistance = inlineNG.getRowsDistance();
 		}
 		else

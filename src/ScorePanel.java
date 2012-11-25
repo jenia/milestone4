@@ -193,7 +193,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		int tsIdx = 0;
 		if (exerciseMode == false)
 		{
-			scoreNG.update();
+			int clefMask = scoreNG.update();
 
 			if (isRhythm == false)
 				rowsDistance = scoreNG.getRowsDistance();
@@ -201,8 +201,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 				rowsDistance = 90;
 			staffLayer.setRowsDistance(rowsDistance);
 			notesLayer.setRowsDistance(rowsDistance);
-			staffLayer.setClefs(scoreNG.getClefMask());
-			notesLayer.setClefs(scoreNG.getClefMask(), appPrefs);
+			staffLayer.setClefs(clefMask);
+			notesLayer.setClefs(clefMask, appPrefs);
 			System.out.println("[ScorePanel] Staff width: " + staffLayer.getStaffWidth() + ", rowsDistance: " + rowsDistance);
 			tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		}
