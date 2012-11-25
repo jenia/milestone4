@@ -20,6 +20,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -281,7 +282,7 @@ public class Staff extends JPanel
     		
     		// 2 - Draw accidentals
         	if (acc != null && clefs.size() > 0)
-        		acc.paint(g, appFont, clefWidth, yPos, clefs.get(0));
+        		acc.paint(g, appFont, new Point(clefWidth, yPos), clefs.get(0));
         	
         	// 3 - Draw tonality (only on the first row)
         	if (r == 0 && acc != null)
@@ -344,7 +345,7 @@ public class Staff extends JPanel
             	}        		
         		
         		// draw accidentals
-        		acc.paint(g, appFont, clefWidth, yPos + (rowsDistance / 2), clefs.get(1));
+        		acc.paint(g, appFont, new Point(clefWidth, yPos + (rowsDistance / 2)), clefs.get(1));
 
         		// draw tonality
             	g.setColor(Color.gray);
