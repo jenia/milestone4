@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -32,21 +33,18 @@ import javax.swing.JPanel;
 public class NotesPanel extends JPanel implements MouseListener
 {
 	private static final long serialVersionUID = -1735923156425027329L;
-	Font appFont;
-	Preferences appPrefs;
+	private Font appFont;
 	private Vector<Note> notes; // first clef notes
 	private Vector<Note> notes2; // second clef notes
 
-    private int clefMask = 1;
     private Vector<Integer> clefs = new Vector<Integer>();    
 	private int rowsDistance = 90; // distance in pixel between staff rows
 	private int noteDistance = 72; // distance in pixel between 1/4 notes
 	private int firstNoteXPos = 50;
 
 	private int staffWidth;
-	// kinda dirty variables used by setNotesPosition
-	int tmpY = 0;
-	int tmpX = 0;
+	// variable used by setNotesPosition
+	private Point p = new Point();
 
 	private boolean inlineMode = false;
 	private int singleNoteIndex = -1; // force the painting of a single note (first clef)
@@ -56,18 +54,18 @@ public class NotesPanel extends JPanel implements MouseListener
 	private JLabel learningText;
 
 	// edit mode, activated from the exercise panel
-	boolean editMode = false;
-	boolean editModeRhythm = false;
-	int editNoteIndex = -1;
-	int editNoteSelX = -1, editNoteSelY = -1, editNoteSelW = -1, editNoteSelH = -1;
-	NoteGenerator editNG;
+	private boolean editMode = false;
+	private boolean editModeRhythm = false;
+	private int editNoteIndex = -1;
+	private int editNoteSelX = -1, editNoteSelY = -1, editNoteSelW = -1, editNoteSelH = -1;
+	private NoteGenerator editNG;
 
 	private double globalScale = 1.0;
 
-	public NotesPanel(Font f, Preferences p, Vector<Note> n, Vector<Note> n2, boolean inline)
+	public NotesPanel(Font f, Vector<Note> n, Vector<Note> n2, boolean inline)
 	{
 		appFont = f;
-		appPrefs = p;
+		//appPrefs = p;
 		notes = n;
 		notes2 = n2;
 		inlineMode = inline;
@@ -95,15 +93,14 @@ public class NotesPanel extends JPanel implements MouseListener
     	return rowsDistance;
     }
 
-    public void setClefs(int type)
+    public void setClefs(int type, Preferences appPrefs)
     {
-    	clefMask = type;
     	clefs.clear();
 
-    	if ((clefMask & appPrefs.TREBLE_CLEF) > 0) clefs.add(appPrefs.TREBLE_CLEF);
-    	if ((clefMask & appPrefs.BASS_CLEF) > 0) clefs.add(appPrefs.BASS_CLEF);
-    	if ((clefMask & appPrefs.ALTO_CLEF) > 0) clefs.add(appPrefs.ALTO_CLEF);
-    	if ((clefMask & appPrefs.TENOR_CLEF) > 0) clefs.add(appPrefs.TENOR_CLEF);
+    	if ((type & appPrefs.TREBLE_CLEF) > 0) clefs.add(appPrefs.TREBLE_CLEF);
+    	if ((type & appPrefs.BASS_CLEF) > 0) clefs.add(appPrefs.BASS_CLEF);
+    	if ((type & appPrefs.ALTO_CLEF) > 0) clefs.add(appPrefs.ALTO_CLEF);
+    	if ((type & appPrefs.TENOR_CLEF) > 0) clefs.add(appPrefs.TENOR_CLEF);
 
 		Font ltf = new Font("Arial", Font.BOLD, 30);
 		learningText.setPreferredSize( new Dimension(200, 50));
@@ -202,8 +199,8 @@ public class NotesPanel extends JPanel implements MouseListener
 
     public void setNotesPositions()
     {
-    	tmpX = firstNoteXPos;
-    	tmpY = 0;
+    	p.x = firstNoteXPos;
+    	p.y = 0;
 
     	if (notes == null)
     		return;
@@ -217,8 +214,8 @@ public class NotesPanel extends JPanel implements MouseListener
     	if (notes2 == null)
     		return;
 
-    	tmpX = firstNoteXPos;
-    	tmpY = 0;
+    	p.x = firstNoteXPos;
+    	p.y = 0;
 
     	for (int i = 0; i < notes2.size(); i++)
     	{
@@ -233,10 +230,10 @@ public class NotesPanel extends JPanel implements MouseListener
    		int ypos = (note.getLevel() * 5) + 11;
    		int yOffset = 0;
 
-		if (tmpX >= staffWidth)
+		if (p.x >= staffWidth)
 		{
-			tmpX = firstNoteXPos;
-			tmpY += rowsDistance;
+			p.x = firstNoteXPos;
+			p.y += rowsDistance;
 		}
 
 		if (note.isSecondRow() == true)
@@ -247,7 +244,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		if (note.getLevel() < 7)
 		{
 			note.setAddLinesNumber(4 - (note.getLevel() / 2));
-			note.setAddLinesYpos(ypos + tmpY - 6 + ((note.getLevel()%2) * 5));
+			note.setAddLinesYpos(ypos + p.y - 6 + ((note.getLevel()%2) * 5));
 			if (note.isSecondRow() == true)
 				note.setAddLinesYpos(note.getAddLinesYpos()
 						+ (rowsDistance/2));
@@ -255,7 +252,7 @@ public class NotesPanel extends JPanel implements MouseListener
 		else if  (note.getLevel() > 17)
 		{
 			note.setAddLinesNumber((note.getLevel() / 2) - 8);
-			note.setAddLinesYpos(ypos + tmpY - 6 - ((note.getLevel() - 18) * 5));
+			note.setAddLinesYpos(ypos + p.y - 6 - ((note.getLevel() - 18) * 5));
 			if (note.isSecondRow() == true)
 				note.setAddLinesYpos(note.getAddLinesYpos()
 						+ (rowsDistance/2));
@@ -290,11 +287,11 @@ public class NotesPanel extends JPanel implements MouseListener
 				ypos += 13;
 		}
 
-		note.setYpos(ypos + tmpY + yOffset);
+		note.setYpos(ypos + p.y + yOffset);
 		if (inlineMode == false && setXpos == true) // the inline game controls X position itself
 		{
-			note.setXpos(tmpX);
-			tmpX += (note.getDuration() * noteDistance);
+			note.setXpos(p.x);
+			p.x += (note.getDuration() * noteDistance);
 		}
     }
 
@@ -376,11 +373,11 @@ public class NotesPanel extends JPanel implements MouseListener
 			if (newLevel != origLevel)
 			{
 				tmpNote.setLevel((mouseY - editNoteSelY - 4) / 5);
-				tmpX = tmpNote.getXpos(); // must 'rewind' xpos to avoid wrong check for second line
+				p.x = tmpNote.getXpos(); // must 'rewind' xpos to avoid wrong check for second line
 				if (selectedClef == 1)
-					tmpY = editNoteSelY;
+					p.y = editNoteSelY;
 				else if (selectedClef == 2)
-					tmpY = editNoteSelY - (rowsDistance/2);
+					p.y = editNoteSelY - (rowsDistance/2);
 				setSingleNotePosition(tmpNote, false); // do not touch X position !
 				tmpNote.setPitch(editNG.getPitchFromClefAndLevel(clefs.get(selectedClef - 1), tmpNote.getLevel())); // retrieve the base pitch of this level and clef
 				tmpNote.setPitch(editNG.getAlteredFromBase(tmpNote.getPitch())); // retrieve a new pitch if it is altered

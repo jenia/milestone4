@@ -156,7 +156,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 		staffLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		staffLayer.setOpaque(true);
 		
-		notesLayer = new NotesPanel(appFont, appPrefs, gameNotes, gameNotes2, false);
+		notesLayer = new NotesPanel(appFont, gameNotes, gameNotes2, false);
 		notesLayer.setPreferredSize( new Dimension(panelsWidth, staffHeight));
 		notesLayer.setBounds(0, 0, panelsWidth, staffHeight);
 		notesLayer.setOpaque(false);
@@ -202,14 +202,14 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 			staffLayer.setRowsDistance(rowsDistance);
 			notesLayer.setRowsDistance(rowsDistance);
 			staffLayer.setClefs(scoreNG.getClefMask());
-			notesLayer.setClefs(scoreNG.getClefMask());
+			notesLayer.setClefs(scoreNG.getClefMask(), appPrefs);
 			System.out.println("[ScorePanel] Staff width: " + staffLayer.getStaffWidth() + ", rowsDistance: " + rowsDistance);
 			tsIdx = Integer.parseInt(appPrefs.getProperty("timeSignature"));
 		}
 		else
 		{
 			staffLayer.setClefs(currEx.clefMask);
-			notesLayer.setClefs(currEx.clefMask);
+			notesLayer.setClefs(currEx.clefMask, appPrefs);
 			tsIdx = currEx.timeSign;
 		}
 		

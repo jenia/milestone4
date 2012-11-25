@@ -163,7 +163,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
 		scoreStaff.setMeasuresNumber(10);
 		scoreStaff.setOpaque(true);
 
-		notesLayer = new NotesPanel(appFont, appPrefs, null, null, false);
+		notesLayer = new NotesPanel(appFont, null, null, false);
 		notesLayer.setPreferredSize( new Dimension(scaledWidth, scaledHeight));
 		notesLayer.setBounds(10, 0, scaledWidth, scaledHeight);
 		notesLayer.setScale(0.6);
@@ -438,7 +438,7 @@ public class ExercisesPanel extends JPanel implements TreeSelectionListener, Act
         scoreStaff.setMeasuresNumber((int)Math.ceil(totalDuration / (timeNumerator / (timeDenominator / 4))));
         playbackSpeed = selectedExercise.speed;
         
-        notesLayer.setClefs(selectedExercise.clefMask);
+        notesLayer.setClefs(selectedExercise.clefMask, appPrefs);
         notesLayer.setStaffWidth(scoreStaff.getStaffWidth());
         notesLayer.setFirstNoteXPosition(scoreStaff.getFirstNoteXPosition());
         notesLayer.setNotesSequence(selectedExercise.notes, selectedExercise.notes2);

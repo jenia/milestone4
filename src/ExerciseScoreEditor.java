@@ -299,11 +299,11 @@ public class ExerciseScoreEditor extends JDialog implements ActionListener, Prop
        	System.out.println("Staff height: " + scoreStaff.getStaffHeight());
        	scoreStaff.setBounds(0, 0, staffW, scoreStaff.getStaffHeight());
 
-        notesEditLayer = new NotesPanel(appFont, appPrefs, currExercise.notes, currExercise.notes2, false);
+        notesEditLayer = new NotesPanel(appFont, currExercise.notes, currExercise.notes2, false);
 		notesEditLayer.setBounds(0, 0, staffW, scoreStaff.getStaffHeight());
 		notesEditLayer.setRowsDistance(rowsDistance);
 		notesEditLayer.setOpaque(false);
-		notesEditLayer.setClefs(currExercise.clefMask);
+		notesEditLayer.setClefs(currExercise.clefMask, appPrefs);
 		if (e.type != 1)
 			notesEditLayer.setEditMode(true, false);
 		else
