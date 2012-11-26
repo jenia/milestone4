@@ -136,130 +136,32 @@ public class RoundedButton extends JButton
 	    int hOffset = getWidth() / 2;
 	    if (bLabel == "RBL_INLINE")
 	    {
-	    	String title = appBundle.getString("_menuNotereading");
-	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	g.setFont(getFont().deriveFont(75f));
-	    	FontMetrics fM2 = g.getFontMetrics();
-	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
-	    	g.drawString("w", hOffset, vOffset + 24);
+	    	setNoteReadingButtonText(g, vOffset, hOffset);
 	    }
 	    else if (bLabel == "RBL_RHYTHM")
 	    {
-	    	String title = appBundle.getString("_menuRythmreading");
-	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	g.setFont(getFont().deriveFont(75f));
-	    	FontMetrics fM2 = g.getFontMetrics();
-	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
-	    	String rs = "" + (char)0xDA;
-	    	g.drawString(rs, hOffset, vOffset + 39);
+	    	setRhythmReadingText(g, vOffset, hOffset);
 	    }
 	    else if (bLabel == "RBL_SCORE")
 	    {
-	    	String title = appBundle.getString("_menuScorereading");
-	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	g.setFont(getFont().deriveFont(75f));
-	    	FontMetrics fM2 = g.getFontMetrics();
-	    	textWidth = fM2.stringWidth(ss);
-	    	g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
-	    	String sm = "" + (char)0xF4;
-	    	g.drawString(sm, hOffset - 30, vOffset + 68);
-	    	g.drawString(sm, hOffset + 15, vOffset + 38);
+	    	setScorereadingButtonText(g, vOffset, hOffset);
 	    }
 	    else if (bLabel == "RBL_NOTES")
 	    {
-	    	String titlep1 = appBundle.getString("_menuClef");
-	    	String titlep2 = appBundle.getString("_menuNotes");
-	    	g.setColor(Color.white);
-	    	g.setFont(new Font("Arial", Font.BOLD, 12));
-	    	FontMetrics fM = g.getFontMetrics();
-	    	textWidth = fM.stringWidth(titlep1) / 2;
-	    	g.drawString(titlep1, 15 + 25 - textWidth, vOffset - 10);
-	    	fM = g.getFontMetrics();
-	    	textWidth = fM.stringWidth("&") / 2;
-	    	g.drawString("&", 15 + 25 - textWidth, vOffset + 5);
-	    	fM = g.getFontMetrics();
-	    	textWidth = fM.stringWidth(titlep2) / 2;
-	    	g.drawString(titlep2, 15 + 25 - textWidth, vOffset + 20);
-	    	g.fillRoundRect(80, vOffset - 25, 70, 50, 15, 15); // 22
-	    	g.setFont(getFont().deriveFont(27f));
-	    	String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
-	    	String sm = "" + (char)0xF4;
-	    	g.setColor(Color.black);
-	    	g.drawString(ss, 87, vOffset + 11);
-	    	g.setFont(getFont().deriveFont(35f));
-	    	g.drawString("G", 90, vOffset + 12);
-	    	g.drawString(sm, 110, vOffset + 18);
-	    	g.drawString(sm, 130, vOffset + 11);
+	    	setClefnotesButtonText(g, vOffset);
 	    }
 	    else if (bLabel == "RBL_STATS")
 	    {
-	    	String title = appBundle.getString("_menuStatistics");
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	
-	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
-	    	g.drawLine(hOffset - 60, vOffset - 10, hOffset - 60, vOffset + 60);
-	    	g.drawLine(hOffset - 65, vOffset + 53, hOffset + 70, vOffset + 53);
-	    	
-	    	g.drawLine(hOffset - 39, vOffset + 40, hOffset - 10, vOffset + 20);
-	    	g.drawLine(hOffset - 10, vOffset + 20, hOffset + 10, vOffset + 30);
-	    	g.drawLine(hOffset + 10, vOffset + 30, hOffset + 40, vOffset - 5);
+	    	setStatisticsButtonText(g, vOffset, hOffset);
 	    	
 	    }
 	    else if (bLabel == "RBL_LESSONS")
 	    {
-	    	String title = appBundle.getString("_menuExercises");
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	
-	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
-	    	g.drawRoundRect(hOffset - 50, vOffset - 10, 100, 65, 10, 10);
-	    	g.setFont(new Font("Arial", Font.BOLD, 25));
-	    	g.drawString("A", hOffset - 30, vOffset + 30);
-	    	g.drawString("B", hOffset - 5, vOffset + 20);
-	    	g.drawString("C", hOffset + 20, vOffset + 40);
+	    	setExerciseButtonText(g, vOffset, hOffset);
 	    }
 	    else if (bLabel == "RBL_EARTRAIN")
 	    {
-	    	String title = appBundle.getString("_menuEarTraining");
-	    	g.setFont(new Font("Arial", Font.BOLD, fontSize));
-	    	FontMetrics fM1 = g.getFontMetrics();
-	    	textWidth = fM1.stringWidth(title);
-	    	g.drawString(title, (getSize().width - textWidth) / 2, 50);
-	    	
-	    	// Draw an ear !
-	    	((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
-	    	g.drawArc(hOffset - 40, vOffset - 20, 50, 50, -20, 210);
-	    	g.drawArc(hOffset - 32, vOffset - 12, 35, 32, -30, 230);
-	    	QuadCurve2D q = new QuadCurve2D.Float();
-	    	q.setCurve(hOffset + 7, vOffset + 15, hOffset, vOffset + 30, hOffset, vOffset + 40);
-	    	((Graphics2D) g).draw(q);
-	    	g.drawArc(hOffset - 25, vOffset + 20, 25, 40, 190, 170);
-	    	g.fillOval(hOffset - 25 , vOffset + 20, 10, 10);
-	    	
-	    	// draw sonic waves coming from the outer space
-	    	g.drawArc(hOffset + 35, vOffset, 15, 50, 90, 150);
-	    	g.drawArc(hOffset + 45, vOffset + 5, 10, 40, 90, 150);
-	    	((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
-	    	g.drawArc(hOffset + 25, vOffset - 10, 20, 70, 90, 150);
+	    	setEartrainingButtonText(g, vOffset, hOffset);
 	    	
 	    }
 	    else
@@ -277,6 +179,139 @@ public class RoundedButton extends JButton
 	    		g.drawImage(img, (getWidth() - img.getWidth(null)) / 2, (getHeight() - img.getHeight(null)) / 2 , null);
 	    }
 	  }
+
+	private void setEartrainingButtonText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuEarTraining");
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		
+		// Draw an ear !
+		((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+		g.drawArc(hOffset - 40, vOffset - 20, 50, 50, -20, 210);
+		g.drawArc(hOffset - 32, vOffset - 12, 35, 32, -30, 230);
+		QuadCurve2D q = new QuadCurve2D.Float();
+		q.setCurve(hOffset + 7, vOffset + 15, hOffset, vOffset + 30, hOffset, vOffset + 40);
+		((Graphics2D) g).draw(q);
+		g.drawArc(hOffset - 25, vOffset + 20, 25, 40, 190, 170);
+		g.fillOval(hOffset - 25 , vOffset + 20, 10, 10);
+		
+		// draw sonic waves coming from the outer space
+		g.drawArc(hOffset + 35, vOffset, 15, 50, 90, 150);
+		g.drawArc(hOffset + 45, vOffset + 5, 10, 40, 90, 150);
+		((Graphics2D) g).setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+		g.drawArc(hOffset + 25, vOffset - 10, 20, 70, 90, 150);
+	}
+
+	private void setExerciseButtonText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuExercises");
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		
+		((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+		g.drawRoundRect(hOffset - 50, vOffset - 10, 100, 65, 10, 10);
+		g.setFont(new Font("Arial", Font.BOLD, 25));
+		g.drawString("A", hOffset - 30, vOffset + 30);
+		g.drawString("B", hOffset - 5, vOffset + 20);
+		g.drawString("C", hOffset + 20, vOffset + 40);
+	}
+
+	private void setStatisticsButtonText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuStatistics");
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		
+		((Graphics2D) g).setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND  ));
+		g.drawLine(hOffset - 60, vOffset - 10, hOffset - 60, vOffset + 60);
+		g.drawLine(hOffset - 65, vOffset + 53, hOffset + 70, vOffset + 53);
+		
+		g.drawLine(hOffset - 39, vOffset + 40, hOffset - 10, vOffset + 20);
+		g.drawLine(hOffset - 10, vOffset + 20, hOffset + 10, vOffset + 30);
+		g.drawLine(hOffset + 10, vOffset + 30, hOffset + 40, vOffset - 5);
+	}
+
+	private void setClefnotesButtonText(Graphics g, int vOffset) {
+		int textWidth;
+		String titlep1 = appBundle.getString("_menuClef");
+		String titlep2 = appBundle.getString("_menuNotes");
+		g.setColor(Color.white);
+		g.setFont(new Font("Arial", Font.BOLD, 12));
+		FontMetrics fM = g.getFontMetrics();
+		textWidth = fM.stringWidth(titlep1) / 2;
+		g.drawString(titlep1, 15 + 25 - textWidth, vOffset - 10);
+		fM = g.getFontMetrics();
+		textWidth = fM.stringWidth("&") / 2;
+		g.drawString("&", 15 + 25 - textWidth, vOffset + 5);
+		fM = g.getFontMetrics();
+		textWidth = fM.stringWidth(titlep2) / 2;
+		g.drawString(titlep2, 15 + 25 - textWidth, vOffset + 20);
+		g.fillRoundRect(80, vOffset - 25, 70, 50, 15, 15); // 22
+		g.setFont(getFont().deriveFont(27f));
+		String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
+		String sm = "" + (char)0xF4;
+		g.setColor(Color.black);
+		g.drawString(ss, 87, vOffset + 11);
+		g.setFont(getFont().deriveFont(35f));
+		g.drawString("G", 90, vOffset + 12);
+		g.drawString(sm, 110, vOffset + 18);
+		g.drawString(sm, 130, vOffset + 11);
+	}
+
+	private void setScorereadingButtonText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuScorereading");
+		String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		g.setFont(getFont().deriveFont(75f));
+		FontMetrics fM2 = g.getFontMetrics();
+		textWidth = fM2.stringWidth(ss);
+		g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
+		String sm = "" + (char)0xF4;
+		g.drawString(sm, hOffset - 30, vOffset + 68);
+		g.drawString(sm, hOffset + 15, vOffset + 38);
+	}
+
+	private void setRhythmReadingText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuRythmreading");
+		String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		g.setFont(getFont().deriveFont(75f));
+		FontMetrics fM2 = g.getFontMetrics();
+		textWidth = fM2.stringWidth(ss);
+		g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
+		String rs = "" + (char)0xDA;
+		g.drawString(rs, hOffset, vOffset + 39);
+	}
+
+	private void setNoteReadingButtonText(Graphics g, int vOffset, int hOffset) {
+		int textWidth;
+		String title = appBundle.getString("_menuNotereading");
+		String ss = "" + (char)0xA9 + (char)0xA9 + (char)0xA9 + (char)0xA9; // staff symbol
+		g.setFont(new Font("Arial", Font.BOLD, fontSize));
+		FontMetrics fM1 = g.getFontMetrics();
+		textWidth = fM1.stringWidth(title);
+		g.drawString(title, (getSize().width - textWidth) / 2, 50);
+		g.setFont(getFont().deriveFont(75f));
+		FontMetrics fM2 = g.getFontMetrics();
+		textWidth = fM2.stringWidth(ss);
+		g.drawString(ss, (getSize().width - textWidth) / 2, vOffset + 60);
+		g.drawString("w", hOffset, vOffset + 24);
+	}
 }
 
 class RoundPanel extends JPanel
