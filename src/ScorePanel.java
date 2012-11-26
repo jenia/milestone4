@@ -43,8 +43,8 @@ import javax.swing.JScrollPane;
 public class ScorePanel extends JPanel implements ActionListener, KeyListener
 {
 	private static final long serialVersionUID = 1L;
-	Font appFont;
-	Preferences appPrefs;
+	private Font appFont;
+	private Preferences appPrefs;
 	private ResourceBundle appBundle;
 	private MidiController appMidi;
 	private boolean isRhythm;
@@ -60,10 +60,8 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	private Accidentals scoreAccidentals;
 	private NoteGenerator scoreNG;
 	private Statistics stats;
-	Vector<Note> gameNotes = new Vector<Note>(); // array of random notes (1st clef) composing the game
-	Vector<Note> gameNotes2 = new Vector<Note>(); // array of random notes (2nd clef) composing the game
-	Vector<Integer> userNotes = new Vector<Integer>(); // array of notes hit by the user
-
+	private Vector<Note> gameNotes = new Vector<Note>(); // array of random notes (1st clef) composing the game
+	private Vector<Note> gameNotes2 = new Vector<Note>(); // array of random notes (2nd clef) composing the game
 	// Graphics metrics 
 	private int staffHMargin = 50;
 	private int staffVMargin = 120;
@@ -95,7 +93,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 	private boolean isKeyPressed = false;
 	
 	// Variables to check notes validity
-	private int accuracy = 24; // a note is valid within 24 pixels around the note X position 
+	
 	//private int releaseXpos; // on key press, save the release X position for key release check
 	
 	private boolean exerciseMode = false;
@@ -339,6 +337,7 @@ public class ScorePanel extends JPanel implements ActionListener, KeyListener
 
 	private void checkAnswer(int cursorPos, int noteIdx, Vector<Note> n, int pitch, boolean press, boolean secondClef)
 	{
+		int accuracy = 24; // a note is valid within 24 pixels around the note X position 
 		if (noteIdx < 0 || noteIdx >= n.size())
 			return;
 		
